@@ -1,0 +1,180 @@
+/* Container Styling */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+/* Row Styling */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  background-color: #f7f8fa;
+  padding: 15px;
+  border-bottom: 1px solid #ececec;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+/* Widget Styling */
+.widget-49 {
+  padding: 20px;
+}
+
+.widget-49-title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.widget-49-date-primary,
+.widget-49-date-warning,
+.widget-49-date-success {
+  width: 50px;
+  height: 50px;
+  background-color: #e9ecef;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.widget-49-date-primary {
+  background-color: #007bff;
+}
+
+.widget-49-date-warning {
+  background-color: #ffc107;
+}
+
+.widget-49-date-success {
+  background-color: #28a745;
+}
+
+.widget-49-date-primary img,
+.widget-49-date-warning img,
+.widget-49-date-success img {
+  width: 24px;
+  height: 24px;
+}
+
+/* Project Title */
+.widget-49-pro-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-left: 10px;
+}
+
+/* Description Text */
+.widget-49-description {
+  font-size: 0.875rem;
+  color: #555;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+/* Button Styling */
+.btn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 0.875rem;
+  border-radius: 25px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+/* Primary Button */
+.btn-flash-border-primary {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+}
+
+.btn-flash-border-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Warning Button */
+.btn-flash-border-warning {
+  background-color: #ffc107;
+  color: white;
+  border: 1px solid #ffc107;
+}
+
+.btn-flash-border-warning:hover {
+  background-color: #e0a800;
+  border-color: #e0a800;
+}
+
+/* Success Button */
+.btn-flash-border-success {
+  background-color: #28a745;
+  color: white;
+  border: 1px solid #28a745;
+}
+
+.btn-flash-border-success:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 20px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .col-lg-4 {
+    width: 100%;
+  }
+
+  .card-header {
+    text-align: center;
+  }
+
+  .widget-49-title-wrapper {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .widget-49-date-primary,
+  .widget-49-date-warning,
+  .widget-49-date-success {
+    margin-bottom: 10px;
+  }
+
+  .widget-49-pro-title {
+    margin-left: 0;
+  }
+}

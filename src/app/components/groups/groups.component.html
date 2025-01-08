@@ -1,0 +1,92 @@
+<div class="container">
+  <h2>Create Group</h2>
+
+  <!-- Group Name and Members Form -->
+  <div class="form-group mb-4">
+    <label for="groupName">Group Name</label>
+    <input
+      type="text"
+      id="groupName"
+      class="form-control"
+      [(ngModel)]="groupName"
+      placeholder="Enter Group Name"
+    />
+  </div>
+
+  <div class="form-group mb-4">
+    <label for="newMember">Add Member</label>
+    <input
+      type="text"
+      id="newMember"
+      class="form-control"
+      [(ngModel)]="newMember"
+      placeholder="Enter Member Name"
+    />
+    <button type="button" class="btn btn-primary mt-2" (click)="addMember()">
+      Add Member
+    </button>
+  </div>
+
+  <div *ngIf="members.length > 0">
+    <h4>Members</h4>
+    <ul>
+      <li *ngFor="let member of members">
+        {{ member }}
+        <button
+          type="button"
+          class="btn btn-danger  custom-btn-small"
+          (click)="deleteMember(member)"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Group Actions -->
+  <div class="buttons mt-4">
+    <!-- Create Group -->
+    <button
+      *ngIf="!selectedGroup"
+      type="button"
+      class="btn btn-success"
+      (click)="addGroup()"
+    >
+      Create Group
+    </button>
+
+    <!-- Edit Group -->
+    <button
+      *ngIf="selectedGroup"
+      type="button"
+      class="btn btn-warning"
+      (click)="editGroup()"
+    >
+      Close
+    </button>
+
+    <!-- Remove Group -->
+    <button
+      *ngIf="selectedGroup"
+      type="button"
+      class="btn btn-danger"
+      (click)="removeGroup(selectedGroup)"
+    >
+      Delete Group
+    </button>
+  </div>
+
+  <!-- Existing Groups List -->
+  <div *ngIf="groups.length > 0">
+    <h3 class="mt-4">Existing Groups</h3>
+    <ul>
+      <li
+        *ngFor="let group of groups"
+        (click)="selectGroup(group)"
+        class="existing-group"
+      >
+        {{ group.name }} ({{ group.members.length }} members)
+      </li>
+    </ul>
+  </div>
+</div>
