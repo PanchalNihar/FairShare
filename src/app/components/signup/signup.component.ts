@@ -8,10 +8,10 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule,FormsModule],
   templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css'], // Fixed plural form
+  styleUrls: ['./signup.component.css'], 
 })
 export class SignupComponent implements OnInit {
-  signupForm!: FormGroup; // Added type for better type safety
+  signupForm!: FormGroup; 
 
   constructor(private formBuilder: FormBuilder, private router: Router) {}
 
@@ -26,16 +26,25 @@ export class SignupComponent implements OnInit {
   onRegister() {
     if (this.signupForm.valid) {
       const registeredData = this.signupForm.value;
-
-      // Use a unique key for each user
+  
+      // Prevent duplicate emails
       const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const emailExists = users.some((user: any) => user.email === registeredData.email);
+  
+      if (emailExists) {
+        alert('This email is already registered. Please use a different email.');
+        return;
+      }
+  
+      // Add new user
       users.push(registeredData);
       localStorage.setItem('users', JSON.stringify(users));
-
+  
       alert('Registration successful! Redirecting to sign-in page...');
       this.router.navigate(['signin']);
     } else {
       alert('Invalid form. Please check your inputs.');
     }
   }
+  
 }

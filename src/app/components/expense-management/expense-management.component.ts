@@ -4,10 +4,11 @@ import { Expense, ExpenseService } from '../../services/expense.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GroupService } from '../../services/group.service';
+import { NavbarComponent } from "../navbar/navbar.component";
 
 @Component({
   selector: 'app-expense-management',
-  imports: [CommonModule,FormsModule,ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css',
 })

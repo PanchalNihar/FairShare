@@ -25,14 +25,16 @@ export class SigninComponent implements OnInit {
   onLogin(): void {
     if (this.loginForm.valid) {
       const loginData = this.loginForm.value;
-
+  
       const registeredUsers = JSON.parse(localStorage.getItem('users') || '[]');
-
+  
       const user = registeredUsers.find(
         (u: any) => u.email === loginData.email && u.password === loginData.password
       );
-
+  
       if (user) {
+        // Store logged-in user information
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
         alert('Login successful!');
         this.router.navigate(['/dashboard']);
       } else {
@@ -42,6 +44,7 @@ export class SigninComponent implements OnInit {
       alert('Please fill out all fields correctly.');
     }
   }
+  
 
   onRegister(): void {
     this.router.navigate(['/signup']);

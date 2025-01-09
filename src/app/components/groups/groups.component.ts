@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NavbarComponent } from "../navbar/navbar.component";
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
 })
 export class GroupsComponent implements OnInit {
   groups: any[] = [];

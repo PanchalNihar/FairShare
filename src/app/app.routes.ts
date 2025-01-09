@@ -5,34 +5,43 @@ import { SignupComponent } from './components/signup/signup.component';
 import { GroupsComponent } from './components/groups/groups.component';
 import { ExpenseManagementComponent } from './components/expense-management/expense-management.component';
 import { ExpenseTrackingComponent } from './components/expense-tracking/expense-tracking.component';
+import { authGuard } from './auth.guard';
+import { noAuthGuard } from './no-auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: SigninComponent,
-  },
-  {
-    path:'dashboard',
-    component:DashboardComponent
+    // canActivate: [noAuthGuard],
   },
   {
     path: 'signin',
-    component:SigninComponent
+    component: SigninComponent,
+    // canActivate: [noAuthGuard],
   },
   {
-    path:'signup',
-    component:SignupComponent
+    path: 'signup',
+    component: SignupComponent,
+    // canActivate: [noAuthGuard],
   },
   {
-    path:'groups',
-    component:GroupsComponent
+    path: 'dashboard',
+    component: DashboardComponent,
+    // canActivate: [authGuard],
   },
   {
-    path:'expense-management',
-    component:ExpenseManagementComponent
+    path: 'groups',
+    component: GroupsComponent,
+    // canActivate: [authGuard],
   },
   {
-    path:'expense-tracking',
-    component:ExpenseTrackingComponent
-  }
+    path: 'expense-management',
+    component: ExpenseManagementComponent,
+    // canActivate: [authGuard],
+  },
+  {
+    path: 'expense-tracking',
+    component: ExpenseTrackingComponent,
+    // canActivate: [authGuard],
+  },
 ];
