@@ -1,41 +1,33 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { GroupService } from '../../services/group.service';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-groups',
-  imports: [CommonModule, FormsModule],
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
+  imports:[CommonModule,FormsModule]
 })
 export class GroupsComponent implements OnInit {
   groups: any[] = [];
   selectedGroup: any = null;
   groupName: string = '';
-  newMember: string = ''; // New member name to be added
-  members: any[] = [];
+  newMember: string = '';
+  members: string[] = [];
 
-  constructor() {}
+  constructor(private router: Router,private groupService:GroupService) {}
 
   ngOnInit(): void {
-    this.loadGroups();
-  }
-
-  loadGroups() {
-    const storedGroup = localStorage.getItem('group');
-    if (storedGroup) {
-      this.groups = JSON.parse(storedGroup);
-    }
+    this.groups = this.groupService.getGroups();
   }
 
   addGroup() {
-    if (this.groups && this.members.length > 0 && this.groupName) {
-      const newGroup = {
-        name: this.groupName,
-        members: this.members,
-      };
-      this.groups.push(newGroup);
-      localStorage.setItem('group', JSON.stringify(this.groups));
+    if (this.groupName && this.members.length > 0) {
+      this.groupService.addGroup(this.groupName, this.members);
+      this.groups = this.groupService.getGroups();
       this.clearGroupForm();
     }
   }
@@ -48,10 +40,27 @@ export class GroupsComponent implements OnInit {
 
   editGroup() {
     if (this.selectedGroup) {
-      this.selectedGroup.name = this.groupName;
-      this.selectedGroup.members = this.members;
-      localStorage.setItem('group', JSON.stringify(this.groups));
+      this.groupService.editGroup(this.selectedGroup, this.groupName, this.members);
       this.clearGroupForm();
+    }
+  }
+
+  removeGroup(group: any) {
+    this.groupService.removeGroup(group);
+    this.groups = this.groupService.getGroups();
+    this.clearGroupForm();
+  }
+
+  addMember() {
+    if (this.selectedGroup && this.newMember) {
+      this.groupService.addMember(this.selectedGroup, this.newMember);
+      this.newMember = ''; // Clear the input field
+    }
+  }
+
+  deleteMember(member: string) {
+    if (this.selectedGroup) {
+      this.groupService.removeMember(this.selectedGroup, member);
     }
   }
 
@@ -61,24 +70,7 @@ export class GroupsComponent implements OnInit {
     this.selectedGroup = null;
   }
 
-  removeGroup(group: any): void {
-    this.groups = this.groups.filter((g) => g !== group);
-    localStorage.setItem('group', JSON.stringify(this.groups));
-    this.clearGroupForm();
-  }
-
-  addMember() {
-    if (this.newMember) {
-      this.members.push(this.newMember);
-      this.newMember = ''; // Clear the input field after adding the member
-    }
-  }
-  deleteMember(member: string) {
-    if (this.selectedGroup) {
-      this.selectedGroup.members = this.selectedGroup.members.filter(
-        (m: string) => m !== member
-      );
-      localStorage.setItem('group', JSON.stringify(this.groups));
-    }
+  backtoDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }

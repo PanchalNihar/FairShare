@@ -1,0 +1,62 @@
+<div>
+  <h2>Expense Management</h2>
+  <form (ngSubmit)="addExpense()" *ngIf="!selectedExpense">
+    <input
+      [(ngModel)]="expensePayer"
+      name="payer"
+      placeholder="Payer Name"
+      required
+    />
+    <input
+      [(ngModel)]="expenseAmount"
+      name="amount"
+      type="number"
+      placeholder="Amount"
+      required
+    />
+    <input
+      [(ngModel)]="expenseDescription"
+      name="description"
+      placeholder="Description"
+      required
+    />
+    <input [(ngModel)]="expenseDate" name="date" type="date" />
+    <button type="submit">Add Expense</button>
+  </form>
+
+  <form (ngSubmit)="editExpense()" *ngIf="selectedExpense">
+    <input
+      [(ngModel)]="expensePayer"
+      name="payer"
+      placeholder="Payer Name"
+      required
+    />
+    <input
+      [(ngModel)]="expenseAmount"
+      name="amount"
+      type="number"
+      placeholder="Amount"
+      required
+    />
+    <input
+      [(ngModel)]="expenseDescription"
+      name="description"
+      placeholder="Description"
+      required
+    />
+    <input [(ngModel)]="expenseDate" name="date" type="date" />
+    <button type="submit">Update Expense</button>
+    <button type="button" (click)="clearForm()">Cancel</button>
+  </form>
+
+  <ul>
+    <li *ngFor="let expense of expenseList">
+      {{ expense.payer }} -  {{ expense.amount }} - ₹{{ expense.description }}
+      <button (click)="selectExpense(expense)">Edit</button>
+      <button (click)="deleteExpense(expense)">Delete</button>
+    </li>
+  </ul>
+  <button type="button" class="btn btn-success" (click)="backtoDashboard()">
+    Back
+  </button>
+</div>

@@ -12,4 +12,10 @@ export class DashboardComponent {
   openGroup(){
     this.router.navigate(['/groups']);
   }
+  openExpenseManagement(){
+    this.router.navigate(['/expense-management']);
+  }
+  openExpenseTracking(){
+    this.router.navigate(['/expense-tracking']);
+  }
 }
