@@ -22,7 +22,7 @@
   <!-- Payer Selection and Expense Form (only shown when a group is selected) -->
   <div *ngIf="selectedGroup">
     <h3>Managing Expenses for Group: {{ selectedGroup }}</h3>
-
+    <p>Total Expense For {{selectedGroup}} : ₹{{totalExpense}}</p>
     <!-- Payer Selection -->
     <form (ngSubmit)="addExpense()" *ngIf="!selectedExpense">
       <label for="expensePayer">Select Payer</label>
@@ -123,7 +123,7 @@
     <!-- Expense List -->
     <ul>
       <li *ngFor="let expense of expenseList">
-        {{ expense.payer }} - ₹{{ expense.amount }} - {{ expense.description }}
+        {{ expense.payer }} - {{ expense.description }} - ₹{{ expense.amount }}
         <button (click)="selectExpense(expense)" class="btn btn-warning btn-sm">Edit</button>
         <button (click)="deleteExpense(expense)" class="btn btn-danger btn-sm">Delete</button>
       </li>

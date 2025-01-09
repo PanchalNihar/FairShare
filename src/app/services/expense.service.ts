@@ -6,6 +6,7 @@ export interface Expense {
   amount: number;
   description: string;
   date: string;
+  groupName:string
 }
 @Injectable({
   providedIn: 'root',
@@ -27,17 +28,19 @@ export class ExpenseService {
   getExpense(): Expense[] {
     return this.expenseList;
   }
-  addExpense(payer: string, description: string, amount: number, date: string) {
+  addExpense(payer: string, amount: number, description: string, date: string, groupName: string) {
     const newExpense: Expense = {
       id: Math.random().toString(),
       payer: payer,
-      amount: amount,
+      amount: Number(amount), // Amount should always be a number
       description: description,
       date: date,
+      groupName: groupName, // Ensure groupName is added
     };
     this.expenseList.push(newExpense);
     this.saveExpense();
   }
+  
   getExpenseById(id: string): Expense | undefined {
     return this.expenseList.find((expense) => expense.id === id);
   }

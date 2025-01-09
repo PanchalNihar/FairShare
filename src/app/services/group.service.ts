@@ -26,7 +26,6 @@ export class GroupService {
     return this.groups;
   }
   getGroupMember(groupName: string):string[] {
-    debugger
     const group = this.groups.find((g) => g.name === groupName);
     return group? group.members : [] ;
   }

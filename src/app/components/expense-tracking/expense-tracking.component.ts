@@ -8,5 +8,5 @@ import { NavbarComponent } from "../navbar/navbar.component";
   styleUrl: './expense-tracking.component.css'
 })
 export class ExpenseTrackingComponent {
-
+  availableGroups:any[]=[]
 }
