@@ -4,12 +4,11 @@ import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
-  imports:[CommonModule,FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class GroupsComponent implements OnInit {
   groups: any[] = [];
@@ -18,29 +17,34 @@ export class GroupsComponent implements OnInit {
   newMember: string = '';
   members: string[] = [];
 
-  constructor(private router: Router,private groupService:GroupService) {}
+  constructor(private router: Router, private groupService: GroupService) {}
 
   ngOnInit(): void {
     this.groups = this.groupService.getGroups();
+    console.log('Loaded groups:', this.groups);
   }
 
   addGroup() {
     if (this.groupName && this.members.length > 0) {
+      console.log('Adding group:', this.groupName, this.members);
       this.groupService.addGroup(this.groupName, this.members);
       this.groups = this.groupService.getGroups();
       this.clearGroupForm();
+    } else {
+      console.error('Group name or members missing.');
     }
   }
 
   selectGroup(group: any) {
     this.selectedGroup = group;
     this.groupName = group.name;
-    this.members = group.members;
+    this.members = [...group.members]; // Use spread operator to avoid reference issues
   }
 
   editGroup() {
     if (this.selectedGroup) {
       this.groupService.editGroup(this.selectedGroup, this.groupName, this.members);
+      this.groups = this.groupService.getGroups();
       this.clearGroupForm();
     }
   }
@@ -52,16 +56,16 @@ export class GroupsComponent implements OnInit {
   }
 
   addMember() {
-    if (this.selectedGroup && this.newMember) {
-      this.groupService.addMember(this.selectedGroup, this.newMember);
+    if (this.newMember.trim()) {
+      this.members.push(this.newMember.trim());
       this.newMember = ''; // Clear the input field
+    } else {
+      console.error('Member name is empty.');
     }
   }
 
   deleteMember(member: string) {
-    if (this.selectedGroup) {
-      this.groupService.removeMember(this.selectedGroup, member);
-    }
+    this.members = this.members.filter((m) => m !== member);
   }
 
   clearGroupForm() {

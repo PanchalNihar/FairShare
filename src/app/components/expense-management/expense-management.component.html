@@ -1,62 +1,133 @@
 <div>
   <h2>Expense Management</h2>
-  <form (ngSubmit)="addExpense()" *ngIf="!selectedExpense">
-    <input
-      [(ngModel)]="expensePayer"
-      name="payer"
-      placeholder="Payer Name"
-      required
-    />
-    <input
-      [(ngModel)]="expenseAmount"
-      name="amount"
-      type="number"
-      placeholder="Amount"
-      required
-    />
-    <input
-      [(ngModel)]="expenseDescription"
-      name="description"
-      placeholder="Description"
-      required
-    />
-    <input [(ngModel)]="expenseDate" name="date" type="date" />
-    <button type="submit">Add Expense</button>
-  </form>
 
-  <form (ngSubmit)="editExpense()" *ngIf="selectedExpense">
-    <input
-      [(ngModel)]="expensePayer"
-      name="payer"
-      placeholder="Payer Name"
-      required
-    />
-    <input
-      [(ngModel)]="expenseAmount"
-      name="amount"
-      type="number"
-      placeholder="Amount"
-      required
-    />
-    <input
-      [(ngModel)]="expenseDescription"
-      name="description"
-      placeholder="Description"
-      required
-    />
-    <input [(ngModel)]="expenseDate" name="date" type="date" />
-    <button type="submit">Update Expense</button>
-    <button type="button" (click)="clearForm()">Cancel</button>
-  </form>
+  <!-- Group Selection -->
+  <div *ngIf="!selectedGroup">
+    <label for="group-select">Select Group:</label>
+    <select
+      id="group-select"
+      class="form-control"
+      [(ngModel)]="selectedGroup"
+      (change)="onGroupChange()"
+    >
+      <option value="" disabled>Select a group</option>
+      <option *ngFor="let group of availableGroups" [value]="group.name">
+        {{ group.name }}
+      </option>
+    </select>
+    <p *ngIf="!selectedGroup && availableGroups.length > 0">Please select a group to manage expenses.</p>
+  </div>
 
-  <ul>
-    <li *ngFor="let expense of expenseList">
-      {{ expense.payer }} -  {{ expense.amount }} - ₹{{ expense.description }}
-      <button (click)="selectExpense(expense)">Edit</button>
-      <button (click)="deleteExpense(expense)">Delete</button>
-    </li>
-  </ul>
-  <button type="button" class="btn btn-success" (click)="backtoDashboard()">
-    Back
-  </button>
+  <!-- Payer Selection and Expense Form (only shown when a group is selected) -->
+  <div *ngIf="selectedGroup">
+    <h3>Managing Expenses for Group: {{ selectedGroup }}</h3>
+
+    <!-- Payer Selection -->
+    <form (ngSubmit)="addExpense()" *ngIf="!selectedExpense">
+      <label for="expensePayer">Select Payer</label>
+      <select
+        id="expensePayer"
+        [(ngModel)]="expensePayer"
+        class="form-control"
+        name="expensePayer"
+        required
+      >
+        <option value="" disabled>Select a payer</option>
+        <option *ngFor="let member of groupMembers" [value]="member">{{ member }}</option>
+      </select>
+      <p *ngIf="!expensePayer">Please select a payer from the group.</p>
+
+      <label for="expenseAmount">Amount</label>
+      <input
+        id="expenseAmount"
+        [(ngModel)]="expenseAmount"
+        name="amount"
+        type="number"
+        class="form-control"
+        placeholder="Amount"
+        required
+      />
+
+      <label for="expenseDescription">Description</label>
+      <input
+        id="expenseDescription"
+        [(ngModel)]="expenseDescription"
+        name="description"
+        type="text"
+        class="form-control"
+        placeholder="Description"
+        required
+      />
+
+      <label for="expenseDate">Date</label>
+      <input
+        id="expenseDate"
+        [(ngModel)]="expenseDate"
+        name="date"
+        type="date"
+        class="form-control"
+      />
+
+      <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+
+    <!-- Edit Expense Form (only shown if an expense is selected) -->
+    <form (ngSubmit)="editExpense()" *ngIf="selectedExpense">
+      <label for="expensePayer">Payer Name</label>
+      <input
+        id="expensePayer"
+        [(ngModel)]="expensePayer"
+        name="payer"
+        type="text"
+        class="form-control"
+        placeholder="Payer Name"
+        required
+      />
+
+      <label for="expenseAmount">Amount</label>
+      <input
+        id="expenseAmount"
+        [(ngModel)]="expenseAmount"
+        name="amount"
+        type="number"
+        class="form-control"
+        placeholder="Amount"
+        required
+      />
+
+      <label for="expenseDescription">Description</label>
+      <input
+        id="expenseDescription"
+        [(ngModel)]="expenseDescription"
+        name="description"
+        type="text"
+        class="form-control"
+        placeholder="Description"
+        required
+      />
+
+      <label for="expenseDate">Date</label>
+      <input
+        id="expenseDate"
+        [(ngModel)]="expenseDate"
+        name="date"
+        type="date"
+        class="form-control"
+      />
+
+      <button type="submit" class="btn btn-success">Update Expense</button>
+      <button type="button" class="btn btn-secondary" (click)="clearForm()">Cancel</button>
+    </form>
+
+    <!-- Expense List -->
+    <ul>
+      <li *ngFor="let expense of expenseList">
+        {{ expense.payer }} - ₹{{ expense.amount }} - {{ expense.description }}
+        <button (click)="selectExpense(expense)" class="btn btn-warning btn-sm">Edit</button>
+        <button (click)="deleteExpense(expense)" class="btn btn-danger btn-sm">Delete</button>
+      </li>
+    </ul>
+  </div>
+
+  <button type="button" class="btn btn-secondary" (click)="backtoDashboard()">Back</button>
 </div>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Expense, ExpenseService } from '../../services/expense.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { GroupService } from '../../services/group.service';
 
 @Component({
   selector: 'app-expense-management',
@@ -12,14 +13,31 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 })
 export class ExpenseManagementComponent implements OnInit {
   expenseList: any[] = [];
+  availableGroups:any[]=[]
   expensePayer: any = '';
   expenseAmount: any = 0;
   expenseDate: any = '';
   expenseDescription: any = '';
+  groupMembers:string[]=[]
   selectedExpense: Expense | null = null;
-  constructor(private router: Router, private expenseService: ExpenseService) {}
+  selectedGroup:string=''
+  constructor(private router: Router, private expenseService: ExpenseService,private groupService:GroupService) {}
   ngOnInit(): void {
+    // this.loadGroupMembers()
+    this.loadAvailableGroup()
     this.expenseList = this.expenseService.getExpense();
+    console.log("Group Members",this.groupMembers)
+  }
+  loadAvailableGroup(){
+    this.availableGroups=this.groupService.getGroups()
+  }
+  onGroupChange(){
+    if(this.selectedGroup){
+      this.groupMembers=this.groupService.getGroupMember(this.selectedGroup)
+    }
+    else{
+      this.groupMembers=[]
+    }
   }
   addExpense() {
     if (

@@ -12,20 +12,24 @@ export class GroupService {
 
   // Load groups from localStorage
   private loadGroups() {
-    const storedGroup = localStorage.getItem('group');
+    const storedGroup = localStorage.getItem('groups');
     this.groups = storedGroup ? JSON.parse(storedGroup) : [];
   }
 
   // Save groups to localStorage
   private saveGroups() {
-    localStorage.setItem('group', JSON.stringify(this.groups));
+    localStorage.setItem('groups', JSON.stringify(this.groups));
   }
 
   // Get all groups
   getGroups(): any[] {
     return this.groups;
   }
-
+  getGroupMember(groupName: string):string[] {
+    debugger
+    const group = this.groups.find((g) => g.name === groupName);
+    return group? group.members : [] ;
+  }
   // Add a new group
   addGroup(groupName: string, members: string[]): void {
     const newGroup = {
@@ -37,7 +41,11 @@ export class GroupService {
   }
 
   // Edit an existing group
-  editGroup(selectedGroup: any, updatedName: string, updatedMembers: string[]): void {
+  editGroup(
+    selectedGroup: any,
+    updatedName: string,
+    updatedMembers: string[]
+  ): void {
     selectedGroup.name = updatedName;
     selectedGroup.members = updatedMembers;
     this.saveGroups();
@@ -59,7 +67,9 @@ export class GroupService {
 
   // Remove a member from a group
   removeMember(selectedGroup: any, member: string): void {
-    selectedGroup.members = selectedGroup.members.filter((m:any) => m !== member);
+    selectedGroup.members = selectedGroup.members.filter(
+      (m: any) => m !== member
+    );
     this.saveGroups();
   }
 }
