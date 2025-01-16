@@ -43,6 +43,23 @@
     background-color: #0056b3;
   }
   
+  /* Save Button */
+  .save-button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .save-button:hover {
+    background-color: #218838;
+  }
+  
   /* Profile Details */
   .profile-details {
     margin-top: 20px;
@@ -91,21 +108,5 @@
   button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
-  }
-  
-  .cancel-button {
-    background-color: #f44336;
-  }
-  
-  .cancel-button:hover {
-    background-color: #d32f2f;
-  }
-  
-  .edit-button {
-    background-color: #4caf50;
-  }
-  
-  .edit-button:hover {
-    background-color: #388e3c;
   }
   

@@ -18,6 +18,15 @@
       />
     </div>
   
+    <!-- Save Button for Image -->
+    <button
+      *ngIf="showSaveButton"
+      class="save-button"
+      (click)="saveImage()"
+    >
+      Save Image
+    </button>
+  
     <!-- Profile Details -->
     <div class="profile-details">
       <div *ngIf="!isEditing">

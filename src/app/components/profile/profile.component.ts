@@ -15,6 +15,7 @@ export class ProfileComponent implements OnInit {
   user: any;
   profileImage: string | ArrayBuffer | null = null;
   isEditing: boolean = false;
+  showSaveButton: boolean = false; // Track when the Save button should be visible
 
   constructor(private router: Router) {}
 
@@ -63,18 +64,24 @@ export class ProfileComponent implements OnInit {
       const render = new FileReader();
       render.onload = () => {
         this.profileImage = render.result;
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const currentUser = users.find((user: any) => user.email === this.user.email);
-
-        if (currentUser) {
-          currentUser.profileImage = this.profileImage;
-          localStorage.setItem('users', JSON.stringify(users));
-        }
-
-        event.target.value = ''; // Reset the input value
+        this.showSaveButton = true; // Show the Save button after uploading
       };
       render.readAsDataURL(file);
     }
+  }
+
+  saveImage(): void {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const currentUser = users.find((user: any) => user.email === this.user.email);
+
+    if (currentUser) {
+      currentUser.profileImage = this.profileImage;
+      localStorage.setItem('users', JSON.stringify(users));
+      localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+    }
+
+    this.showSaveButton = false; // Hide the Save button after saving
+    alert('Profile image saved successfully!');
   }
   backToDashboard(){
     this.router.navigate(['/dashboard']);
