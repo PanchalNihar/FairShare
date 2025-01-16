@@ -12,11 +12,11 @@ import { NavbarComponent } from '../navbar/navbar.component';
   imports:[FormsModule,CommonModule,NavbarComponent]
 })
 export class GroupsComponent implements OnInit {
-  groups: any[] = []; // Ensure this is initialized as an array
+  groups: any[] = []; 
   selectedGroup: any = null;
   groupName: string = '';
   newMember: string = '';
-  members: string[] = []; // Initialize as an empty array
+  members: string[] = []; 
 
   constructor(private router: Router, private groupService: GroupService) {}
 

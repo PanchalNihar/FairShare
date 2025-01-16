@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NavbarComponent],
+  imports: [NavbarComponent,CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -18,5 +19,8 @@ export class DashboardComponent {
   }
   openExpenseTracking(){
     this.router.navigate(['/expense-tracking']);
+  }
+  openProfile(){
+    this.router.navigate(['/profile']);
   }
 }

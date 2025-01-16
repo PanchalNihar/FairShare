@@ -6,6 +6,7 @@ import { GroupsComponent } from './components/groups/groups.component';
 import { ExpenseManagementComponent } from './components/expense-management/expense-management.component';
 import { ExpenseTrackingComponent } from './components/expense-tracking/expense-tracking.component';
 import { authGuard } from './auth.guard';
+import { ProfileComponent } from './components/profile/profile.component';
 
 
 export const routes: Routes = [
@@ -41,4 +42,9 @@ export const routes: Routes = [
     component: ExpenseTrackingComponent,
     canActivate: [authGuard],
   },
+  {
+    path:'profile',
+    component:ProfileComponent,
+    canActivate: [authGuard],
+  }
 ];

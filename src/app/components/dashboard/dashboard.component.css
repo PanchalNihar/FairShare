@@ -1,11 +1,10 @@
-/* Container Styling */
+/* Ensure proper alignment of cards */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 30px;
 }
 
-/* Row Styling */
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -13,12 +12,12 @@
   justify-content: space-between;
 }
 
-/* Card Styling */
 .card {
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%; /* Ensure cards take up full width of their column */
 }
 
 .card-header {
@@ -77,7 +76,6 @@
   height: 24px;
 }
 
-/* Project Title */
 .widget-49-pro-title {
   font-size: 1rem;
   font-weight: 500;
@@ -85,7 +83,6 @@
   margin-left: 10px;
 }
 
-/* Description Text */
 .widget-49-description {
   font-size: 0.875rem;
   color: #555;
@@ -109,7 +106,7 @@
   transform: scale(1.05);
 }
 
-/* Primary Button */
+/* Button Styling */
 .btn-flash-border-primary {
   background-color: #007bff;
   color: white;
@@ -121,7 +118,6 @@
   border-color: #0056b3;
 }
 
-/* Warning Button */
 .btn-flash-border-warning {
   background-color: #ffc107;
   color: white;
@@ -133,7 +129,6 @@
   border-color: #e0a800;
 }
 
-/* Success Button */
 .btn-flash-border-success {
   background-color: #28a745;
   color: white;
@@ -147,15 +142,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .card {
-    margin-bottom: 20px;
-  }
-
   .row {
     flex-direction: column;
   }
 
-  .col-lg-4 {
+  .card {
+    margin-bottom: 20px;
     width: 100%;
   }
 

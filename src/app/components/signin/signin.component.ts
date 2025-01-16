@@ -33,8 +33,14 @@ export class SigninComponent implements OnInit {
       );
   
       if (user) {
-        // Store logged-in user information
-        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        // Store essential data (not storing the password)
+        const userSession = {
+          email: user.email,
+          username: user.username,
+          profileImage: user.profileImage,
+        };
+  
+        localStorage.setItem('loggedInUser', JSON.stringify(userSession)); // Only store essential data
         alert('Login successful!');
         this.router.navigate(['/dashboard']);
       } else {
@@ -44,6 +50,7 @@ export class SigninComponent implements OnInit {
       alert('Please fill out all fields correctly.');
     }
   }
+  
   
 
   onRegister(): void {
