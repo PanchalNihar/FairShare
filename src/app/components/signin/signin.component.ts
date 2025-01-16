@@ -42,7 +42,7 @@ export class SigninComponent implements OnInit {
   
         localStorage.setItem('loggedInUser', JSON.stringify(userSession)); // Only store essential data
         alert('Login successful!');
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/about']);
       } else {
         alert('Invalid Email or Password. Please register if you are a new user.');
       }

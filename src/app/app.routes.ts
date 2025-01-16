@@ -7,6 +7,7 @@ import { ExpenseManagementComponent } from './components/expense-management/expe
 import { ExpenseTrackingComponent } from './components/expense-tracking/expense-tracking.component';
 import { authGuard } from './auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
+import { FairshareComponent } from './components/fairshare/fairshare.component';
 
 
 export const routes: Routes = [
@@ -46,5 +47,10 @@ export const routes: Routes = [
     path:'profile',
     component:ProfileComponent,
     canActivate: [authGuard],
+  },
+  {
+    path:'about',
+    component:FairshareComponent,
+    canActivate:[authGuard]
   }
 ];
