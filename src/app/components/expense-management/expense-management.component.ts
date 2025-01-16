@@ -40,19 +40,23 @@ export class ExpenseManagementComponent implements OnInit {
   onGroupChange() {
     if (this.selectedGroup) {
       this.groupMembers = this.groupService.getGroupMember(this.selectedGroup);
+      this.expenseList = this.expenseService
+        .getExpense()
+        .filter((expense) => expense.groupName === this.selectedGroup);
       this.calculateTotalExpense();
     } else {
       this.groupMembers = [];
+      this.expenseList = [];
       this.totalExpense = 0;
     }
   }
+
   addExpense() {
     if (
       this.expensePayer &&
       this.expenseAmount > 0 &&
       this.expenseDescription
     ) {
-      console.log('Adding Expense to Group:', this.selectedGroup); // Log selected group name
       this.expenseService.addExpense(
         this.expensePayer,
         this.expenseAmount,
@@ -60,34 +64,21 @@ export class ExpenseManagementComponent implements OnInit {
         this.expenseDate || new Date().toISOString(),
         this.selectedGroup
       );
-      this.expenseList = this.expenseService.getExpense();
+
+      this.expenseList = this.expenseService
+        .getExpense()
+        .filter((expense) => expense.groupName === this.selectedGroup);
       this.calculateTotalExpense();
       this.clearForm();
     }
   }
-  
-  
-  
+
   calculateTotalExpense() {
-    console.log('Selected Group:', this.selectedGroup);
-    console.log('Expense List:', this.expenseList);
-    
-    const groupExpenses = this.expenseList.filter((expense) => {
-      console.log('Expense groupName:', expense.groupName);  // Log the groupName of each expense
-      return expense.groupName === this.selectedGroup;
-    });
-  
-    console.log('Filtered Group Expenses:', groupExpenses);
-    
-    this.totalExpense = groupExpenses.reduce(
-      (total, expense) => total + Number(expense.amount),  // Make sure amount is a number
+    this.totalExpense = this.expenseList.reduce(
+      (total, expense) => total + Number(expense.amount),
       0
     );
-    console.log('Total Expense:', this.totalExpense);
   }
-  
-  
-  
 
   selectExpense(expense: Expense) {
     this.selectedExpense = expense;
@@ -104,17 +95,27 @@ export class ExpenseManagementComponent implements OnInit {
         description: this.expenseDescription,
         date: this.expenseDate,
       });
-      this.expenseList = this.expenseService.getExpense();
+
+      // Update filtered list and total expense
+      this.expenseList = this.expenseService
+        .getExpense()
+        .filter((expense) => expense.groupName === this.selectedGroup);
       this.calculateTotalExpense();
       this.clearForm();
     }
   }
+
   deleteExpense(expense: Expense) {
     this.expenseService.deleteExpense(expense.id);
-    this.expenseList = this.expenseService.getExpense();
+
+    // Update filtered list and total expense
+    this.expenseList = this.expenseService
+      .getExpense()
+      .filter((expense) => expense.groupName === this.selectedGroup);
     this.calculateTotalExpense();
     this.clearForm();
   }
+
   clearForm() {
     this.expensePayer = '';
     this.expenseAmount = 0;
