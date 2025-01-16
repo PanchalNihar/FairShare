@@ -23,7 +23,11 @@ export class GroupService {
 
   // Get all groups
   getGroups(): any[] {
-    return this.groups;
+    console.log("Groups:",this.groups)
+    return this.groups
+  }
+  getGroupForTracking():any[]{
+    return this.groups.map((group) => group.name);
   }
   getGroupMember(groupName: string):string[] {
     const group = this.groups.find((g) => g.name === groupName);

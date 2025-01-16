@@ -28,7 +28,8 @@
     </button>
   </div>
 
-  <div *ngIf="members.length > 0">
+  <!-- Ensure members array exists before rendering -->
+  <div *ngIf="members">
     <h4>Members</h4>
     <ul>
       <li *ngFor="let member of members">
@@ -63,7 +64,7 @@
       class="btn btn-warning"
       (click)="editGroup()"
     >
-      Close
+      Save Changes
     </button>
 
     <!-- Remove Group -->
@@ -77,8 +78,8 @@
     </button>
   </div>
 
-  <!-- Existing Groups List -->
-  <div *ngIf="groups.length > 0">
+  <!-- Existing Groups -->
+  <div *ngIf="groups">
     <h3 class="mt-4">Existing Groups</h3>
     <ul>
       <li
@@ -86,10 +87,11 @@
         (click)="selectGroup(group)"
         class="existing-group"
       >
-        {{ group.name }} ({{ group.members.length }} members)
+        {{ group.name }} ({{ group.members?.length || 0 }} members)
       </li>
     </ul>
   </div>
+
   <button type="button" class="btn btn-success" (click)="backtoDashboard()">
     Back
   </button>

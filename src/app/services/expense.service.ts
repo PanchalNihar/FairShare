@@ -15,6 +15,7 @@ export class ExpenseService {
   private expenseList: Expense[] = [];
   constructor() {
     this.loadExpense();
+    console.log("ExpenseList:",this.expenseList)
   }
   private loadExpense() {
     const storedExpense = localStorage.getItem('expense');

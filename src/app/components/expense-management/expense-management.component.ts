@@ -35,7 +35,7 @@ export class ExpenseManagementComponent implements OnInit {
     console.log('Groups', this.availableGroups);
   }
   loadAvailableGroup() {
-    this.availableGroups = this.groupService.getGroups();
+    this.availableGroups = this.groupService.getGroupForTracking();
   }
   onGroupChange() {
     if (this.selectedGroup) {

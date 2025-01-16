@@ -1,0 +1,123 @@
+/* General Styles */
+.expense-tracking {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.expense-tracking h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Group Selection Styles */
+.group-selection {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.group-selection select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.group-selection select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+/* Group Details Styles */
+.group-details {
+  margin-top: 20px;
+}
+
+.group-details h3 {
+  font-size: 20px;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* List Styles */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+ul li:hover {
+  background-color: #f1f1f1;
+}
+
+ul li button {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+ul li button:first-child {
+  background-color: #007bff;
+  color: white;
+  margin-right: 10px;
+}
+
+ul li button:first-child:hover {
+  background-color: #0056b3;
+}
+
+ul li button:last-child {
+  background-color: #f44336;
+  color: white;
+}
+
+ul li button:last-child:hover {
+  background-color: #c23328;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .expense-tracking {
+    padding: 15px;
+  }
+
+  .group-selection select {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  ul li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  ul li button {
+    margin: 5px 0 0 0;
+  }
+}

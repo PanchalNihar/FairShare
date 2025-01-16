@@ -12,8 +12,8 @@
       (change)="onGroupChange()"
     >
       <option value="" disabled>Select a group</option>
-      <option *ngFor="let group of availableGroups" [value]="group.name">
-        {{ group.name }}
+      <option *ngFor="let group of availableGroups" [value]="group">
+        {{ group }}
       </option>
     </select>
     <p *ngIf="!selectedGroup && availableGroups.length > 0">Please select a group to manage expenses.</p>

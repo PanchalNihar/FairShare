@@ -1,27 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from "../navbar/navbar.component";
+import { CommonModule } from '@angular/common';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports:[FormsModule,CommonModule,NavbarComponent]
 })
 export class GroupsComponent implements OnInit {
-  groups: any[] = [];
+  groups: any[] = []; // Ensure this is initialized as an array
   selectedGroup: any = null;
   groupName: string = '';
   newMember: string = '';
-  members: string[] = [];
+  members: string[] = []; // Initialize as an empty array
 
   constructor(private router: Router, private groupService: GroupService) {}
 
   ngOnInit(): void {
-    this.groups = this.groupService.getGroups();
+    // Get groups from the service and ensure the data structure is consistent
+    this.groups = this.groupService.getGroups() || [];
     console.log('Loaded groups:', this.groups);
   }
 
@@ -29,7 +30,7 @@ export class GroupsComponent implements OnInit {
     if (this.groupName && this.members.length > 0) {
       console.log('Adding group:', this.groupName, this.members);
       this.groupService.addGroup(this.groupName, this.members);
-      this.groups = this.groupService.getGroups();
+      this.groups = this.groupService.getGroups() || [];
       this.clearGroupForm();
     } else {
       console.error('Group name or members missing.');
@@ -38,21 +39,21 @@ export class GroupsComponent implements OnInit {
 
   selectGroup(group: any) {
     this.selectedGroup = group;
-    this.groupName = group.name;
-    this.members = [...group.members]; // Use spread operator to avoid reference issues
+    this.groupName = group?.name || ''; // Ensure group name is defined
+    this.members = group?.members ? [...group.members] : []; // Ensure members array is properly copied
   }
 
   editGroup() {
     if (this.selectedGroup) {
       this.groupService.editGroup(this.selectedGroup, this.groupName, this.members);
-      this.groups = this.groupService.getGroups();
+      this.groups = this.groupService.getGroups() || [];
       this.clearGroupForm();
     }
   }
 
   removeGroup(group: any) {
     this.groupService.removeGroup(group);
-    this.groups = this.groupService.getGroups();
+    this.groups = this.groupService.getGroups() || [];
     this.clearGroupForm();
   }
 

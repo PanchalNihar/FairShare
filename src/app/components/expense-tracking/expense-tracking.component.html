@@ -1,2 +1,47 @@
 <app-navbar></app-navbar>
-<p>expense-tracking works!</p>
+<div class="expense-tracking">
+  <h2>Expense Tracking</h2>
+
+  <!-- Group Dropdown -->
+  <div class="group-selection">
+    <label for="group-select">Select Group:</label>
+    <select
+      id="group-select"
+      [(ngModel)]="selectedGroup"
+      (change)="onGroupSelect()"
+    >
+      <option value="" disabled>Select a group</option>
+      <option *ngFor="let group of availableGroups" [value]="group">
+        {{ group }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Group Details -->
+  <div *ngIf="selectedGroup" class="group-details">
+    <h3>Expenses in {{ selectedGroup }}</h3>
+    <ul>
+      <li *ngFor="let expense of groupExpenses">
+        {{ expense.payer }} paid ₹{{ expense.amount }} for "{{
+          expense.description
+        }}" on
+        {{ expense.date | date : "longDate" }}
+      </li>
+    </ul>
+
+    <h3>Member Spending</h3>
+    <ul>
+      <li *ngFor="let member of memberSpendings | keyvalue">
+        {{ member.key }}: ₹{{ member.value }}
+      </li>
+    </ul>
+
+    <h3>Who Owes Whom</h3>
+    <ul>
+      <li *ngFor="let balance of balances">
+        {{ balance.from }} owes {{ balance.to }} ₹{{ balance.amount }}
+      </li>
+    </ul>
+  </div>
+  <button type="button" class="btn btn-secondary" (click)="backtoDashboard()">Back</button>
+</div>
