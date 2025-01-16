@@ -29,7 +29,6 @@ export class ExpenseManagementComponent implements OnInit {
     private groupService: GroupService
   ) {}
   ngOnInit(): void {
-    // this.loadGroupMembers()
     this.loadAvailableGroup();
     this.expenseList = this.expenseService.getExpense();
     console.log('Groups', this.availableGroups);

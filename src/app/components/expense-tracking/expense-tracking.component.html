@@ -37,11 +37,22 @@
     </ul>
 
     <h3>Who Owes Whom</h3>
-    <ul>
-      <li *ngFor="let balance of balances">
-        {{ balance.from }} owes {{ balance.to }} ₹{{ balance.amount }}
-      </li>
-    </ul>
+<div *ngIf="balances.length > 0">
+  <ul>
+    <li *ngFor="let balance of balances">
+      {{ balance.from }} owes {{ balance.to }} ₹{{ balance.amount | number:'1.1-1'}}
+    </li>
+  </ul>
+</div>
+
+<!-- Fallback message if the balances array is empty -->
+<div *ngIf="balances.length === 0">
+  <p>No one owes anything to anyone in this group. 🎉</p>
+</div>
+
+
+    <button type="button" class="btn btn-secondary" (click)="backtoDashboard()">
+      Back
+    </button>
   </div>
-  <button type="button" class="btn btn-secondary" (click)="backtoDashboard()">Back</button>
 </div>
