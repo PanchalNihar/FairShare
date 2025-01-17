@@ -9,7 +9,6 @@ import { authGuard } from './auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FairshareComponent } from './components/fairshare/fairshare.component';
 
-
 export const routes: Routes = [
   {
     path: '',
@@ -26,31 +25,31 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
   },
   {
     path: 'groups',
     component: GroupsComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
   },
   {
     path: 'expense-management',
     component: ExpenseManagementComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
   },
   {
     path: 'expense-tracking',
     component: ExpenseTrackingComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
   },
   {
-    path:'profile',
-    component:ProfileComponent,
-    canActivate: [authGuard],
+    path: 'profile',
+    component: ProfileComponent,
+    // canActivate: [authGuard],
   },
   {
-    path:'about',
-    component:FairshareComponent,
-    canActivate:[authGuard]
-  }
+    path: 'about',
+    component: FairshareComponent,
+    // canActivate: [authGuard],
+  },
 ];
