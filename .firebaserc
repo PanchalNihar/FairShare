@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "fairshare-5e3cb"
-  }
+    "default": "fairshare-5e3cb",
+    "production": "fairshare-5e3cb"
+  },
+  "targets": {},
+  "etags": {}
 }

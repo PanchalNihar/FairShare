@@ -2,18 +2,24 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css'], 
+  styleUrls: ['./signup.component.css'],
+  providers:[AuthService]
 })
 export class SignupComponent implements OnInit {
-  signupForm!: FormGroup; 
+  signupForm!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private router: Router) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
@@ -23,25 +29,15 @@ export class SignupComponent implements OnInit {
     });
   }
 
-  onRegister() {
+  async onRegister() {
     if (this.signupForm.valid) {
-      const registeredData = this.signupForm.value;
+      const { email, password } = this.signupForm.value;
   
-      // Prevent duplicate emails
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const emailExists = users.some((user: any) => user.email === registeredData.email);
-  
-      if (emailExists) {
-        alert('This email is already registered. Please use a different email.');
-        return;
+      let result = await this.auth.signUp(email, password); 
+      if(result){
+        this.router.navigate(['/signin']);
       }
-  
-      // Add new user
-      users.push(registeredData);
-      localStorage.setItem('users', JSON.stringify(users));
-  
-      alert('Registration successful! Redirecting to sign-in page...');
-      this.router.navigate(['signin']);
+      
     } else {
       alert('Invalid form. Please check your inputs.');
     }
