@@ -6,6 +6,7 @@ import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import {AngularFireDatabaseModule} from "@angular/fire/compat/database"
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)), // Initialize Firebase
     provideAuth(() => getAuth()), // Firebase Auth
     provideDatabase(() => getDatabase()), // Optional: Realtime Database
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
+    AngularFireDatabaseModule
   ],
 };

@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
+import {
+  Auth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+  user,
+} from '@angular/fire/auth';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -12,13 +20,17 @@ export class AuthService {
   constructor(private auth: Auth) {
     // Listen for changes to the auth state and update the currentUserSubject
     onAuthStateChanged(this.auth, (user) => {
-      this.currentUserSubject.next(user);  // Set the user if logged in, or null if logged out
+      this.currentUserSubject.next(user); // Set the user if logged in, or null if logged out
     });
   }
 
-  async signUp(email: string, password: string) {
+  async signUp(email: string, password: string, username: string) {
     try {
-      const result = await createUserWithEmailAndPassword(this.auth, email, password);
+      const result = await createUserWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
       return result.user;
     } catch (error) {
       throw error;
@@ -27,7 +39,11 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     try {
-      const result = await signInWithEmailAndPassword(this.auth, email, password);
+      const result = await signInWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
       return result.user;
     } catch (error) {
       throw error;

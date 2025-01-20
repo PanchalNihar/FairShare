@@ -31,10 +31,12 @@ export class SignupComponent implements OnInit {
 
   async onRegister() {
     if (this.signupForm.valid) {
-      const { email, password } = this.signupForm.value;
+      const { email, password,username } = this.signupForm.value;
   
-      let result = await this.auth.signUp(email, password); 
+      let result = await this.auth.signUp(email, password,username); 
       if(result){
+        localStorage.setItem("signupResult",JSON.stringify(result))
+        alert("Successfull Registeration!!")
         this.router.navigate(['/signin']);
       }
       

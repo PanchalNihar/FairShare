@@ -20,7 +20,7 @@ export class ProfileComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+    const loggedInUser = JSON.parse(localStorage.getItem('signupResult') || 'null');
     
     if (loggedInUser) {
       this.user = loggedInUser;
@@ -36,14 +36,14 @@ export class ProfileComponent implements OnInit {
 
   onUpdateProfile(): void {
     if (this.user.username && this.user.email) {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const users = JSON.parse(localStorage.getItem('signupResult') || '[]');
       const currentUser = users.find((u: any) => u.email === this.user.email);
 
       if (currentUser) {
         currentUser.username = this.user.username;
         currentUser.email = this.user.email;
         localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+        localStorage.setItem('signupResult', JSON.stringify(currentUser));
       }
 
       alert('Profile updated successfully!');
@@ -77,7 +77,7 @@ export class ProfileComponent implements OnInit {
     if (currentUser) {
       currentUser.profileImage = this.profileImage;
       localStorage.setItem('users', JSON.stringify(users));
-      localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+      localStorage.setItem('signupResult', JSON.stringify(currentUser));
     }
 
     this.showSaveButton = false; // Hide the Save button after saving

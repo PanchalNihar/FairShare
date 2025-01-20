@@ -2,12 +2,12 @@ import { Routes } from '@angular/router';
 import { SigninComponent } from './components/signin/signin.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SignupComponent } from './components/signup/signup.component';
-import { GroupsComponent } from './components/groups/groups.component';
 import { ExpenseManagementComponent } from './components/expense-management/expense-management.component';
 import { ExpenseTrackingComponent } from './components/expense-tracking/expense-tracking.component';
 import { authGuard } from './auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FairshareComponent } from './components/fairshare/fairshare.component';
+import { GroupsComponent } from './components/groups/groups.component';
 
 export const routes: Routes = [
   {
@@ -25,27 +25,27 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'groups',
     component: GroupsComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'expense-management',
     component: ExpenseManagementComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'expense-tracking',
     component: ExpenseTrackingComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'profile',
     component: ProfileComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'about',
