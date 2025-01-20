@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavbarComponent } from "../navbar/navbar.component";
+import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../../services/auth.service';
+interface UserProfile {
+  username: string;
+  email: string;
+  profileImage?: string;
+}
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -12,78 +17,98 @@ import { CommonModule } from '@angular/common';
   imports: [NavbarComponent, FormsModule, CommonModule],
 })
 export class ProfileComponent implements OnInit {
-  user: any;
+  user: UserProfile = {
+    username: '',
+    email: '',
+    profileImage: '',
+  };
   profileImage: string | ArrayBuffer | null = null;
   isEditing: boolean = false;
-  showSaveButton: boolean = false; // Track when the Save button should be visible
+  showSaveButton: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
-    const loggedInUser = JSON.parse(localStorage.getItem('signupResult') || 'null');
-    
-    if (loggedInUser) {
-      this.user = loggedInUser;
-      this.profileImage = loggedInUser.profileImage || null;
-    } else {
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        this.user = {
+          username: userData.username || '',
+          email: userData.email || '',
+          profileImage: userData.profileImage || '',
+        };
+        console.log("UserData:",userData)
+        this.profileImage = userData.profileImage || null;
+      } else {
+        this.router.navigate(['/signin']);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
       this.router.navigate(['/signin']);
     }
   }
-
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
   }
 
   onUpdateProfile(): void {
     if (this.user.username && this.user.email) {
-      const users = JSON.parse(localStorage.getItem('signupResult') || '[]');
-      const currentUser = users.find((u: any) => u.email === this.user.email);
+      try {
+        const updatedProfile = this.authService.updateUserProfile({
+          username: this.user.username,
+          email: this.user.email,
+        });
 
-      if (currentUser) {
-        currentUser.username = this.user.username;
-        currentUser.email = this.user.email;
-        localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('signupResult', JSON.stringify(currentUser));
+        alert('Profile updated successfully!');
+        this.isEditing = false;
+      } catch (error) {
+        alert('Error updating profile');
       }
-
-      alert('Profile updated successfully!');
-      this.isEditing = false;
     } else {
       alert('Please fill out all fields.');
     }
   }
 
   triggerImageUpload(): void {
-    const fileInput = document.getElementById('profileImageInput') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      'profileImageInput'
+    ) as HTMLInputElement;
     fileInput?.click();
   }
 
   onImageUpload(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      const render = new FileReader();
-      render.onload = () => {
-        this.profileImage = render.result;
-        this.showSaveButton = true; // Show the Save button after uploading
+      if (file.size > 5000000) {
+        // 5MB limit
+        alert('File size too large. Please choose an image under 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.profileImage = reader.result;
+        this.showSaveButton = true;
       };
-      render.readAsDataURL(file);
+      reader.readAsDataURL(file);
     }
   }
 
   saveImage(): void {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const currentUser = users.find((user: any) => user.email === this.user.email);
+    try {
+      const updatedProfile = this.authService.updateUserProfile({
+        profileImage: this.profileImage as string,
+      });
 
-    if (currentUser) {
-      currentUser.profileImage = this.profileImage;
-      localStorage.setItem('users', JSON.stringify(users));
-      localStorage.setItem('signupResult', JSON.stringify(currentUser));
+      this.showSaveButton = false;
+      alert('Profile image saved successfully!');
+    } catch (error) {
+      alert('Error saving profile image');
     }
-
-    this.showSaveButton = false; // Hide the Save button after saving
-    alert('Profile image saved successfully!');
   }
-  backToDashboard(){
+
+  backToDashboard() {
     this.router.navigate(['/dashboard']);
   }
 }

@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import {
   Auth,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   User,
-  user,
 } from '@angular/fire/auth';
 import { BehaviorSubject } from 'rxjs';
+
+interface UserProfile {
+  uid: string;
+  email: string;
+  username: string;
+  profileImage?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -18,9 +24,8 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private auth: Auth) {
-    // Listen for changes to the auth state and update the currentUserSubject
     onAuthStateChanged(this.auth, (user) => {
-      this.currentUserSubject.next(user); // Set the user if logged in, or null if logged out
+      this.currentUserSubject.next(user);
     });
   }
 
@@ -31,7 +36,19 @@ export class AuthService {
         email,
         password
       );
-      return result.user;
+      
+      // Create user profile
+      const userProfile: UserProfile = {
+        uid: result.user.uid,
+        email: email,
+        username: username,
+      };
+
+      // Store in localStorage
+      localStorage.setItem(`user_${result.user.uid}`, JSON.stringify(userProfile));
+      localStorage.setItem('currentUser', JSON.stringify(userProfile));
+      
+      return userProfile;
     } catch (error) {
       throw error;
     }
@@ -39,12 +56,15 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     try {
-      const result = await signInWithEmailAndPassword(
-        this.auth,
-        email,
-        password
+      const result = await signInWithEmailAndPassword(this.auth, email, password);
+      
+      // Retrieve user profile from localStorage
+      const userProfile = JSON.parse(
+        localStorage.getItem(`user_${result.user.uid}`) || '{}'
       );
-      return result.user;
+      
+      localStorage.setItem('currentUser', JSON.stringify(userProfile));
+      return userProfile;
     } catch (error) {
       throw error;
     }
@@ -53,13 +73,25 @@ export class AuthService {
   async signOut() {
     try {
       await signOut(this.auth);
+      localStorage.removeItem('currentUser');
     } catch (error) {
       throw error;
     }
   }
 
-  // Check if user is authenticated
+  updateUserProfile(profile: Partial<UserProfile>) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (currentUser.uid) {
+      const updatedProfile = { ...currentUser, ...profile };
+      localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(updatedProfile));
+      localStorage.setItem('currentUser', JSON.stringify(updatedProfile));
+      return updatedProfile;
+    }
+    throw new Error('No user logged in');
+  }
+
   isAuthenticated() {
-    return this.currentUserSubject.value !== null;
+   const currentUser=localStorage.getItem("currentUser")
+   return currentUser!==null
   }
 }

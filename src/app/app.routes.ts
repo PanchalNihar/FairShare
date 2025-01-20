@@ -50,6 +50,6 @@ export const routes: Routes = [
   {
     path: 'about',
     component: FairshareComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
 ];
