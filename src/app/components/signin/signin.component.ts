@@ -59,7 +59,7 @@ export class SigninComponent implements OnInit, OnDestroy {
         const result = await this.auth.signIn(email, password);
         if (result) {
           console.log('Sign in successful');
-          // Navigation will be handled by the subscription to currentUser$
+          localStorage.setItem("signinResult",JSON.stringify(result))
         }
       } catch (error: any) {
         console.error('Login error:', error);
