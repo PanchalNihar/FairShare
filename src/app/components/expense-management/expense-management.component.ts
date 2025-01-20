@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Expense, ExpenseService } from '../../services/expense.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GroupService } from '../../services/group.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-expense-management',
@@ -12,30 +13,52 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css',
 })
-export class ExpenseManagementComponent implements OnInit {
-  expenseList: any[] = [];
-  availableGroups: any[] = [];
-  expensePayer: any = '';
+export class ExpenseManagementComponent implements OnInit, OnDestroy {
+  expenseList: Expense[] = [];
+  availableGroups: string[] = [];
+  expensePayer: string = '';
   expenseAmount: number = 0;
-  expenseDate: any = '';
-  expenseDescription: any = '';
+  expenseDate: string = '';
+  expenseDescription: string = '';
   groupMembers: string[] = [];
   selectedExpense: Expense | null = null;
   selectedGroup: string = '';
   totalExpense: number = 0;
+  
+  private expensesSub?: Subscription;
+  private groupsSub?: Subscription;
+
   constructor(
     private router: Router,
     private expenseService: ExpenseService,
     private groupService: GroupService
   ) {}
+
   ngOnInit(): void {
     this.loadAvailableGroup();
-    this.expenseList = this.expenseService.getExpense();
-    console.log('Groups', this.availableGroups);
+    this.expensesSub = this.expenseService.expenses$.subscribe(expenses => {
+      if (this.selectedGroup) {
+        this.expenseList = expenses.filter(expense => expense.groupName === this.selectedGroup);
+        this.calculateTotalExpense();
+      }
+    });
   }
+
+  ngOnDestroy(): void {
+    if (this.expensesSub) {
+      this.expensesSub.unsubscribe();
+    }
+    if (this.groupsSub) {
+      this.groupsSub.unsubscribe();
+    }
+  }
+
   loadAvailableGroup() {
-    this.availableGroups = this.groupService.getGroupForTracking();
+    this.groupsSub = this.groupService.groups$.subscribe(() => {
+      this.availableGroups = this.groupService.getGroupForTracking();
+    });
   }
+
   onGroupChange() {
     if (this.selectedGroup) {
       this.groupMembers = this.groupService.getGroupMember(this.selectedGroup);
@@ -50,24 +73,19 @@ export class ExpenseManagementComponent implements OnInit {
     }
   }
 
-  addExpense() {
+  async addExpense() {
     if (
       this.expensePayer &&
       this.expenseAmount > 0 &&
       this.expenseDescription
     ) {
-      this.expenseService.addExpense(
+      await this.expenseService.addExpense(
         this.expensePayer,
         this.expenseAmount,
         this.expenseDescription,
         this.expenseDate || new Date().toISOString(),
         this.selectedGroup
       );
-
-      this.expenseList = this.expenseService
-        .getExpense()
-        .filter((expense) => expense.groupName === this.selectedGroup);
-      this.calculateTotalExpense();
       this.clearForm();
     }
   }
@@ -86,32 +104,21 @@ export class ExpenseManagementComponent implements OnInit {
     this.expenseDescription = expense.description;
     this.expenseDate = expense.date;
   }
-  editExpense() {
+
+  async editExpense() {
     if (this.selectedExpense) {
-      this.expenseService.updateExpense(this.selectedExpense.id, {
+      await this.expenseService.updateExpense(this.selectedExpense.id, {
         payer: this.expensePayer,
         amount: this.expenseAmount,
         description: this.expenseDescription,
         date: this.expenseDate,
       });
-
-      // Update filtered list and total expense
-      this.expenseList = this.expenseService
-        .getExpense()
-        .filter((expense) => expense.groupName === this.selectedGroup);
-      this.calculateTotalExpense();
       this.clearForm();
     }
   }
 
-  deleteExpense(expense: Expense) {
-    this.expenseService.deleteExpense(expense.id);
-
-    // Update filtered list and total expense
-    this.expenseList = this.expenseService
-      .getExpense()
-      .filter((expense) => expense.groupName === this.selectedGroup);
-    this.calculateTotalExpense();
+  async deleteExpense(expense: Expense) {
+    await this.expenseService.deleteExpense(expense.id);
     this.clearForm();
   }
 
@@ -122,6 +129,7 @@ export class ExpenseManagementComponent implements OnInit {
     this.expenseDescription = '';
     this.selectedExpense = null;
   }
+
   backtoDashboard() {
     this.router.navigate(['/dashboard']);
   }

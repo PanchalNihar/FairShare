@@ -1,78 +1,114 @@
 import { Injectable } from '@angular/core';
+import { Firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, query, where } from '@angular/fire/firestore';
+import { BehaviorSubject } from 'rxjs';
+
+interface Group {
+  id: string;
+  name: string;
+  members: string[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroupService {
-  private groups: any[] = [];
+  private groups: Group[] = [];
+  private groupsSubject = new BehaviorSubject<Group[]>([]);
+  groups$ = this.groupsSubject.asObservable();
 
-  constructor() {
+  constructor(private firestore: Firestore) {
     this.loadGroups();
   }
 
-  // Load groups from localStorage
-  private loadGroups() {
-    const storedGroup = localStorage.getItem('groups');
-    this.groups = storedGroup ? JSON.parse(storedGroup) : [];
+  private async loadGroups() {
+    const groupsRef = collection(this.firestore, 'groups');
+    const querySnapshot = await getDocs(groupsRef);
+    this.groups = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Group));
+    this.groupsSubject.next(this.groups);
   }
 
-  // Save groups to localStorage
-  private saveGroups() {
-    localStorage.setItem('groups', JSON.stringify(this.groups));
+  getGroups(): Group[] {
+    return this.groups;
   }
 
-  // Get all groups
-  getGroups(): any[] {
-    console.log("Groups:",this.groups)
-    return this.groups
-  }
-  getGroupForTracking():any[]{
+  getGroupForTracking(): string[] {
     return this.groups.map((group) => group.name);
   }
-  getGroupMember(groupName: string):string[] {
+
+  getGroupMember(groupName: string): string[] {
     const group = this.groups.find((g) => g.name === groupName);
-    return group? group.members : [] ;
+    return group ? group.members : [];
   }
-  // Add a new group
-  addGroup(groupName: string, members: string[]): void {
-    const newGroup = {
+
+  async addGroup(groupName: string, members: string[]): Promise<void> {
+    const groupData = {
       name: groupName,
       members,
     };
+
+    const docRef = await addDoc(collection(this.firestore, 'groups'), groupData);
+    const newGroup: Group = {
+      id: docRef.id,
+      ...groupData
+    };
+    
     this.groups.push(newGroup);
-    this.saveGroups();
+    this.groupsSubject.next(this.groups);
   }
 
-  // Edit an existing group
-  editGroup(
-    selectedGroup: any,
-    updatedName: string,
-    updatedMembers: string[]
-  ): void {
-    selectedGroup.name = updatedName;
-    selectedGroup.members = updatedMembers;
-    this.saveGroups();
+  async editGroup(selectedGroup: Group, updatedName: string, updatedMembers: string[]): Promise<void> {
+    const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
+    const updateData = {
+      name: updatedName,
+      members: updatedMembers
+    };
+    
+    await updateDoc(groupRef, updateData);
+    
+    this.groups = this.groups.map(group => 
+      group.id === selectedGroup.id 
+        ? { ...group, ...updateData }
+        : group
+    );
+    this.groupsSubject.next(this.groups);
   }
 
-  // Remove a group
-  removeGroup(group: any): void {
-    this.groups = this.groups.filter((g) => g !== group);
-    this.saveGroups();
+  async removeGroup(group: Group): Promise<void> {
+    const groupRef = doc(this.firestore, 'groups', group.id);
+    await deleteDoc(groupRef);
+    
+    this.groups = this.groups.filter((g) => g.id !== group.id);
+    this.groupsSubject.next(this.groups);
   }
 
-  // Add a new member to a group
-  addMember(selectedGroup: any, newMember: string): void {
-    if (newMember) {
-      selectedGroup.members.push(newMember);
-      this.saveGroups();
+  async addMember(selectedGroup: Group, newMember: string): Promise<void> {
+    if (newMember && selectedGroup.id) {
+      const updatedMembers = [...selectedGroup.members, newMember];
+      const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
+      await updateDoc(groupRef, { members: updatedMembers });
+      
+      this.groups = this.groups.map(group =>
+        group.id === selectedGroup.id
+          ? { ...group, members: updatedMembers }
+          : group
+      );
+      this.groupsSubject.next(this.groups);
     }
   }
 
-  // Remove a member from a group
-  removeMember(selectedGroup: any, member: string): void {
-    selectedGroup.members = selectedGroup.members.filter(
-      (m: any) => m !== member
+  async removeMember(selectedGroup: Group, member: string): Promise<void> {
+    const updatedMembers = selectedGroup.members.filter(m => m !== member);
+    const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
+    await updateDoc(groupRef, { members: updatedMembers });
+    
+    this.groups = this.groups.map(group =>
+      group.id === selectedGroup.id
+        ? { ...group, members: updatedMembers }
+        : group
     );
-    this.saveGroups();
+    this.groupsSubject.next(this.groups);
   }
 }
