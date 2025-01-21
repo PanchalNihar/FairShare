@@ -45,7 +45,9 @@ body {
     cursor: pointer;
     transition: transform 0.3s, background-color 0.3s;
   }
-  
+  .pos{
+    margin: 10px;
+  }
   .hero-section .btn-primary:hover {
     transform: translateY(-4px);
     background: var(--success-color-hover);
