@@ -24,48 +24,98 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private auth: Auth) {
+    // Initialize with any existing auth state
+    const currentUser = localStorage.getItem('currentUser');
+    console.log("Current User:",currentUser)
+    if (currentUser) {
+      const userProfile = JSON.parse(currentUser);
+      this.currentUserSubject.next(userProfile as unknown as User);
+    }
+
     onAuthStateChanged(this.auth, (user) => {
       this.currentUserSubject.next(user);
+      if (user) {
+        // Ensure user data is properly stored in localStorage
+        const storedUser = localStorage.getItem(`user_${user.uid}`);
+        if (!storedUser) {
+          const userProfile: UserProfile = {
+            uid: user.uid,
+            email: user.email || '',
+            username: user.email?.split('@')[0] || 'User'
+          };
+          localStorage.setItem(`user_${user.uid}`, JSON.stringify(userProfile));
+          localStorage.setItem('currentUser', JSON.stringify(userProfile));
+        }
+      } else {
+        // Clear localStorage when user signs out
+        localStorage.clear();
+      }
     });
   }
 
   async signUp(email: string, password: string, username: string) {
     try {
+      // Clear any existing data
+      localStorage.clear();
+      
       const result = await createUserWithEmailAndPassword(
         this.auth,
         email,
         password
       );
       
-      // Create user profile
+      if (!result.user.uid) {
+        throw new Error('User creation failed - no user ID');
+      }
+
       const userProfile: UserProfile = {
         uid: result.user.uid,
         email: email,
         username: username,
       };
 
-      // Store in localStorage
+      // Store user profile
       localStorage.setItem(`user_${result.user.uid}`, JSON.stringify(userProfile));
       localStorage.setItem('currentUser', JSON.stringify(userProfile));
       
       return userProfile;
     } catch (error) {
+      console.error('Signup error:', error);
       throw error;
     }
   }
 
   async signIn(email: string, password: string) {
     try {
+      // Clear any existing data
+      localStorage.clear();
+      
       const result = await signInWithEmailAndPassword(this.auth, email, password);
       
-      // Retrieve user profile from localStorage
-      const userProfile = JSON.parse(
-        localStorage.getItem(`user_${result.user.uid}`) || '{}'
+      if (!result.user.uid) {
+        throw new Error('Sign in failed - no user ID');
+      }
+
+      // Create or get user profile
+      let userProfile = JSON.parse(
+        localStorage.getItem(`user_${result.user.uid}`) || 'null'
       );
+
+      if (!userProfile) {
+        userProfile = {
+          uid: result.user.uid,
+          email: result.user.email || email,
+          username: email.split('@')[0]
+        };
+      }
       
+      // Store user profile
+      localStorage.setItem(`user_${result.user.uid}`, JSON.stringify(userProfile));
       localStorage.setItem('currentUser', JSON.stringify(userProfile));
+      
       return userProfile;
     } catch (error) {
+      console.error('Sign in error:', error);
       throw error;
     }
   }
@@ -73,25 +123,31 @@ export class AuthService {
   async signOut() {
     try {
       await signOut(this.auth);
-      localStorage.removeItem('currentUser');
+      localStorage.clear();
+      this.currentUserSubject.next(null);
     } catch (error) {
+      console.error('Sign out error:', error);
       throw error;
     }
   }
 
+  getCurrentUser(): UserProfile | null {
+    const currentUser = localStorage.getItem('currentUser');
+    return currentUser ? JSON.parse(currentUser) : null;
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getCurrentUser();
+  }
+
   updateUserProfile(profile: Partial<UserProfile>) {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    if (currentUser.uid) {
+    const currentUser = this.getCurrentUser();
+    if (currentUser?.uid) {
       const updatedProfile = { ...currentUser, ...profile };
       localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(updatedProfile));
       localStorage.setItem('currentUser', JSON.stringify(updatedProfile));
       return updatedProfile;
     }
     throw new Error('No user logged in');
-  }
-
-  isAuthenticated() {
-   const currentUser=localStorage.getItem("currentUser")
-   return currentUser!==null
   }
 }
