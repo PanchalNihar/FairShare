@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 @Component({
   selector: 'app-signin',
@@ -26,15 +27,7 @@ export class SigninComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private router: Router,
     private auth: AuthService
-  ) {
-    // Subscribe to authentication state changes
-    // this.authSubscription = this.auth.currentUser$.subscribe(user => {
-    //   if (user) {
-    //     console.log('User is authenticated:', user.email);
-    //     this.router.navigate(['/about']);
-    //   }
-    // });
-  }
+  ) {}
 
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
@@ -67,24 +60,34 @@ export class SigninComponent implements OnInit, OnDestroy {
           this.router.navigate(['/about']);
         }
       } catch (error: any) {
-        console.error('Login error:', error);
-        let errorMessage = 'An error occurred during login.';
-
-        if (error.code === 'auth/user-not-found') {
-          errorMessage = 'No account found with this email.';
-        } else if (error.code === 'auth/wrong-password') {
-          errorMessage = 'Invalid password.';
-        } else if (error.code === 'auth/invalid-email') {
-          errorMessage = 'Invalid email format.';
-        }
-
-        alert(errorMessage);
+        this.handleError(error);
       }
-    } else {
-      // Form validation error handling remains the same
     }
   }
-
+  async onGoogleSignIn() {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log('Google Sign-in sucessfull: ', user);
+      this.router.navigate(['/about']);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to sign in with google. Please try again later');
+    }
+  }
+  private handleError(error: any): void {
+    let errorMessage = 'An error occurred during login.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Invalid password.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email format.';
+    }
+    alert(errorMessage);
+  }
   onRegister(): void {
     this.router.navigate(['/signup']);
   }
