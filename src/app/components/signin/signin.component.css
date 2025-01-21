@@ -1,15 +1,38 @@
-.divider:after,
-.divider:before {
-content: "";
-flex: 1;
-height: 1px;
-background: #eee;
-}
-.h-custom {
-height: calc(100% - 73px);
-}
-@media (max-width: 450px) {
-.h-custom {
-height: 100%;
-}
-}
+ /* Updated Gradient for the Background */
+ .gradient-custom-3 {
+    background: linear-gradient(to right, rgba(33, 37, 41, 0.8), rgba(55, 55, 115, 0.8));
+    /* Dark Gray to Muted Navy */
+  }
+
+  /* Updated Gradient for Buttons */
+  .gradient-custom-4 {
+    background: linear-gradient(to right, #495057, #212529);
+    /* Cool Gray to Almost Black */
+  }
+
+  .divider:after,
+  .divider:before {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #dee2e6;
+  }
+  .cursor{
+    cursor: pointer;
+
+  }
+  
+  .text-body {
+    color: #6c757d !important;
+    /* Softer gray for links */
+  }
+
+  .h-custom {
+    height: calc(100% - 73px);
+  }
+
+  @media (max-width: 450px) {
+    .h-custom {
+      height: 100%;
+    }
+  }

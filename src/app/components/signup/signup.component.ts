@@ -44,5 +44,7 @@ export class SignupComponent implements OnInit {
       alert('Invalid form. Please check your inputs.');
     }
   }
-  
+  onLogin(){
+    this.router.navigate(['/signin']);
+  }
 }
