@@ -1,37 +1,64 @@
 .navbar {
-  background-color: var(--navbar-background);
-  color: var(--navbar-text);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link {
-  color: var(--navbar-link);
-  text-decoration: none;
-  transition: color 0.3s ease;
-
-  &.active {
-    font-weight: bold;
-    text-decoration: underline;
-  }
-
-  &:hover {
-    color: var(--navbar-link-hover);
-  }
+/* Light Theme */
+.navbar-light {
+  background-color: #f8f9fa;
+  color: #212529;
 }
 
-/* Light Theme Variables */
-:root {
-  --navbar-background: #f8f9fa;  /* Light navbar background */
-  --navbar-text: #212529;       /* Text color */
-  --navbar-link: #007bff;       /* Link color */
-  --navbar-link-hover: #0056b3; /* Hover color */
+.navbar-light .navbar-brand,
+.navbar-light .nav-link {
+  color: #212529;
 }
 
-/* Dark Theme Variables */
-.dark-theme {
-  --navbar-background: #343a40; /* Dark navbar background */
-  --navbar-text: #f8f9fa;       /* Light text color for dark mode */
-  --navbar-link: #80bdff;       /* Link color */
-  --navbar-link-hover: #f8f9fa; /* Hover color */
+.navbar-light .nav-link:hover {
+  color: #007bff;
+}
+
+.navbar-light .nav-link.active {
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Dark Theme */
+.navbar-dark {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .nav-link {
+  color: #f8f9fa;
+}
+
+.navbar-dark .nav-link:hover {
+  color: #80bdff;
+}
+
+.navbar-dark .nav-link.active {
+  color: #80bdff;
+  font-weight: bold;
+}
+
+/* Button styles */
+.navbar-dark .btn-outline-secondary {
+  color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+
+.navbar-dark .btn-outline-primary {
+  color: #80bdff;
+  border-color: #80bdff;
+}
+
+.navbar-dark .btn-outline-success {
+  color: #28a745;
+  border-color: #28a745;
+}
+
+.navbar-dark .btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
 }

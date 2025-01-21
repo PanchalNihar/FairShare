@@ -5,6 +5,9 @@
         FairShare is a powerful, user-friendly expense management application designed to make splitting bills and managing shared expenses effortless.
       </p>
       <button class="btn-primary" (click)="backToDashBoard()">Get Started</button>
+      <button class="btn-primary" (click)="toggleDarkMode()">
+        {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+      </button>
     </div>
   </div>
   <div class="container about-app how-it-works">

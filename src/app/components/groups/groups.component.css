@@ -1,240 +1,145 @@
-/* Container Styling */
+/* Groups Component Styles */
 .container {
   max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9; /* Soft background */
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-/* Heading */
-h2 {
-  font-size: 2.5rem;
-  color: #333;
-  text-align: center;
-  margin-bottom: 30px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 1px;
+/* Light Theme */
+.container {
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
 }
 
-/* Form Sections */
-.mb-4 {
-  margin-bottom: 1.5rem;
-}
-
+/* Form Controls */
 input.form-control {
   border-radius: 8px;
-  border: 1px solid #ccc;
-  padding: 12px 15px;
+  border: 1px solid #ddd;
+  padding: 0.75rem 1rem;
   font-size: 1rem;
   width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-input.form-control:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Button Styling */
-button {
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 1rem;
-  margin: 10px 0;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-2px); /* Subtle lift effect */
-}
-
-/* Add Group Button */
-.btn-primary {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  width: 100%;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-/* Edit and Remove Group Buttons */
-.btn-success, .btn-danger {
-  width: 100%;
-  margin-top: 10px;
-}
-
-.btn-success {
-  background-color: #28a745;
-  border: none;
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #218838;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border: none;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
-}
-
-/* Expense Form */
-h3 {
-  font-size: 1.5rem;
+  background-color: #ffffff;
   color: #333;
-  margin-top: 30px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  height: 48px;
 }
 
-input.form-control {
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  padding: 12px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+input.form-control::placeholder {
+  color: #6c757d;
+  opacity: 0.7;
 }
 
-/* Add Expense Button */
-.btn-info {
-  background-color: #17a2b8;
-  border: none;
-  color: white;
-  width: 100%;
-}
-
-.btn-info:hover {
-  background-color: #138496;
-}
-
-/* Group List Styling */
-ul.list-group {
+/* List Items */
+.list-group {
+  display: grid;
+  gap: 1rem;
   padding: 0;
-  margin-top: 30px;
-  list-style-type: none;
+  margin: 1.5rem 0;
+  list-style: none;
 }
 
 li.list-group-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background-color: #f8f9fa;
-  padding: 12px 18px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 0;
+  padding: 1rem;
   border-radius: 8px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s ease, background-color 0.3s ease;
-}
-
-li.list-group-item:hover {
-  background-color: #e9ecef;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-li.list-group-item span {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-li.list-group-item button {
-  border-radius: 50%;
-  padding: 6px 10px;
-  background-color: #ffc107;
-  border: none;
-  color: white;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-li.list-group-item button:hover {
-  background-color: #e0a800;
-  transform: translateY(-2px);
-}
-
-/* Add Member Form */
-.add-member-form {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  gap: 0.75rem;
   align-items: center;
-  margin-top: 15px;
+  transition: all 0.3s ease;
 }
 
-.add-member-form input {
-  width: 80%;
-  margin-right: 10px;
+/* Button Groups */
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 1rem 0;
 }
 
-.add-member-form button {
-  width: 18%;
-  padding: 8px 15px;
-  font-size: 0.9rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+/* Dark Theme */
+:host-context(.dark-theme) .container {
+  background-color: #2d2d2d;
+  color: #f8f9fa;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border-color: #404040;
 }
 
-.add-member-form button:hover {
-  background-color: #218838;
+:host-context(.dark-theme) input.form-control {
+  background-color: #1a1a1a;
+  border-color: #404040;
+  color: #f8f9fa;
 }
 
-/* Small Button Styles */
-.custom-btn-small {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  width: 80px;
-  display: inline-block;
-  background-color: #dc3545;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+:host-context(.dark-theme) input.form-control::placeholder {
+  color: #adb5bd;
+  opacity: 0.8;
 }
 
-.custom-btn-small:hover {
-  background-color: #c82333;
+:host-context(.dark-theme) input.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
-.existing-group{
-  cursor: pointer;
+
+:host-context(.dark-theme) li.list-group-item {
+  background-color: #1a1a1a;
+  border-color: #404040;
+  color: #f8f9fa;
+}
+
+:host-context(.dark-theme) li.list-group-item:hover {
+  background-color: #2d2d2d;
+}
+
+:host-context(.dark-theme) .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+:host-context(.dark-theme) .btn-success {
+  background-color: #157347;
+  border-color: #157347;
+}
+
+:host-context(.dark-theme) .btn-danger {
+  background-color: #bb2d3b;
+  border-color: #bb2d3b;
+}
+
+:host-context(.dark-theme) .btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+:host-context(.dark-theme) h2,
+:host-context(.dark-theme) h3,
+:host-context(.dark-theme) h4 {
+  color: #f8f9fa;
+}
+
+:host-context(.dark-theme) .custom-btn-small {
+  background-color: #bb2d3b;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 15px;
+    margin: 1rem;
+    padding: 1.5rem;
   }
-
-  h2 {
-    font-size: 1.8rem;
-  }
-
-  .btn {
+  
+  .button-group {
+    flex-direction: column;
     width: 100%;
   }
-
-  .list-group-item {
-    padding: 10px 15px;
-  }
-
-  .add-member-form input {
-    width: 75%;
-  }
-
-  .add-member-form button {
-    width: 22%;
+  
+  .btn {
+    width: 100%;
   }
 }

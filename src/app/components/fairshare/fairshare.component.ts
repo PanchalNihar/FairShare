@@ -13,4 +13,10 @@ export class FairshareComponent {
   backToDashBoard(){
     this.router.navigate(['/dashboard']);
   }
+  isDarkMode: boolean = false;
+
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
+  }
 }
