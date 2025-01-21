@@ -1,4 +1,44 @@
-/* Ensure proper alignment of cards */
+/* Default Light Theme Styles */
+:root {
+  --card-background: #ffffff;
+  --card-text: #333;
+  --card-header-background: #f7f8fa;
+  --card-border: #ececec;
+
+  --widget-background: #e9ecef;
+  --widget-text: #333;
+
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+
+  --warning-color: #ffc107;
+  --warning-hover: #e0a800;
+
+  --success-color: #28a745;
+  --success-hover: #218838;
+}
+
+/* Dark Theme Styles */
+.dark-theme {
+  --card-background: #343a40;
+  --card-text: #f8f9fa;
+  --card-header-background: #495057;
+  --card-border: #6c757d;
+
+  --widget-background: #495057;
+  --widget-text: #f8f9fa;
+
+  --primary-color: #80bdff;
+  --primary-hover: #5a9bdf;
+
+  --warning-color: #ffc107;
+  --warning-hover: #e6a700;
+
+  --success-color: #28a745;
+  --success-hover: #1f7a33;
+}
+
+/* General Layout Styles (Alignment) */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -13,29 +53,35 @@
 }
 
 .card {
-  border: none;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  width: 100%; /* Ensure cards take up full width of their column */
+  width: 100%;
+  background-color: var(--card-background);
+  color: var(--card-text);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .card-header {
-  background-color: #f7f8fa;
+  background-color: var(--card-header-background);
   padding: 15px;
-  border-bottom: 1px solid #ececec;
+  border-bottom: 1px solid var(--card-border);
+  color: var(--card-text);
 }
 
 .card-title {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #333;
   text-align: center;
 }
 
-/* Widget Styling */
+/* Widget Styles */
 .widget-49 {
   padding: 20px;
+  background-color: var(--widget-background);
+  color: var(--widget-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .widget-49-title-wrapper {
@@ -50,23 +96,24 @@
 .widget-49-date-success {
   width: 50px;
   height: 50px;
-  background-color: #e9ecef;
+  background-color: var(--widget-background);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
 .widget-49-date-primary {
-  background-color: #007bff;
+  background-color: var(--primary-color);
 }
 
 .widget-49-date-warning {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
 }
 
 .widget-49-date-success {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .widget-49-date-primary img,
@@ -79,26 +126,26 @@
 .widget-49-pro-title {
   font-size: 1rem;
   font-weight: 500;
-  color: #333;
+  color: var(--widget-text);
   margin-left: 10px;
 }
 
 .widget-49-description {
   font-size: 0.875rem;
-  color: #555;
+  color: var(--widget-text);
   margin-top: 10px;
   margin-bottom: 15px;
   line-height: 1.4;
   text-align: justify;
 }
 
-/* Button Styling */
+/* Button Styles */
 .btn {
   display: inline-block;
   padding: 8px 20px;
   font-size: 0.875rem;
   border-radius: 25px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
   text-align: center;
 }
 
@@ -106,38 +153,36 @@
   transform: scale(1.05);
 }
 
-/* Button Styling */
 .btn-flash-border-primary {
-  background-color: #007bff;
+  background-color: var(--primary-color);
   color: white;
-  border: 1px solid #007bff;
+  border: 1px solid var(--primary-color);
 }
 
 .btn-flash-border-primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
+  background-color: var(--primary-hover);
 }
 
 .btn-flash-border-warning {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: white;
-  border: 1px solid #ffc107;
+  border: 1px solid var(--warning-color);
 }
 
 .btn-flash-border-warning:hover {
-  background-color: #e0a800;
-  border-color: #e0a800;
+  background-color: var(--warning-hover);
 }
-
+.btn-flash-border-info{
+  background-color: var(--info-color);
+}
 .btn-flash-border-success {
-  background-color: #28a745;
+  background-color: var(--success-color);
   color: white;
-  border: 1px solid #28a745;
+  border: 1px solid var(--success-color);
 }
 
 .btn-flash-border-success:hover {
-  background-color: #218838;
-  border-color: #218838;
+  background-color: var(--success-hover);
 }
 
 /* Responsive Design */

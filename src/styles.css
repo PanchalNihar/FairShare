@@ -1,1 +1,91 @@
-/* You can add global styles to this file, and also import other style files */
+/* Light Theme */
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --input-background: #f9f9f9;
+  --input-border: #cccccc;
+  --button-background: #007bff;
+  --button-text: #ffffff;
+
+  --card-background: #ffffff;
+  --card-text: #333;
+  --card-header-background: #f7f8fa;
+  --card-border: #ececec;
+
+  --widget-background: #e9ecef;
+  --widget-text: #333;
+
+  --primary-color: #007bff;
+  --primary-color-hover: #0056b3;
+
+  --info-color: #C70039;
+  --info-color-hover: #C70039;
+
+  --warning-color: #ffc107;
+  --warning-color-hover: #e0a800;
+
+  --success-color: #28a745;
+  --success-color-hover: #218838;
+}
+
+/* Dark Theme */
+.dark-theme {
+  --background-color: #000000;
+  --text-color: #000000;
+  --input-background: #1e1e1e;
+  --input-border: #333333;
+  --button-background: #0056b3;
+  --button-text: #ffffff;
+
+  --card-background: #343a40;
+  --card-text: #f8f9fa;
+  --card-header-background: #495057;
+  --card-border: #6c757d;
+
+  --widget-background: #495057;
+  --widget-text: #f8f9fa;
+
+  --primary-color: #80bdff;
+  --primary-color-hover: #5a9bdf;
+
+  --warning-color: #ffc107;
+  --warning-color-hover: #e6a700;
+
+  --success-color: #28a745;
+  --success-color-hover: #1f7a33;
+}
+
+/* Use Variables */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+input,
+textarea,
+select {
+  background-color: var(--input-background);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  background-color: var(--button-background);
+  color: var(--button-text);
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
+
+.profile-container {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: var(--background-color); /* Ensure it adapts to themes */
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

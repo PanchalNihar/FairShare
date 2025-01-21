@@ -1,51 +1,98 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <a class="navbar-brand" [routerLink]="'/about'">FairShare</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="'/dashboard'" routerLinkActive="active">Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="'/profile'" routerLinkActive="active">Profile</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="'/groups'" routerLinkActive="active">Groups</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="'/expense-management'" routerLinkActive="active">Expense Management</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="'/expense-tracking'" routerLinkActive="active">Expense Tracking</a>
-          </li>
-        </ul>
-  
-        <ul class="navbar-nav">
-          <!-- Show these buttons if user is NOT logged in -->
-          <li class="nav-item" *ngIf="!isLoggedIn">
-            <a class="btn btn-outline-primary me-2" [routerLink]="'/signin'" routerLinkActive="active">Login</a>
-          </li>
-          <li class="nav-item" *ngIf="!isLoggedIn">
-            <a class="btn btn-outline-success" [routerLink]="'/signup'" routerLinkActive="active">Register</a>
-          </li>
-  
-          <!-- Show logout button if user IS logged in -->
-          <li class="nav-item" *ngIf="isLoggedIn">
-            <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
-          </li>
-        </ul>
-      </div>
+<nav
+  class="navbar navbar-expand-lg"
+  [ngClass]="{ 'navbar-light': !isDarkMode, 'bg-light': !isDarkMode, 'navbar-dark': isDarkMode, 'bg-dark': isDarkMode }"
+>
+  <div class="container-fluid">
+    <a class="navbar-brand" [routerLink]="'/about'">FairShare</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/dashboard'"
+            [routerLinkActive]="['active']"
+            [ngClass]="{ 'nav-link': true }"
+          >
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/profile'"
+            [routerLinkActive]="['active']"
+            [ngClass]="{ 'nav-link': true }"
+          >
+            Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/groups'"
+            [routerLinkActive]="['active']"
+            [ngClass]="{ 'nav-link': true }"
+          >
+            Groups
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/expense-management'"
+            [routerLinkActive]="['active']"
+            [ngClass]="{ 'nav-link': true }"
+          >
+            Expense Management
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/expense-tracking'"
+            [routerLinkActive]="['active']"
+            [ngClass]="{ 'nav-link': true }"
+          >
+            Expense Tracking
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav align-items-center">
+        <!-- Dark mode toggle -->
+        <li class="nav-item">
+          <button
+            class="btn btn-outline-secondary me-3"
+            (click)="toggleDarkMode()"
+            [ngClass]="{ 'active': isDarkMode }"
+          >
+            {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+          </button>
+        </li>
+
+        <!-- Show these buttons if user is NOT logged in -->
+        <li class="nav-item" *ngIf="!isLoggedIn">
+          <a class="btn btn-outline-primary me-2" [routerLink]="'/signin'" routerLinkActive="active">Login</a>
+        </li>
+        <li class="nav-item" *ngIf="!isLoggedIn">
+          <a class="btn btn-outline-success" [routerLink]="'/signup'" routerLinkActive="active">Register</a>
+        </li>
+
+        <!-- Show logout button if user IS logged in -->
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
+        </li>
+      </ul>
     </div>
-  </nav>
-  
+  </div>
+</nav>

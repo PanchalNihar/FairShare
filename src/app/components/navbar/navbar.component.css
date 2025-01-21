@@ -1,9 +1,37 @@
 .navbar {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .nav-link.active {
+  background-color: var(--navbar-background);
+  color: var(--navbar-text);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link {
+  color: var(--navbar-link);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &.active {
     font-weight: bold;
     text-decoration: underline;
   }
-  
+
+  &:hover {
+    color: var(--navbar-link-hover);
+  }
+}
+
+/* Light Theme Variables */
+:root {
+  --navbar-background: #f8f9fa;  /* Light navbar background */
+  --navbar-text: #212529;       /* Text color */
+  --navbar-link: #007bff;       /* Link color */
+  --navbar-link-hover: #0056b3; /* Hover color */
+}
+
+/* Dark Theme Variables */
+.dark-theme {
+  --navbar-background: #343a40; /* Dark navbar background */
+  --navbar-text: #f8f9fa;       /* Light text color for dark mode */
+  --navbar-link: #80bdff;       /* Link color */
+  --navbar-link-hover: #f8f9fa; /* Hover color */
+}
