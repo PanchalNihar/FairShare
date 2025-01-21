@@ -72,7 +72,7 @@
         <!-- Dark mode toggle -->
         <li class="nav-item">
           <button
-            class="btn btn-outline-secondary me-3"
+            class="btn btn-outline-secondary me-3 pos"
             (click)="toggleDarkMode()"
             [ngClass]="{ 'active': isDarkMode }"
           >
@@ -82,15 +82,15 @@
 
         <!-- Show these buttons if user is NOT logged in -->
         <li class="nav-item" *ngIf="!isLoggedIn">
-          <a class="btn btn-outline-primary me-2" [routerLink]="'/signin'" routerLinkActive="active">Login</a>
+          <a class="btn btn-outline-primary me-2 pos" [routerLink]="'/signin'" routerLinkActive="active">Login</a>
         </li>
         <li class="nav-item" *ngIf="!isLoggedIn">
-          <a class="btn btn-outline-success" [routerLink]="'/signup'" routerLinkActive="active">Register</a>
+          <a class="btn btn-outline-success pos" [routerLink]="'/signup'" routerLinkActive="active">Register</a>
         </li>
 
         <!-- Show logout button if user IS logged in -->
         <li class="nav-item" *ngIf="isLoggedIn">
-          <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
+          <button class="btn btn-outline-danger pos" (click)="logout()">Logout</button>
         </li>
       </ul>
     </div>
