@@ -13,6 +13,7 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service'; // Import the AuthService to get the current user's ID
 import QRCode from 'qrcode';
+
 interface Group {
   id: string;
   name: string;
@@ -32,21 +33,24 @@ export class GroupService {
   constructor(private firestore: Firestore, private authService: AuthService) {
     this.loadGroups();
   }
+
   private generateSharingCode(): string {
     return (
       Math.random().toString(36).substring(2, 15) +
       Math.random().toString(36).substring(2, 15)
     );
   }
+
   private async generateQrCode(sharingCode: string): Promise<string> {
     try {
-      const url = `${window.location.origin}/joingroup/${sharingCode}`;
+      const url = `${window.location.origin}/joingroup?code=${sharingCode}`;
       return await QRCode.toDataURL(url);
     } catch (error) {
       console.error('Error Generating QR', error);
       throw error;
     }
   }
+
   private async loadGroups() {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
@@ -164,44 +168,46 @@ export class GroupService {
     );
     this.groupsSubject.next(this.groups);
   }
+
+  // Updated method to join a group using the sharingCode query parameter
   async joinGroup(sharingCode: string): Promise<void> {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
       throw new Error('No user is logged in');
     }
-  
+
     // Search for the group with the matching sharing code in Firestore
     const groupRef = collection(this.firestore, 'groups');
     const groupQuery = query(groupRef, where('sharingCode', '==', sharingCode));
     const querySnapshot = await getDocs(groupQuery);
-  
+
     if (querySnapshot.empty) {
       throw new Error('Invalid sharing code. Group not found.');
     }
-  
+
     const groupDoc = querySnapshot.docs[0];
     const group = { id: groupDoc.id, ...groupDoc.data() } as Group;
-  
+
     if (group.members.includes(currentUser.uid)) {
       throw new Error('You are already a member of this group.');
     }
-  
+
     // Add the current user to the group's members
     const updatedMembers = [...group.members, currentUser.uid];
-  
+
     // Update Firestore
     await updateDoc(doc(this.firestore, 'groups', group.id), {
       members: updatedMembers,
     });
-  
+
     // Update local state
     const updatedGroup = { ...group, members: updatedMembers };
     this.groups.push(updatedGroup); // Add the group to the local groups array
     this.groupsSubject.next(this.groups);
-  
+
     console.log(`Successfully joined the group: ${group.name}`);
   }
-  
+
   async getGroupQRCode(groupId: string): Promise<string> {
     const group = this.groups.find((g) => g.id === groupId);
     if (!group) {
