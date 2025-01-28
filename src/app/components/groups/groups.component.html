@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+
 <div class="container">
   <h2>Create Group</h2>
 
@@ -23,36 +24,42 @@
       [(ngModel)]="newMember"
       placeholder="Enter Member Name"
     />
-    <button type="button" class="btn btn-primary mt-2" (click)="addMember()">
+    <button 
+      type="button" 
+      class="btn btn-primary mt-2" 
+      (click)="addMember()"
+      [disabled]="!newMember.trim()"
+    >
       Add Member
     </button>
   </div>
 
-  <!-- Ensure members array exists before rendering -->
-  <div *ngIf="members">
-    <h4>Members</h4>
-    <ul>
-      <li *ngFor="let member of members">
+  <!-- Current Members List -->
+  <div *ngIf="members && members.length > 0" class="mb-4">
+    <h4>Current Members</h4>
+    <ul class="list-group">
+      <li *ngFor="let member of members" class="list-group-item d-flex justify-content-between align-items-center">
         {{ member }}
         <button
           type="button"
-          class="btn btn-danger custom-btn-small"
+          class="btn btn-danger btn-sm"
           (click)="deleteMember(member)"
         >
-          Delete
+          Remove
         </button>
       </li>
     </ul>
   </div>
 
   <!-- Group Actions -->
-  <div class="buttons mt-4">
+  <div class="button-group mb-4">
     <!-- Create Group -->
     <button
       *ngIf="!selectedGroup"
       type="button"
       class="btn btn-success"
       (click)="addGroup()"
+      [disabled]="!groupName || members.length === 0"
     >
       Create Group
     </button>
@@ -61,10 +68,21 @@
     <button
       *ngIf="selectedGroup"
       type="button"
-      class="btn btn-warning"
+      class="btn btn-warning me-2"
       (click)="editGroup()"
+      [disabled]="!groupName || members.length === 0"
     >
       Save Changes
+    </button>
+
+    <!-- Cancel Edit -->
+    <button
+      *ngIf="selectedGroup"
+      type="button"
+      class="btn btn-secondary me-2"
+      (click)="clearGroupForm()"
+    >
+      Cancel Edit
     </button>
 
     <!-- Remove Group -->
@@ -79,20 +97,54 @@
   </div>
 
   <!-- Existing Groups -->
-  <div *ngIf="groups">
-    <h3 class="mt-4">Existing Groups</h3>
-    <ul>
-      <li
-        *ngFor="let group of groups"
-        (click)="selectGroup(group)"
-        class="existing-group"
-      >
-        {{ group.name }} ({{ group.members?.length || 0 }} members)
-      </li>
-    </ul>
+  <div *ngIf="groups && groups.length > 0">
+    <h3>Existing Groups</h3>
+    <div class="list-group">
+      <div *ngFor="let group of groups" class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1">{{ group.name }}</h5>
+            <small>{{ group.members?.length || 0 }} members</small>
+          </div>
+          <div class="button-group">
+            <button 
+              class="btn btn-primary btn-sm me-2" 
+              (click)="showQrCode(group)"
+              title="Share Group"
+            >
+              Share
+            </button>
+            <button 
+              class="btn btn-secondary btn-sm" 
+              (click)="selectGroup(group)"
+              title="Edit Group"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <button type="button" class="btn btn-success" (click)="backtoDashboard()">
-    Back
-  </button>
+  <!-- QR Code Modal -->
+  <div *ngIf="qrCodeurl" class="qr-modal">
+    <div class="qr-modal-content">
+      <h4>Share Group</h4>
+      <div class="qr-code-container">
+        <img [src]="qrCodeurl" alt="Group QR Code">
+      </div>
+      <p class="text-muted">Scan this QR code to join the group</p>
+      <div class="button-group mt-3">
+        <button class="btn btn-secondary" (click)="closeQrCode()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Dashboard -->
+  <div class="mt-4">
+    <button type="button" class="btn btn-primary" (click)="backtoDashboard()">
+      Back to Dashboard
+    </button>
+  </div>
 </div>

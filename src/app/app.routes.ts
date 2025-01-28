@@ -8,6 +8,7 @@ import { authGuard } from './auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FairshareComponent } from './components/fairshare/fairshare.component';
 import { GroupsComponent } from './components/groups/groups.component';
+import { JoingroupComponent } from './components/joingroup/joingroup.component';
 
 export const routes: Routes = [
   {
@@ -50,6 +51,11 @@ export const routes: Routes = [
   {
     path: 'about',
     component: FairshareComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'joingroup/:code',
+    component: JoingroupComponent,
     canActivate: [authGuard],
   },
 ];

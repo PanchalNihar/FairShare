@@ -9,15 +9,15 @@ import { NavbarComponent } from '../navbar/navbar.component';
   selector: 'app-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
-  imports:[FormsModule,CommonModule,NavbarComponent]
+  imports: [FormsModule, CommonModule, NavbarComponent],
 })
 export class GroupsComponent implements OnInit {
-  groups: any[] = []; 
+  groups: any[] = [];
   selectedGroup: any = null;
   groupName: string = '';
   newMember: string = '';
-  members: string[] = []; 
-
+  members: string[] = [];
+  qrCodeurl: string | null = null;
   constructor(private router: Router, private groupService: GroupService) {}
 
   ngOnInit(): void {
@@ -25,7 +25,16 @@ export class GroupsComponent implements OnInit {
     this.groups = this.groupService.getGroups() || [];
     console.log('Loaded groups:', this.groups);
   }
-
+  async showQrCode(group: any) {
+    try {
+      this.qrCodeurl = await this.groupService.getGroupQRCode(group.id);
+    } catch (error) {
+      console.log('Error generating qr code ', error);
+    }
+  }
+  closeQrCode() {
+    this.qrCodeurl = null;
+  }
   addGroup() {
     if (this.groupName && this.members.length > 0) {
       console.log('Adding group:', this.groupName, this.members);
@@ -45,7 +54,11 @@ export class GroupsComponent implements OnInit {
 
   editGroup() {
     if (this.selectedGroup) {
-      this.groupService.editGroup(this.selectedGroup, this.groupName, this.members);
+      this.groupService.editGroup(
+        this.selectedGroup,
+        this.groupName,
+        this.members
+      );
       this.groups = this.groupService.getGroups() || [];
       this.clearGroupForm();
     }

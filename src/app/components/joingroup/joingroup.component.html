@@ -1,0 +1,37 @@
+<app-navbar></app-navbar>
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body text-center">
+      <h2 class="card-title mb-4">Join Group</h2>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="success" class="alert alert-success" role="alert">
+        Successfully joined the group!
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <!-- Buttons -->
+      <div class="mt-4">
+        <button
+          *ngIf="!success && !isLoading"
+          class="btn btn-primary me-2"
+          (click)="joinGroup()"
+        >
+          Join Group
+        </button>
+        <button class="btn btn-secondary" (click)="navigateToDashboard()">
+          Go to Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

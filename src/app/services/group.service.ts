@@ -1,13 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, query, where } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  doc,
+  query,
+  where,
+} from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service'; // Import the AuthService to get the current user's ID
-
+import QRCode from 'qrcode';
 interface Group {
   id: string;
   name: string;
   members: string[];
   createdBy: string; // Added property to store the user who created the group
+  sharingCode: string;
 }
 
 @Injectable({
@@ -21,7 +32,21 @@ export class GroupService {
   constructor(private firestore: Firestore, private authService: AuthService) {
     this.loadGroups();
   }
-
+  private generateSharingCode(): string {
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
+  }
+  private async generateQrCode(sharingCode: string): Promise<string> {
+    try {
+      const url = `${window.location.origin}/joingroup/${sharingCode}`;
+      return await QRCode.toDataURL(url);
+    } catch (error) {
+      console.error('Error Generating QR', error);
+      throw error;
+    }
+  }
   private async loadGroups() {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
@@ -31,12 +56,18 @@ export class GroupService {
     }
 
     const groupsRef = collection(this.firestore, 'groups');
-    const groupsQuery = query(groupsRef, where('createdBy', '==', currentUser.uid));
+    const groupsQuery = query(
+      groupsRef,
+      where('createdBy', '==', currentUser.uid)
+    );
     const querySnapshot = await getDocs(groupsQuery);
-    this.groups = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Group));
+    this.groups = querySnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as Group)
+    );
     this.groupsSubject.next(this.groups);
   }
 
@@ -58,14 +89,18 @@ export class GroupService {
     if (!currentUser) {
       throw new Error('No user is logged in');
     }
-
+    const sharingCode = this.generateSharingCode();
     const groupData = {
       name: groupName,
       members,
       createdBy: currentUser.uid, // Associate the group with the current user's ID
+      sharingCode,
     };
 
-    const docRef = await addDoc(collection(this.firestore, 'groups'), groupData);
+    const docRef = await addDoc(
+      collection(this.firestore, 'groups'),
+      groupData
+    );
     const newGroup: Group = {
       id: docRef.id,
       ...groupData,
@@ -75,7 +110,11 @@ export class GroupService {
     this.groupsSubject.next(this.groups);
   }
 
-  async editGroup(selectedGroup: Group, updatedName: string, updatedMembers: string[]): Promise<void> {
+  async editGroup(
+    selectedGroup: Group,
+    updatedName: string,
+    updatedMembers: string[]
+  ): Promise<void> {
     const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
     const updateData = {
       name: updatedName,
@@ -105,7 +144,9 @@ export class GroupService {
       await updateDoc(groupRef, { members: updatedMembers });
 
       this.groups = this.groups.map((group) =>
-        group.id === selectedGroup.id ? { ...group, members: updatedMembers } : group
+        group.id === selectedGroup.id
+          ? { ...group, members: updatedMembers }
+          : group
       );
       this.groupsSubject.next(this.groups);
     }
@@ -117,8 +158,53 @@ export class GroupService {
     await updateDoc(groupRef, { members: updatedMembers });
 
     this.groups = this.groups.map((group) =>
-      group.id === selectedGroup.id ? { ...group, members: updatedMembers } : group
+      group.id === selectedGroup.id
+        ? { ...group, members: updatedMembers }
+        : group
     );
     this.groupsSubject.next(this.groups);
+  }
+  async joinGroup(sharingCode: string): Promise<void> {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      throw new Error('No user is logged in');
+    }
+
+    const groupRef = collection(this.firestore, 'groups');
+    const groupQuery = query(groupRef, where('sharingCode', '==', sharingCode));
+    const querySnapshot = await getDocs(groupQuery);
+
+    if (querySnapshot.empty) {
+      throw new Error('Group not found');
+    }
+
+    const groupDoc = querySnapshot.docs[0];
+    const group = { id: groupDoc.id, ...groupDoc.data() } as Group;
+
+    if (group.members.includes(currentUser.uid)) {
+      throw new Error('User is already a member of the group');
+    }
+
+    // Create new array with the current user's ID
+    const updatedMembers = [...group.members, currentUser.uid];
+
+    // Update Firestore
+    await updateDoc(doc(this.firestore, 'groups', group.id), {
+      members: updatedMembers,
+    });
+
+    // Update local state
+    const updatedGroup = { ...group, members: updatedMembers };
+    this.groups = this.groups.map((g) =>
+      g.id === group.id ? updatedGroup : g
+    );
+    this.groupsSubject.next(this.groups);
+  }
+  async getGroupQRCode(groupId: string): Promise<string> {
+    const group = this.groups.find((g) => g.id === groupId);
+    if (!group) {
+      throw new Error('Group not found');
+    }
+    return this.generateQrCode(group.sharingCode);
   }
 }

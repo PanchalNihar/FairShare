@@ -126,7 +126,36 @@ li.list-group-item {
 :host-context(.dark-theme) .custom-btn-small {
   background-color: #bb2d3b;
 }
+.qr-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.qr-modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.qr-modal-content img {
+  max-width: 256px;
+  margin: 1rem 0;
+}
+
+/* Dark theme support */
+:host-context(.dark-theme) .qr-modal-content {
+  background-color: #2d2d2d;
+  color: #f8f9fa;
+}
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
