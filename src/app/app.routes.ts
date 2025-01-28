@@ -56,6 +56,7 @@ export const routes: Routes = [
   {
     path: 'joingroup/:code',
     component: JoingroupComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
+    data:{renderMode:'ssr'}
   },
 ];

@@ -14,14 +14,14 @@ export class JoingroupComponent implements OnInit {
   isLoading = false;
   success = false;
   error = '';
-  private sharingCode = '';
+  sharingCode: string | null = null;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private groupService: GroupService
   ) {}
   ngOnInit(): void {
-    this.sharingCode = this.route.snapshot.params['code'];
+    this.sharingCode = this.route.snapshot.paramMap.get('code');
     if (!this.sharingCode) {
       this.error = 'Invalid Group Code';
     }
