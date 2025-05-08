@@ -26,7 +26,7 @@ export class AuthService {
   constructor(private auth: Auth) {
     // Initialize with any existing auth state
     const currentUser = localStorage.getItem('currentUser');
-    console.log("Current User:",currentUser)
+    // console.log("Current User:",currentUser)
     if (currentUser) {
       const userProfile = JSON.parse(currentUser);
       this.currentUserSubject.next(userProfile as unknown as User);

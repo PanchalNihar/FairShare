@@ -44,6 +44,7 @@ export class GroupService {
   private async generateQrCode(sharingCode: string): Promise<string> {
     try {
       const url = `${window.location.origin}/joingroup?code=${sharingCode}`;
+      console.log("QR code url:",url)
       return await QRCode.toDataURL(url);
     } catch (error) {
       console.error('Error Generating QR', error);
@@ -105,6 +106,7 @@ export class GroupService {
       collection(this.firestore, 'groups'),
       groupData
     );
+    console.log("Group saved with ID:", docRef.id);
     const newGroup: Group = {
       id: docRef.id,
       ...groupData,
@@ -175,12 +177,15 @@ export class GroupService {
     if (!currentUser) {
       throw new Error('No user is logged in');
     }
-
+    console.log("joining group with code:",sharingCode)
     // Search for the group with the matching sharing code in Firestore
     const groupRef = collection(this.firestore, 'groups');
     const groupQuery = query(groupRef, where('sharingCode', '==', sharingCode));
     const querySnapshot = await getDocs(groupQuery);
-
+    const allGroupsSnapshot=await getDocs(groupRef)
+    allGroupsSnapshot.forEach((doc) => {
+      console.log(`Group: ${doc.id}, Name: ${doc.data.name}`);
+    });
     if (querySnapshot.empty) {
       throw new Error('Invalid sharing code. Group not found.');
     }

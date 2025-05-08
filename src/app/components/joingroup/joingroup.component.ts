@@ -23,14 +23,15 @@ export class JoingroupComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get the sharing code from query parameters
-    this.route.queryParams.subscribe((params) => {
-      this.sharingCode = params['code'] || null;  // Default to null if code is not provided
-      if (!this.sharingCode) {
-        this.error = 'Invalid Group Code';
-      }
-    });
+    const queryParams = this.route.snapshot.queryParams;
+    console.log("Query Params:",queryParams)
+    this.sharingCode = queryParams['code'] || null;  // Default to null if code is not provided
+    if (!this.sharingCode) {
+      this.error = 'Invalid Group Code';
+    }
+    console.log("Sharing Code:", this.sharingCode);
   }
+  
 
   async joinGroup() {
     if (!this.sharingCode) {

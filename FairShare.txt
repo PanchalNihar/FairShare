@@ -1,0 +1,38 @@
+Technologies :
+	-Angular 18
+	-CSS
+	-Local Storage (Storing Data)
+
+Features:
+	1)User Group
+	2)Expense Management
+	3)Expense Tracking 
+	4)Sign in or Sign up
+
+Application Structure:
+
+	1)Modules:
+		-Group Module
+		-Expense Module
+	2)Components:
+		-Sign up Component
+		-Sign in Component
+		-Dashboard Component
+		-Group List Component
+		-Group Details Component
+		-Expense Component
+		-Expense Tracking Component
+	3)Features Development:
+		-Group Management:
+			-Add functionality to create, edit and delete groups
+			-Storing group in local storage
+		-Add Members:
+			-Allow editing/adding members to each group
+		-Expense Management:
+			-Input for expense title, amount paid and payer information
+			-split expense evenly among the group
+		-Balance Calculation:
+			-Compute balances dynamically whenever a new expense is added
+			-Algorithm to calculate who owes whom
+		-Local Storage Integration:
+			-Save(group, expense, members) in local storage
