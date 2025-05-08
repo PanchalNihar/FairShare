@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, query, where } from '@angular/fire/firestore';
 import { Observable, BehaviorSubject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 export interface Expense {
   id: string;
@@ -20,18 +21,29 @@ export class ExpenseService {
   private expenseSubject = new BehaviorSubject<Expense[]>([]);
   expenses$ = this.expenseSubject.asObservable();
   
-  constructor(private firestore: Firestore) {
+  constructor(private firestore: Firestore,private authService:AuthService) {
     this.loadExpenses();
   }
 
   private async loadExpenses() {
-    const expensesRef = collection(this.firestore, 'expenses');
-    const querySnapshot = await getDocs(expensesRef);
-    this.expenseList = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Expense));
-    this.expenseSubject.next(this.expenseList);
+    try {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) {
+        console.log('No authenticated user when loading expenses');
+        return;
+      }
+      
+      console.log('Loading expenses with user:', currentUser.uid);
+      const expensesRef = collection(this.firestore, 'expenses');
+      const querySnapshot = await getDocs(expensesRef);
+      this.expenseList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Expense));
+      this.expenseSubject.next(this.expenseList);
+    } catch (error) {
+      console.error('Error loading expenses:', error);
+    }
   }
 
   getExpense(): Expense[] {
