@@ -1,0 +1,33 @@
+name: Angular App to Netlify 
+
+on: 
+    push:
+        branches: [master]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js  
+              uses: actions/setup-node@v4
+              with:
+                node-version: '18'
+            
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build the app
+              run: npm run build --if-present
+
+            - name: Deploy to Netilfy
+              uses: nwtgck/actions-netlify@v2.0.0
+              with:
+                publish-dir: ./dist/fair-share/browser
+                production-deploy: true
+                deploy-message: 'Deploying Angular app to Netlify'
+              env:
+                NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+                NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
