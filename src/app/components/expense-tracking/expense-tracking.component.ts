@@ -1,17 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ExpenseTrackingService } from '../../services/expense-tracking.service';
 import { GroupService } from '../../services/group.service';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-expense-tracking',
-  imports: [NavbarComponent, CommonModule, FormsModule, DatePipe, DecimalPipe],
+  imports: [NavbarComponent, CommonModule, FormsModule, DecimalPipe],
   templateUrl: './expense-tracking.component.html',
   styleUrls: ['./expense-tracking.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class ExpenseTrackingComponent implements OnInit, OnDestroy {
   availableGroups: string[] = [];
@@ -19,6 +20,7 @@ export class ExpenseTrackingComponent implements OnInit, OnDestroy {
   groupExpenses: any[] = [];
   memberSpendings: any = {};
   balances: any[] = [];
+
   private groupsSub?: Subscription;
 
   constructor(
@@ -28,8 +30,11 @@ export class ExpenseTrackingComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to group changes
     this.groupsSub = this.groupService.groups$.subscribe(() => {
       this.availableGroups = this.groupService.getGroupForTracking();
+
+      // Refresh data if a group is already selected
       if (this.selectedGroup) {
         this.onGroupSelect();
       }
@@ -42,19 +47,49 @@ export class ExpenseTrackingComponent implements OnInit, OnDestroy {
     }
   }
 
-  onGroupSelect() {
+  // Handle group selection
+  onGroupSelect(): void {
     if (this.selectedGroup) {
-      this.groupExpenses = this.expenseTracking.getExpenseByGroup(this.selectedGroup);
-      this.memberSpendings = this.expenseTracking.calculateMemberSpending(this.selectedGroup);
-      this.balances = this.expenseTracking.calculateBalances(this.selectedGroup) || [];
+      try {
+        this.groupExpenses =
+          this.expenseTracking.getExpenseByGroup(this.selectedGroup) || [];
+        this.memberSpendings =
+          this.expenseTracking.calculateMemberSpending(this.selectedGroup) ||
+          {};
+        this.balances =
+          this.expenseTracking.calculateBalances(this.selectedGroup) || [];
+      } catch (error) {
+        console.error('Error loading expense tracking data:', error);
+        this.groupExpenses = [];
+        this.memberSpendings = {};
+        this.balances = [];
+      }
     } else {
-      this.groupExpenses = [];
-      this.memberSpendings = {};
-      this.balances = [];
+      this.clearData();
     }
   }
 
-  backtoDashboard() {
-    this.router.navigate(['dashboard']);
+  // Clear all data
+  clearData(): void {
+    this.groupExpenses = [];
+    this.memberSpendings = {};
+    this.balances = [];
+  }
+
+  // Get object keys for iteration
+  getObjectKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
+  }
+
+  // Calculate total expenses
+  getTotalExpenses(): number {
+    return this.groupExpenses.reduce((total, expense) => {
+      return total + (Number(expense.amount) || 0);
+    }, 0);
+  }
+
+  // Navigate back to dashboard
+  backtoDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

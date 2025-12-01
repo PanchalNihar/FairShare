@@ -1,91 +1,261 @@
-/* Light Theme */
+/* ============================================
+   GLOBAL RESET & BASE STYLES
+   ============================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
 :root {
-  --background-color: #ffffff;
-  --text-color: #000000;
-  --input-background: #f9f9f9;
-  --input-border: #cccccc;
-  --button-background: #007bff;
-  --button-text: #ffffff;
-
-  --card-background: #ffffff;
-  --card-text: #333;
-  --card-header-background: #f7f8fa;
-  --card-border: #ececec;
-
-  --widget-background: #e9ecef;
-  --widget-text: #333;
-
-  --primary-color: #007bff;
-  --primary-color-hover: #0056b3;
-
-  --info-color: #C70039;
-  --info-color-hover: #C70039;
-
-  --warning-color: #ffc107;
-  --warning-color-hover: #e0a800;
-
-  --success-color: #28a745;
-  --success-color-hover: #218838;
+  /* Light Theme */
+  --background-color: #F8F9FA;
+  --text-color: #1A1A2E;
+  --text-secondary: #6C757D;
+  --input-background: #FFFFFF;
+  --input-border: #DEE2E6;
+  --button-background: #4A90E2;
+  --button-text: #FFFFFF;
+  --card-background: #FFFFFF;
+  --card-text: #1A1A2E;
+  --card-header-background: #F8F9FA;
+  --card-border: #E9ECEF;
+  --widget-background: #F1F3F5;
+  --widget-text: #1A1A2E;
+  
+  /* Primary Colors */
+  --primary-color: #4A90E2;
+  --primary-color-hover: #3A7BC8;
+  --info-color: #9B59B6;
+  --info-color-hover: #7D3C98;
+  --warning-color: #FFC107;
+  --warning-color-hover: #E0A800;
+  --success-color: #16A085;
+  --success-color-hover: #138D75;
+  --danger-color: #FF6B6B;
+  --danger-color-hover: #E74C3C;
 }
 
 /* Dark Theme */
 .dark-theme {
-  --background-color: #000000;
-  --text-color: #000000;
-  --input-background: #1e1e1e;
-  --input-border: #333333;
-  --button-background: #0056b3;
-  --button-text: #ffffff;
-
-  --card-background: #343a40;
-  --card-text: #f8f9fa;
-  --card-header-background: #495057;
-  --card-border: #6c757d;
-
-  --widget-background: #495057;
-  --widget-text: #f8f9fa;
-
-  --primary-color: #80bdff;
-  --primary-color-hover: #5a9bdf;
-
-  --warning-color: #ffc107;
-  --warning-color-hover: #e6a700;
-
-  --success-color: #28a745;
-  --success-color-hover: #1f7a33;
+  --background-color: #0F0F1E;
+  --text-color: #F8F9FA;
+  --text-secondary: #ADB5BD;
+  --input-background: #1A1A2E;
+  --input-border: #343A40;
+  --button-background: #5BA3F5;
+  --button-text: #FFFFFF;
+  --card-background: #1A1A2E;
+  --card-text: #F8F9FA;
+  --card-header-background: #16213E;
+  --card-border: #2C3E50;
+  --widget-background: #16213E;
+  --widget-text: #F8F9FA;
+  
+  /* Primary Colors (Dark Mode) */
+  --primary-color: #5BA3F5;
+  --primary-color-hover: #4A90E2;
+  --info-color: #B084CC;
+  --info-color-hover: #9B59B6;
+  --warning-color: #FFD54F;
+  --warning-color-hover: #FFC107;
+  --success-color: #1FBF9F;
+  --success-color-hover: #16A085;
+  --danger-color: #FF8787;
+  --danger-color-hover: #FF6B6B;
 }
 
-/* Use Variables */
+/* ============================================
+   BODY & HTML
+   ============================================ */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
+  line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 input,
 textarea,
 select {
+  font-family: inherit;
   background-color: var(--input-background);
   border: 1px solid var(--input-border);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+  font-size: 14px;
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
 button {
+  font-family: inherit;
   background-color: var(--button-background);
   color: var(--button-text);
   border: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 button:hover {
-  filter: brightness(0.9);
+  filter: brightness(0.92);
+  transform: translateY(-1px);
 }
 
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--primary-color-hover);
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 32px; }
+
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.mb-4 { margin-bottom: 32px; }
+
+.p-1 { padding: 8px; }
+.p-2 { padding: 16px; }
+.p-3 { padding: 24px; }
+.p-4 { padding: 32px; }
+
+/* ============================================
+   PROFILE CONTAINER (Legacy Support)
+   ============================================ */
 .profile-container {
-  padding: 20px;
-  border-radius: 8px;
-  background-color: var(--background-color); /* Ensure it adapts to themes */
-  color: var(--text-color);
+  padding: 24px;
+  border-radius: 12px;
+  background-color: var(--card-background);
+  color: var(--card-text);
+  border: 1px solid var(--card-border);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus Visible */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .navbar,
+  .hamburger,
+  .theme-toggle,
+  .logout-button {
+    display: none !important;
+  }
 }

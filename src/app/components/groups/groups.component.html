@@ -1,150 +1,182 @@
 <app-navbar></app-navbar>
 
-<div class="container">
-  <h2>Create Group</h2>
+<div class="groups-wrapper">
+  <div class="groups-container">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">Manage Groups</h1>
+        <p class="page-subtitle">Create, edit, and organize your expense groups</p>
+      </div>
+      <button class="btn btn-secondary" (click)="backtoDashboard()">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        Dashboard
+      </button>
+    </div>
 
-  <!-- Group Name and Members Form -->
-  <div class="form-group mb-4">
-    <label for="groupName">Group Name</label>
-    <input
-      type="text"
-      id="groupName"
-      class="form-control"
-      [(ngModel)]="groupName"
-      placeholder="Enter Group Name"
-    />
-  </div>
+    <div class="groups-layout">
+      
+      <!-- Left Column: Create/Edit Form -->
+      <div class="form-card">
+        <div class="card-header">
+          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          </svg>
+          <h2 class="card-title">{{ selectedGroup ? 'Edit Group' : 'Create New Group' }}</h2>
+        </div>
 
-  <div class="form-group mb-4">
-    <label for="newMember">Add Member</label>
-    <input
-      type="text"
-      id="newMember"
-      class="form-control"
-      [(ngModel)]="newMember"
-      placeholder="Enter Member Name"
-    />
-    <button 
-      type="button" 
-      class="btn btn-primary mt-2" 
-      (click)="addMember()"
-      [disabled]="!newMember.trim()"
-    >
-      Add Member
-    </button>
-  </div>
-
-  <!-- Current Members List -->
-  <div *ngIf="members && members.length > 0" class="mb-4">
-    <h4>Current Members</h4>
-    <ul class="list-group">
-      <li *ngFor="let member of members" class="list-group-item d-flex justify-content-between align-items-center">
-        {{ member }}
-        <button
-          type="button"
-          class="btn btn-danger btn-sm"
-          (click)="deleteMember(member)"
-        >
-          Remove
-        </button>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Group Actions -->
-  <div class="button-group mb-4">
-    <!-- Create Group -->
-    <button
-      *ngIf="!selectedGroup"
-      type="button"
-      class="btn btn-success"
-      (click)="addGroup()"
-      [disabled]="!groupName || members.length === 0"
-    >
-      Create Group
-    </button>
-
-    <!-- Edit Group -->
-    <button
-      *ngIf="selectedGroup"
-      type="button"
-      class="btn btn-warning me-2"
-      (click)="editGroup()"
-      [disabled]="!groupName || members.length === 0"
-    >
-      Save Changes
-    </button>
-
-    <!-- Cancel Edit -->
-    <button
-      *ngIf="selectedGroup"
-      type="button"
-      class="btn btn-secondary me-2"
-      (click)="clearGroupForm()"
-    >
-      Cancel Edit
-    </button>
-
-    <!-- Remove Group -->
-    <button
-      *ngIf="selectedGroup"
-      type="button"
-      class="btn btn-danger"
-      (click)="removeGroup(selectedGroup)"
-    >
-      Delete Group
-    </button>
-  </div>
-
-  <!-- Existing Groups -->
-  <div *ngIf="groups && groups.length > 0">
-    <h3>Existing Groups</h3>
-    <div class="list-group">
-      <div *ngFor="let group of groups" class="list-group-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">{{ group.name }}</h5>
-            <small>{{ group.members?.length || 0 }} members</small>
+        <div class="card-body">
+          <!-- Group Name Input -->
+          <div class="form-group">
+            <label class="form-label">Group Name</label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="groupName"
+              placeholder="Enter group name"
+              required
+            />
           </div>
-          <div class="button-group">
+
+          <!-- Add Member Section -->
+          <div class="form-group">
+            <label class="form-label">Add Members</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="newMember"
+                placeholder="Enter member name"
+                (keyup.enter)="addMember()"
+              />
+              <button class="btn-add" (click)="addMember()" [disabled]="!newMember.trim()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Members List -->
+          <div class="members-section" *ngIf="members.length > 0">
+            <label class="form-label">Members ({{ members.length }})</label>
+            <ul class="members-list">
+              <li *ngFor="let member of members" class="member-item">
+                <svg class="member-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+                <span class="member-name">{{ member }}</span>
+                <button class="btn-remove-member" (click)="deleteMember(member)">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
             <button 
-              class="btn btn-primary btn-sm me-2" 
-              (click)="showQrCode(group)"
-              title="Share Group"
-            >
-              Share
+              *ngIf="selectedGroup" 
+              class="btn btn-secondary"
+              (click)="clearGroupForm()">
+              Cancel
             </button>
             <button 
-              class="btn btn-secondary btn-sm" 
-              (click)="selectGroup(group)"
-              title="Edit Group"
-            >
-              Edit
+              class="btn btn-primary"
+              (click)="selectedGroup ? editGroup() : addGroup()"
+              [disabled]="!groupName.trim() || members.length === 0">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              {{ selectedGroup ? 'Update Group' : 'Create Group' }}
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Groups List -->
+      <div class="groups-list-card">
+        <div class="card-header">
+          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l-5.5 9h11z"/>
+            <circle cx="17.5" cy="17.5" r="4.5"/>
+            <path d="M3 13.5h8v8H3z"/>
+          </svg>
+          <h2 class="card-title">Your Groups ({{ groups.length }})</h2>
+        </div>
+
+        <div class="card-body">
+          <!-- Empty State -->
+          <div *ngIf="groups.length === 0" class="empty-state">
+            <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            <p class="empty-text">No groups yet</p>
+            <p class="empty-subtext">Create your first group to get started</p>
+          </div>
+
+          <!-- Groups Grid -->
+          <div *ngIf="groups.length > 0" class="groups-grid">
+            <div *ngFor="let group of groups" class="group-card">
+              <div class="group-header">
+                <div class="group-info">
+                  <h3 class="group-name">{{ group.name }}</h3>
+                  <p class="group-members">{{ group.members?.length || 0 }} members</p>
+                </div>
+                <div class="group-actions">
+                  <button class="action-btn" (click)="showQrCode(group)" title="Share QR Code">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn" (click)="selectGroup(group)" title="Edit Group">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn delete-btn" (click)="removeGroup(group)" title="Delete Group">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="group-members-list" *ngIf="group.members && group.members.length > 0">
+                <span *ngFor="let member of group.members.slice(0, 3)" class="member-badge">
+                  {{ member }}
+                </span>
+                <span *ngIf="group.members.length > 3" class="member-badge more-badge">
+                  +{{ group.members.length - 3 }}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- QR Code Modal -->
-  <div *ngIf="qrCodeurl" class="qr-modal">
-    <div class="qr-modal-content">
-      <h4>Share Group</h4>
-      <div class="qr-code-container">
-        <img [src]="qrCodeurl" alt="Group QR Code">
-      </div>
-      <p class="text-muted">Scan this QR code to join the group</p>
-      <div class="button-group mt-3">
-        <button class="btn btn-secondary" (click)="closeQrCode()">Close</button>
-      </div>
+<!-- QR Code Modal -->
+<div *ngIf="qrCodeurl" class="qr-modal" (click)="closeQrCode()">
+  <div class="qr-modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Share Group</h3>
+      <button class="modal-close" (click)="closeQrCode()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
     </div>
-  </div>
-
-  <!-- Back to Dashboard -->
-  <div class="mt-4">
-    <button type="button" class="btn btn-primary" (click)="backtoDashboard()">
-      Back to Dashboard
-    </button>
+    <div class="modal-body">
+      <img [src]="qrCodeurl" alt="QR Code" class="qr-image" />
+      <p class="qr-instruction">Scan this QR code to join the group</p>
+    </div>
   </div>
 </div>

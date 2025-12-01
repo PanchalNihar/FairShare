@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Expense, ExpenseService } from '../../services/expense.service';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GroupService } from '../../services/group.service';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class ExpenseManagementComponent implements OnInit, OnDestroy {
   expenseList: Expense[] = [];
@@ -24,7 +25,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   selectedExpense: Expense | null = null;
   selectedGroup: string = '';
   totalExpense: number = 0;
-  
+
   private expensesSub?: Subscription;
   private groupsSub?: Subscription;
 
@@ -36,12 +37,19 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAvailableGroup();
-    this.expensesSub = this.expenseService.expenses$.subscribe(expenses => {
+
+    // Subscribe to expense changes
+    this.expensesSub = this.expenseService.expenses$.subscribe((expenses) => {
       if (this.selectedGroup) {
-        this.expenseList = expenses.filter(expense => expense.groupName === this.selectedGroup);
+        this.expenseList = expenses.filter(
+          (expense) => expense.groupName === this.selectedGroup
+        );
         this.calculateTotalExpense();
       }
     });
+
+    // Set default date to today
+    this.expenseDate = new Date().toISOString().split('T')[0];
   }
 
   ngOnDestroy(): void {
@@ -53,19 +61,22 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadAvailableGroup() {
+  // Load available groups
+  loadAvailableGroup(): void {
     this.groupsSub = this.groupService.groups$.subscribe(() => {
       this.availableGroups = this.groupService.getGroupForTracking();
     });
   }
 
-  onGroupChange() {
+  // Handle group change
+  onGroupChange(): void {
     if (this.selectedGroup) {
       this.groupMembers = this.groupService.getGroupMember(this.selectedGroup);
       this.expenseList = this.expenseService
         .getExpense()
         .filter((expense) => expense.groupName === this.selectedGroup);
       this.calculateTotalExpense();
+      this.clearForm(); // Clear form when switching groups
     } else {
       this.groupMembers = [];
       this.expenseList = [];
@@ -73,40 +84,91 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addExpense() {
-    if (
-      this.expensePayer &&
-      this.expenseAmount > 0 &&
-      this.expenseDescription
-    ) {
+  // Add new expense
+  async addExpense(): Promise<void> {
+    // Validation
+    if (!this.expensePayer.trim()) {
+      alert('Please select who paid for this expense.');
+      return;
+    }
+
+    if (!this.expenseAmount || this.expenseAmount <= 0) {
+      alert('Please enter a valid amount greater than 0.');
+      return;
+    }
+
+    if (!this.expenseDescription.trim()) {
+      alert('Please enter a description for this expense.');
+      return;
+    }
+
+    if (!this.expenseDate) {
+      alert('Please select a date for this expense.');
+      return;
+    }
+
+    try {
       await this.expenseService.addExpense(
         this.expensePayer,
         this.expenseAmount,
         this.expenseDescription,
-        this.expenseDate || new Date().toISOString(),
+        this.expenseDate,
         this.selectedGroup
       );
       this.clearForm();
+      alert('Expense added successfully!');
+    } catch (error) {
+      console.error('Error adding expense:', error);
+      alert('Failed to add expense. Please try again.');
     }
   }
 
-  calculateTotalExpense() {
+  // Calculate total expense
+  calculateTotalExpense(): void {
     this.totalExpense = this.expenseList.reduce(
       (total, expense) => total + Number(expense.amount),
       0
     );
   }
 
-  selectExpense(expense: Expense) {
+  // Select expense for editing
+  selectExpense(expense: Expense): void {
     this.selectedExpense = expense;
     this.expensePayer = expense.payer;
     this.expenseAmount = expense.amount;
     this.expenseDescription = expense.description;
-    this.expenseDate = expense.date;
+    this.expenseDate = expense.date.split('T')[0]; // Format date for input
   }
 
-  async editExpense() {
-    if (this.selectedExpense) {
+  // Edit existing expense
+  async editExpense(): Promise<void> {
+    if (!this.selectedExpense) {
+      console.error('No expense selected for editing');
+      return;
+    }
+
+    // Validation
+    if (!this.expensePayer.trim()) {
+      alert('Please select who paid for this expense.');
+      return;
+    }
+
+    if (!this.expenseAmount || this.expenseAmount <= 0) {
+      alert('Please enter a valid amount greater than 0.');
+      return;
+    }
+
+    if (!this.expenseDescription.trim()) {
+      alert('Please enter a description for this expense.');
+      return;
+    }
+
+    if (!this.expenseDate) {
+      alert('Please select a date for this expense.');
+      return;
+    }
+
+    try {
       await this.expenseService.updateExpense(this.selectedExpense.id, {
         payer: this.expensePayer,
         amount: this.expenseAmount,
@@ -114,23 +176,49 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         date: this.expenseDate,
       });
       this.clearForm();
+      alert('Expense updated successfully!');
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      alert('Failed to update expense. Please try again.');
     }
   }
 
-  async deleteExpense(expense: Expense) {
-    await this.expenseService.deleteExpense(expense.id);
-    this.clearForm();
+  // Delete expense with confirmation
+  async deleteExpense(expense: Expense): Promise<void> {
+    const confirmed = confirm(
+      `Are you sure you want to delete this expense: "${expense.description}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.expenseService.deleteExpense(expense.id);
+
+      // Clear form if the deleted expense was selected
+      if (this.selectedExpense && this.selectedExpense.id === expense.id) {
+        this.clearForm();
+      }
+
+      alert('Expense deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      alert('Failed to delete expense. Please try again.');
+    }
   }
 
-  clearForm() {
+  // Clear form and reset state
+  clearForm(): void {
     this.expensePayer = '';
     this.expenseAmount = 0;
-    this.expenseDate = '';
+    this.expenseDate = new Date().toISOString().split('T')[0];
     this.expenseDescription = '';
     this.selectedExpense = null;
   }
 
-  backtoDashboard() {
+  // Navigate back to dashboard
+  backtoDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
 }

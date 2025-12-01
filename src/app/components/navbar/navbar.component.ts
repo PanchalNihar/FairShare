@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Renderer2 } from '@angular/core';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { Component, OnInit, Renderer2, ViewEncapsulation } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -8,10 +8,12 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
   imports: [RouterModule, CommonModule],
+  encapsulation: ViewEncapsulation.None,
 })
 export class NavbarComponent implements OnInit {
   isLoggedIn: boolean = false;
-  isDarkMode = false;
+  isMobileMenuOpen = false;
+
   constructor(
     private router: Router,
     private auth: AuthService,
@@ -20,44 +22,41 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.currentUser$.subscribe((user) => {
-      // Update the login status based on the current user
       this.isLoggedIn = !!user;
     });
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.isDarkMode = savedTheme === 'dark-theme';
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    if (this.isMobileMenuOpen) {
+      this.renderer.setStyle(document.body, 'overflow', 'hidden');
     } else {
-      const preferesDark = window.matchMedia(
-        '(preferes-color-scheme:dark)'
-      ).matches;
-      this.isDarkMode = preferesDark;
-    }
-    if(this.isDarkMode){
-      this.renderer.addClass(document.body,'dark-theme')
+      this.renderer.removeStyle(document.body, 'overflow');
     }
   }
-  toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
-    if (this.isDarkMode) {
-      this.renderer.addClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      this.renderer.removeClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'light');
-    }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    this.renderer.removeStyle(document.body, 'overflow');
   }
+
   logout(): void {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (!confirmed) {
+      return;
+    }
+
     this.auth
       .signOut()
       .then(() => {
-        localStorage.removeItem('loggedInUser'); // Clear logged-in user data from localStorage
-        this.isLoggedIn = false; // Update the login status
-        alert('You have been logged out.');
-        this.router.navigate(['/signin']); // Navigate to the sign-in page
+        localStorage.removeItem('loggedInUser');
+        this.isLoggedIn = false;
+        this.closeMobileMenu();
+        this.router.navigate(['/signin']);
       })
       .catch((error) => {
         console.error('Logout error:', error);
-        alert('An error occurred while logging out.');
+        alert('An error occurred while logging out. Please try again.');
       });
   }
 }

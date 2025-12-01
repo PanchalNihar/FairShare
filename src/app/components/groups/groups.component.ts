@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
   imports: [FormsModule, CommonModule, NavbarComponent],
+  encapsulation: ViewEncapsulation.None,
 })
 export class GroupsComponent implements OnInit {
   groups: any[] = [];
@@ -18,78 +19,183 @@ export class GroupsComponent implements OnInit {
   newMember: string = '';
   members: string[] = [];
   qrCodeurl: string | null = null;
+
   constructor(private router: Router, private groupService: GroupService) {}
 
   ngOnInit(): void {
-    // Get groups from the service and ensure the data structure is consistent
-    this.groups = this.groupService.getGroups() || [];
-    console.log('Loaded groups:', this.groups);
+    this.loadGroups();
   }
-  async showQrCode(group: any) {
+
+  // Load groups with proper error handling
+  loadGroups(): void {
+    try {
+      this.groups = this.groupService.getGroups() || [];
+      console.log('Loaded groups:', this.groups);
+    } catch (error) {
+      console.error('Error loading groups:', error);
+      this.groups = [];
+    }
+  }
+
+  // Show QR code for group
+  async showQrCode(group: any): Promise<void> {
+    if (!group || !group.id) {
+      console.error('Invalid group');
+      return;
+    }
+
     try {
       this.qrCodeurl = await this.groupService.getGroupQRCode(group.id);
     } catch (error) {
-      console.log('Error generating qr code ', error);
+      console.error('Error generating QR code:', error);
+      alert('Failed to generate QR code. Please try again.');
     }
   }
-  closeQrCode() {
+
+  // Close QR modal
+  closeQrCode(): void {
     this.qrCodeurl = null;
   }
-  addGroup() {
-    if (this.groupName && this.members.length > 0) {
-      console.log('Adding group:', this.groupName, this.members);
-      this.groupService.addGroup(this.groupName, this.members);
-      this.groups = this.groupService.getGroups() || [];
+
+  // Add new group with validation
+  addGroup(): void {
+    // Trim and validate group name
+    const trimmedGroupName = this.groupName.trim();
+
+    if (!trimmedGroupName) {
+      alert('Please enter a group name.');
+      return;
+    }
+
+    if (this.members.length === 0) {
+      alert('Please add at least one member.');
+      return;
+    }
+
+    try {
+      console.log('Adding group:', trimmedGroupName, this.members);
+      this.groupService.addGroup(trimmedGroupName, this.members);
+      this.loadGroups();
       this.clearGroupForm();
-    } else {
-      console.error('Group name or members missing.');
+      alert('Group created successfully!');
+    } catch (error) {
+      console.error('Error adding group:', error);
+      alert('Failed to create group. Please try again.');
     }
   }
 
-  selectGroup(group: any) {
+  // Select group for editing
+  selectGroup(group: any): void {
+    if (!group) {
+      console.error('Invalid group selected');
+      return;
+    }
+
     this.selectedGroup = group;
-    this.groupName = group?.name || ''; // Ensure group name is defined
-    this.members = group?.members ? [...group.members] : []; // Ensure members array is properly copied
+    this.groupName = group?.name || '';
+    // Create a new array to avoid reference issues
+    this.members = group?.members ? [...group.members] : [];
   }
 
-  editGroup() {
-    if (this.selectedGroup) {
+  // Edit existing group with validation
+  editGroup(): void {
+    if (!this.selectedGroup) {
+      console.error('No group selected for editing');
+      return;
+    }
+
+    const trimmedGroupName = this.groupName.trim();
+
+    if (!trimmedGroupName) {
+      alert('Please enter a group name.');
+      return;
+    }
+
+    if (this.members.length === 0) {
+      alert('Please add at least one member.');
+      return;
+    }
+
+    try {
       this.groupService.editGroup(
         this.selectedGroup,
-        this.groupName,
+        trimmedGroupName,
         this.members
       );
-      this.groups = this.groupService.getGroups() || [];
+      this.loadGroups();
       this.clearGroupForm();
+      alert('Group updated successfully!');
+    } catch (error) {
+      console.error('Error editing group:', error);
+      alert('Failed to update group. Please try again.');
     }
   }
 
-  removeGroup(group: any) {
-    this.groupService.removeGroup(group);
-    this.groups = this.groupService.getGroups() || [];
-    this.clearGroupForm();
-  }
+  // Remove group with confirmation
+  removeGroup(group: any): void {
+    if (!group) {
+      console.error('Invalid group');
+      return;
+    }
 
-  addMember() {
-    if (this.newMember.trim()) {
-      this.members.push(this.newMember.trim());
-      this.newMember = ''; // Clear the input field
-    } else {
-      console.error('Member name is empty.');
+    const confirmed = confirm(
+      `Are you sure you want to delete "${group.name}"?`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      this.groupService.removeGroup(group);
+      this.loadGroups();
+
+      // Clear form if the deleted group was selected
+      if (this.selectedGroup && this.selectedGroup.id === group.id) {
+        this.clearGroupForm();
+      }
+
+      alert('Group deleted successfully!');
+    } catch (error) {
+      console.error('Error removing group:', error);
+      alert('Failed to delete group. Please try again.');
     }
   }
 
-  deleteMember(member: string) {
+  // Add member with validation
+  addMember(): void {
+    const trimmedMember = this.newMember.trim();
+
+    if (!trimmedMember) {
+      alert('Please enter a member name.');
+      return;
+    }
+
+    // Check for duplicate members
+    if (this.members.includes(trimmedMember)) {
+      alert('This member already exists in the list.');
+      this.newMember = '';
+      return;
+    }
+
+    this.members.push(trimmedMember);
+    this.newMember = '';
+  }
+
+  // Delete member from list
+  deleteMember(member: string): void {
     this.members = this.members.filter((m) => m !== member);
   }
 
-  clearGroupForm() {
+  // Clear form and reset state
+  clearGroupForm(): void {
     this.groupName = '';
     this.members = [];
+    this.newMember = '';
     this.selectedGroup = null;
   }
 
-  backtoDashboard() {
+  // Navigate back to dashboard
+  backtoDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
 }

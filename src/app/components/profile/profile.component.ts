@@ -1,20 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+
 interface UserProfile {
   username: string;
   email: string;
   profileImage?: string;
 }
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
   standalone: true,
   imports: [NavbarComponent, FormsModule, CommonModule],
+  encapsulation: ViewEncapsulation.None
 })
 export class ProfileComponent implements OnInit {
   user: UserProfile = {
@@ -22,6 +25,7 @@ export class ProfileComponent implements OnInit {
     email: '',
     profileImage: '',
   };
+  
   profileImage: string | ArrayBuffer | null = null;
   isEditing: boolean = false;
   showSaveButton: boolean = false;
@@ -38,7 +42,7 @@ export class ProfileComponent implements OnInit {
           email: userData.email || '',
           profileImage: userData.profileImage || '',
         };
-        console.log("UserData:",userData)
+        console.log("UserData:", userData);
         this.profileImage = userData.profileImage || null;
       } else {
         this.router.navigate(['/signin']);
@@ -48,6 +52,7 @@ export class ProfileComponent implements OnInit {
       this.router.navigate(['/signin']);
     }
   }
+
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
   }
@@ -59,7 +64,6 @@ export class ProfileComponent implements OnInit {
           username: this.user.username,
           email: this.user.email,
         });
-
         alert('Profile updated successfully!');
         this.isEditing = false;
       } catch (error) {
@@ -71,9 +75,7 @@ export class ProfileComponent implements OnInit {
   }
 
   triggerImageUpload(): void {
-    const fileInput = document.getElementById(
-      'profileImageInput'
-    ) as HTMLInputElement;
+    const fileInput = document.getElementById('profileImageInput') as HTMLInputElement;
     fileInput?.click();
   }
 
@@ -100,7 +102,6 @@ export class ProfileComponent implements OnInit {
       const updatedProfile = this.authService.updateUserProfile({
         profileImage: this.profileImage as string,
       });
-
       this.showSaveButton = false;
       alert('Profile image saved successfully!');
     } catch (error) {

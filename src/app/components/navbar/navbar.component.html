@@ -1,98 +1,70 @@
-<nav
-  class="navbar navbar-expand-lg"
-  [ngClass]="{ 'navbar-light': !isDarkMode, 'bg-light': !isDarkMode, 'navbar-dark': isDarkMode, 'bg-dark': isDarkMode }"
->
-  <div class="container-fluid">
-    <a class="navbar-brand" [routerLink]="'/about'">FairShare</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo Section -->
+    <div class="navbar-brand">
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+      <span class="brand-name" routerLink="/about">FairShare</span>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+      <svg *ngIf="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+      <svg *ngIf="isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="'/dashboard'"
-            [routerLinkActive]="['active']"
-            [ngClass]="{ 'nav-link': true }"
-          >
-            Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="'/profile'"
-            [routerLinkActive]="['active']"
-            [ngClass]="{ 'nav-link': true }"
-          >
-            Profile
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="'/groups'"
-            [routerLinkActive]="['active']"
-            [ngClass]="{ 'nav-link': true }"
-          >
-            Groups
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="'/expense-management'"
-            [routerLinkActive]="['active']"
-            [ngClass]="{ 'nav-link': true }"
-          >
-            Expense Management
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="'/expense-tracking'"
-            [routerLinkActive]="['active']"
-            [ngClass]="{ 'nav-link': true }"
-          >
-            Expense Tracking
-          </a>
-        </li>
-      </ul>
-      <ul class="navbar-nav align-items-center">
-        <!-- Dark mode toggle -->
-        <li class="nav-item">
-          <button
-            class="btn btn-outline-secondary me-3 pos"
-            (click)="toggleDarkMode()"
-            [ngClass]="{ 'active': isDarkMode }"
-          >
-            {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
-          </button>
-        </li>
 
-        <!-- Show these buttons if user is NOT logged in -->
-        <li class="nav-item" *ngIf="!isLoggedIn">
-          <a class="btn btn-outline-primary me-2 pos" [routerLink]="'/signin'" routerLinkActive="active">Login</a>
-        </li>
-        <li class="nav-item" *ngIf="!isLoggedIn">
-          <a class="btn btn-outline-success pos" [routerLink]="'/signup'" routerLinkActive="active">Register</a>
-        </li>
+    <!-- Desktop Navigation -->
+    <div class="navbar-menu" [class.mobile-open]="isMobileMenuOpen">
+      <div class="nav-links">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          <span>Dashboard</span>
+        </a>
 
-        <!-- Show logout button if user IS logged in -->
-        <li class="nav-item" *ngIf="isLoggedIn">
-          <button class="btn btn-outline-danger pos" (click)="logout()">Logout</button>
-        </li>
-      </ul>
+        <a routerLink="/groups" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          </svg>
+          <span>Groups</span>
+        </a>
+
+        <a routerLink="/expense-management" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+          </svg>
+          <span>Expenses</span>
+        </a>
+
+        <a routerLink="/expense-tracking" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+          </svg>
+          <span>Tracking</span>
+        </a>
+
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </div>
+
+      <div class="navbar-actions">
+        <button class="logout-btn" (click)="logout()">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   </div>
 </nav>

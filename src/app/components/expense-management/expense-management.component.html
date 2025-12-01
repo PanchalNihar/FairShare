@@ -1,134 +1,229 @@
 <app-navbar></app-navbar>
-<div>
-  <h2>Expense Management</h2>
 
-  <!-- Group Selection -->
-  <div *ngIf="!selectedGroup">
-    <label for="group-select">Select Group:</label>
-    <select
-      id="group-select"
-      class="form-control"
-      [(ngModel)]="selectedGroup"
-      (change)="onGroupChange()"
-    >
-      <option value="" disabled>Select a group</option>
-      <option *ngFor="let group of availableGroups" [value]="group">
-        {{ group }}
-      </option>
-    </select>
-    <p *ngIf="!selectedGroup && availableGroups.length > 0">Please select a group to manage expenses.</p>
+<div class="expense-wrapper">
+  <div class="expense-container">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">Expense Management</h1>
+        <p class="page-subtitle">Track and manage all your group expenses efficiently</p>
+      </div>
+      <button class="btn btn-secondary" (click)="backtoDashboard()">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        Dashboard
+      </button>
+    </div>
+
+    <!-- Group Selection Card -->
+    <div class="selection-card">
+      <div class="card-header">
+        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+        </svg>
+        <h2 class="card-title">Select Group</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Choose Group</label>
+          <select 
+            class="form-select" 
+            [(ngModel)]="selectedGroup" 
+            (change)="onGroupChange()">
+            <option value="" disabled>Select a group</option>
+            <option *ngFor="let group of availableGroups" [value]="group">
+              {{ group }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Total Expense Display -->
+        <div *ngIf="selectedGroup" class="total-expense-banner">
+          <div class="total-info">
+            <span class="total-label">Total Expenses for {{ selectedGroup }}</span>
+            <span class="total-amount">₹{{ totalExpense | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="selectedGroup" class="expense-layout">
+      
+      <!-- Left Column: Add/Edit Form -->
+      <div class="form-card">
+        <div class="card-header">
+          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+          </svg>
+          <h2 class="card-title">{{ selectedExpense ? 'Edit Expense' : 'Add New Expense' }}</h2>
+        </div>
+
+        <div class="card-body">
+          <form (ngSubmit)="selectedExpense ? editExpense() : addExpense()">
+            
+            <!-- Payer Selection -->
+            <div class="form-group">
+              <label class="form-label">Who Paid?</label>
+              <select 
+                class="form-select" 
+                [(ngModel)]="expensePayer" 
+                name="payer" 
+                required>
+                <option value="" disabled>Select payer</option>
+                <option *ngFor="let member of groupMembers" [value]="member">
+                  {{ member }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Amount Input -->
+            <div class="form-group">
+              <label class="form-label">Amount (₹)</label>
+              <div class="input-with-icon">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                </svg>
+                <input
+                  type="number"
+                  class="form-input with-icon"
+                  [(ngModel)]="expenseAmount"
+                  name="amount"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Description Input -->
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="expenseDescription"
+                name="description"
+                placeholder="What was this expense for?"
+                required
+              />
+            </div>
+
+            <!-- Date Input -->
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input
+                type="date"
+                class="form-input"
+                [(ngModel)]="expenseDate"
+                name="date"
+                required
+              />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <button 
+                *ngIf="selectedExpense" 
+                type="button" 
+                class="btn btn-secondary"
+                (click)="clearForm()">
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="!expensePayer || !expenseAmount || !expenseDescription || !expenseDate">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                {{ selectedExpense ? 'Update Expense' : 'Add Expense' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Expenses List -->
+      <div class="expenses-list-card">
+        <div class="card-header">
+          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V5h2v3h10V5h2v16z"/>
+          </svg>
+          <h2 class="card-title">Expense History ({{ expenseList.length }})</h2>
+        </div>
+
+        <div class="card-body">
+          <!-- Empty State -->
+          <div *ngIf="expenseList.length === 0" class="empty-state">
+            <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/>
+            </svg>
+            <p class="empty-text">No expenses yet</p>
+            <p class="empty-subtext">Add your first expense to get started</p>
+          </div>
+
+          <!-- Expenses List -->
+          <div *ngIf="expenseList.length > 0" class="expenses-list">
+            <div *ngFor="let expense of expenseList" class="expense-item">
+              <div class="expense-main">
+                <div class="expense-icon-wrapper">
+                  <svg class="expense-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/>
+                  </svg>
+                </div>
+                <div class="expense-details">
+                  <h3 class="expense-description">{{ expense.description }}</h3>
+                  <div class="expense-meta">
+                    <span class="expense-payer">
+                      <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                      </svg>
+                      {{ expense.payer }}
+                    </span>
+                    <span class="expense-date">
+                      <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                      </svg>
+                      {{ expense.date | date:'MMM d, y' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="expense-amount-wrapper">
+                  <span class="expense-amount">₹{{ expense.amount | number:'1.2-2' }}</span>
+                </div>
+              </div>
+              <div class="expense-actions">
+                <button class="action-btn edit-btn" (click)="selectExpense(expense)" title="Edit Expense">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                  Edit
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteExpense(expense)" title="Delete Expense">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Group Selected Message -->
+    <div *ngIf="!selectedGroup" class="no-selection-card">
+      <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+      </svg>
+      <h3 class="info-title">Select a Group</h3>
+      <p class="info-text">Please select a group from the dropdown above to manage expenses</p>
+    </div>
+
   </div>
-
-  <!-- Payer Selection and Expense Form (only shown when a group is selected) -->
-  <div *ngIf="selectedGroup">
-    <h3>Managing Expenses for Group: {{ selectedGroup }}</h3>
-    <p>Total Expense For {{selectedGroup}} : ₹{{totalExpense}}</p>
-    <!-- Payer Selection -->
-    <form (ngSubmit)="addExpense()" *ngIf="!selectedExpense">
-      <label for="expensePayer">Select Payer</label>
-      <select
-        id="expensePayer"
-        [(ngModel)]="expensePayer"
-        class="form-control"
-        name="expensePayer"
-        required
-      >
-        <option value="" disabled>Select a payer</option>
-        <option *ngFor="let member of groupMembers" [value]="member">{{ member }}</option>
-      </select>
-      <p *ngIf="!expensePayer">Please select a payer from the group.</p>
-
-      <label for="expenseAmount">Amount</label>
-      <input
-        id="expenseAmount"
-        [(ngModel)]="expenseAmount"
-        name="amount"
-        type="number"
-        class="form-control"
-        placeholder="Amount"
-        required
-      />
-
-      <label for="expenseDescription">Description</label>
-      <input
-        id="expenseDescription"
-        [(ngModel)]="expenseDescription"
-        name="description"
-        type="text"
-        class="form-control"
-        placeholder="Description"
-        required
-      />
-
-      <label for="expenseDate">Date</label>
-      <input
-        id="expenseDate"
-        [(ngModel)]="expenseDate"
-        name="date"
-        type="date"
-        class="form-control"
-      />
-
-      <button type="submit" class="btn btn-primary">Add Expense</button>
-    </form>
-
-    <!-- Edit Expense Form (only shown if an expense is selected) -->
-    <form (ngSubmit)="editExpense()" *ngIf="selectedExpense">
-      <label for="expensePayer">Payer Name</label>
-      <input
-        id="expensePayer"
-        [(ngModel)]="expensePayer"
-        name="payer"
-        type="text"
-        class="form-control"
-        placeholder="Payer Name"
-        required
-      />
-
-      <label for="expenseAmount">Amount</label>
-      <input
-        id="expenseAmount"
-        [(ngModel)]="expenseAmount"
-        name="amount"
-        type="number"
-        class="form-control"
-        placeholder="Amount"
-        required
-      />
-
-      <label for="expenseDescription">Description</label>
-      <input
-        id="expenseDescription"
-        [(ngModel)]="expenseDescription"
-        name="description"
-        type="text"
-        class="form-control"
-        placeholder="Description"
-        required
-      />
-
-      <label for="expenseDate">Date</label>
-      <input
-        id="expenseDate"
-        [(ngModel)]="expenseDate"
-        name="date"
-        type="date"
-        class="form-control"
-      />
-
-      <button type="submit" class="btn btn-success">Update Expense</button>
-      <button type="button" class="btn btn-secondary" (click)="clearForm()">Cancel</button>
-    </form>
-
-    <!-- Expense List -->
-    <ul>
-      <li *ngFor="let expense of expenseList">
-        {{ expense.payer }} - {{ expense.description }} - ₹{{ expense.amount }}
-        <button (click)="selectExpense(expense)" class="btn btn-warning btn-sm">Edit</button>
-        <button (click)="deleteExpense(expense)" class="btn btn-danger btn-sm">Delete</button>
-      </li>
-    </ul>
-  </div>
-
-  <button type="button" class="btn btn-secondary" (click)="backtoDashboard()">Back</button>
 </div>

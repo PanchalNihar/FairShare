@@ -1,113 +1,633 @@
-/* Expense Tracking Component Styles */
-.expense-tracking {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  font-family: Arial, sans-serif;
-  border-radius: 12px;
-  transition: all 0.3s ease;
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+:root {
+  --tracking-bg: #F5F7FA;
+  --tracking-card-bg: #FFFFFF;
+  --tracking-text-primary: #1A1A2E;
+  --tracking-text-secondary: #6C757D;
+  --tracking-border: #E1E4E8;
+  --tracking-border-light: #F1F3F5;
+  --tracking-accent: #16A085;
+  --tracking-accent-hover: #138D75;
+  --tracking-accent-light: #E0F2F1;
+  --tracking-warning: #FFC107;
+  --tracking-danger: #FF6B6B;
+  --tracking-info: #4A90E2;
+  --tracking-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --tracking-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --tracking-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Light Theme */
-.expense-tracking {
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  color: #333;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+:host-context(.dark-theme) {
+  --tracking-bg: #0F1419;
+  --tracking-card-bg: #1A1F2E;
+  --tracking-text-primary: #F8F9FA;
+  --tracking-text-secondary: #ADB5BD;
+  --tracking-border: #2C3E50;
+  --tracking-border-light: #343A40;
+  --tracking-accent: #1FBF9F;
+  --tracking-accent-hover: #16A085;
+  --tracking-accent-light: #1A4D40;
+  --tracking-warning: #FFD54F;
+  --tracking-danger: #FF8787;
+  --tracking-info: #5BA3F5;
+  --tracking-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --tracking-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --tracking-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
-/* Group Selection */
-.group-selection {
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+/* ============================================
+   LAYOUT
+   ============================================ */
+.tracking-wrapper {
+  min-height: calc(100vh - 70px);
+  background-color: var(--tracking-bg);
+  padding: 32px 24px;
+  transition: background-color 0.3s ease;
 }
 
-.group-selection select {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 100%;
-  background-color: #ffffff;
-  color: #333;
-  transition: all 0.3s ease;
-  height: 48px;
+.tracking-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-/* List Items */
-ul {
-  display: grid;
-  gap: 1rem;
-  padding: 0;
-  margin: 1.5rem 0;
-  list-style: none;
-}
-
-ul li {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  margin-bottom: 0;
-  padding: 1rem;
-  border-radius: 8px;
-  display: grid;
-  gap: 0.75rem;
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--tracking-text-primary);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: var(--tracking-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.selection-card,
+.spending-card,
+.balances-card,
+.no-selection-card {
+  background: var(--tracking-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--tracking-border);
+  box-shadow: var(--tracking-shadow-sm);
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
-/* Dark Theme */
-:host-context(.dark-theme) .expense-tracking {
-  background-color: #2d2d2d;
-  border-color: #404040;
-  color: #f8f9fa;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+.selection-card:hover,
+.spending-card:hover,
+.balances-card:hover {
+  box-shadow: var(--tracking-shadow-md);
 }
 
-:host-context(.dark-theme) .group-selection select {
-  background-color: #1a1a1a;
-  border-color: #404040;
-  color: #f8f9fa;
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--tracking-border);
+  background-color: var(--tracking-border-light);
 }
 
-:host-context(.dark-theme) .group-selection select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+.header-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--tracking-accent);
+  flex-shrink: 0;
 }
 
-:host-context(.dark-theme) .group-selection select::placeholder {
-  color: #adb5bd;
-  opacity: 0.8;
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+  margin: 0;
+  letter-spacing: -0.2px;
 }
 
-:host-context(.dark-theme) ul li {
-  background-color: #1a1a1a;
-  border-color: #404040;
-  color: #f8f9fa;
+.card-body {
+  padding: 24px;
 }
 
-:host-context(.dark-theme) ul li:hover {
-  background-color: #2d2d2d;
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.form-group {
+  margin-bottom: 0;
 }
 
-:host-context(.dark-theme) h2,
-:host-context(.dark-theme) h3 {
-  color: #f8f9fa;
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-:host-context(.dark-theme) button {
-  background-color: #404040;
-  color: #f8f9fa;
+.form-select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--tracking-text-primary);
+  background: var(--tracking-card-bg);
+  border: 1px solid var(--tracking-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236C757D' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
 }
 
-:host-context(.dark-theme) button:hover {
-  background-color: #505050;
+.form-select:focus {
+  outline: none;
+  border-color: var(--tracking-accent);
+  box-shadow: 0 0 0 3px var(--tracking-accent-light);
 }
 
-/* Responsive Design */
+/* ============================================
+   STATISTICS CARDS
+   ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--tracking-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--tracking-border);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--tracking-shadow-sm);
+}
+
+.stat-card:hover {
+  box-shadow: var(--tracking-shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.total-card .stat-icon-wrapper {
+  background: var(--tracking-accent-light);
+}
+
+.members-card .stat-icon-wrapper {
+  background: #EBF4FB;
+}
+
+.transactions-card .stat-icon-wrapper {
+  background: #FFF3E0;
+}
+
+:host-context(.dark-theme) .total-card .stat-icon-wrapper {
+  background: var(--tracking-accent-light);
+}
+
+:host-context(.dark-theme) .members-card .stat-icon-wrapper {
+  background: #1E3A5F;
+}
+
+:host-context(.dark-theme) .transactions-card .stat-icon-wrapper {
+  background: #5F3D1C;
+}
+
+.stat-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.total-card .stat-icon {
+  color: var(--tracking-accent);
+}
+
+.members-card .stat-icon {
+  color: var(--tracking-info);
+}
+
+.transactions-card .stat-icon {
+  color: var(--tracking-warning);
+}
+
+.stat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tracking-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tracking-text-primary);
+  letter-spacing: -0.5px;
+}
+
+/* ============================================
+   LAYOUT GRID
+   ============================================ */
+.tracking-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tracking-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ============================================
+   MEMBER SPENDING
+   ============================================ */
+.spending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  background: var(--tracking-border-light);
+  border: 1px solid var(--tracking-border);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.spending-item:hover {
+  box-shadow: var(--tracking-shadow-md);
+  border-color: var(--tracking-accent);
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--tracking-accent-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-avatar svg {
+  width: 24px;
+  height: 24px;
+  color: var(--tracking-accent);
+}
+
+.member-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-share {
+  font-size: 12px;
+  color: var(--tracking-text-secondary);
+}
+
+.spending-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tracking-accent);
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+
+/* ============================================
+   BALANCES
+   ============================================ */
+.balances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.balance-item {
+  padding: 16px;
+  background: var(--tracking-border-light);
+  border: 1px solid var(--tracking-border);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.balance-item:hover {
+  box-shadow: var(--tracking-shadow-md);
+  border-color: var(--tracking-danger);
+}
+
+.balance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.balance-from,
+.balance-to {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.balance-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.owes-icon {
+  color: var(--tracking-danger);
+}
+
+.receives-icon {
+  color: var(--tracking-accent);
+}
+
+.balance-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+}
+
+.arrow-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--tracking-text-secondary);
+  flex-shrink: 0;
+}
+
+.balance-amount-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tracking-border);
+}
+
+.balance-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tracking-danger);
+  letter-spacing: -0.3px;
+}
+
+.balance-label {
+  font-size: 13px;
+  color: var(--tracking-text-secondary);
+  font-weight: 500;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-secondary {
+  background: var(--tracking-border-light);
+  color: var(--tracking-text-primary);
+  border: 1px solid var(--tracking-border);
+}
+
+.btn-secondary:hover {
+  background: var(--tracking-card-bg);
+  border-color: var(--tracking-text-secondary);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--tracking-text-secondary);
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.empty-subtext {
+  font-size: 14px;
+  color: var(--tracking-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   NO SELECTION CARD
+   ============================================ */
+.no-selection-card {
+  text-align: center;
+  padding: 64px 32px;
+}
+
+.info-icon {
+  width: 72px;
+  height: 72px;
+  color: var(--tracking-info);
+  opacity: 0.6;
+  margin: 0 auto 24px;
+}
+
+.info-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.info-text {
+  font-size: 15px;
+  color: var(--tracking-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1200px) {
+  .tracking-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
-  .expense-tracking {
-    margin: 1rem;
-    padding: 1.5rem;
+  .tracking-wrapper {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .page-header .btn {
+    width: 100%;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .spending-item,
+  .balance-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .spending-amount {
+    text-align: right;
+  }
+}
+
+@media (max-width: 480px) {
+  .tracking-wrapper {
+    padding: 12px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .card-header {
+    padding: 16px;
+  }
+  
+  .card-body {
+    padding: 16px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .stat-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
   }
 }
