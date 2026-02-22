@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GroupService } from '../../services/group.service';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { Subscription } from 'rxjs';
+import { combineLatest, Subscription } from 'rxjs';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 
 @Component({
@@ -15,7 +15,7 @@ import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.com
     FormsModule,
     ReactiveFormsModule,
     NavbarComponent,
-    CustomModalComponent
+    CustomModalComponent,
   ],
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css',
@@ -57,9 +57,18 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadAvailableGroup();
 
-    // Subscribe to expense changes
-    this.expensesSub = this.expenseService.expenses$.subscribe((expenses) => {
+    // Subscribe to real-time expense + group changes.
+    // combineLatest ensures the list refreshes after page refresh once
+    // both auth-gated Firestore listeners have emitted their first value.
+    this.expensesSub = combineLatest([
+      this.expenseService.expenses$,
+      this.groupService.groups$,
+    ]).subscribe(([expenses]) => {
+      this.availableGroups = this.groupService.getGroupForTracking();
       if (this.selectedGroup) {
+        this.groupMembers = this.groupService.getGroupMember(
+          this.selectedGroup,
+        );
         this.expenseList = expenses.filter(
           (expense) => expense.groupName === this.selectedGroup,
         );
@@ -107,22 +116,38 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   async addExpense(): Promise<void> {
     // Validation
     if (!this.expensePayer.trim()) {
-      this.openModal('Error', 'Please select who paid for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please select who paid for this expense.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseAmount || this.expenseAmount <= 0) {
-      this.openModal('Error', 'Please enter a valid amount greater than 0.', 'error');
+      this.openModal(
+        'Error',
+        'Please enter a valid amount greater than 0.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseDescription.trim()) {
-      this.openModal('Error', 'Please enter a description for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please enter a description for this expense.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseDate) {
-      this.openModal('Error', 'Please select a date for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please select a date for this expense.',
+        'error',
+      );
       return;
     }
 
@@ -172,22 +197,38 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
     // Validation
     if (!this.expensePayer.trim()) {
-      this.openModal('Error', 'Please select who paid for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please select who paid for this expense.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseAmount || this.expenseAmount <= 0) {
-      this.openModal('Error', 'Please enter a valid amount greater than 0.', 'error');
+      this.openModal(
+        'Error',
+        'Please enter a valid amount greater than 0.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseDescription.trim()) {
-      this.openModal('Error', 'Please enter a description for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please enter a description for this expense.',
+        'error',
+      );
       return;
     }
 
     if (!this.expenseDate) {
-      this.openModal('Error', 'Please select a date for this expense.', 'error');
+      this.openModal(
+        'Error',
+        'Please select a date for this expense.',
+        'error',
+      );
       return;
     }
 

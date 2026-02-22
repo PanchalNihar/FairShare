@@ -2,34 +2,34 @@
    CSS CUSTOM PROPERTIES
    ============================================ */
 :root {
-  --expense-bg: #F5F7FA;
-  --expense-card-bg: #FFFFFF;
-  --expense-text-primary: #1A1A2E;
-  --expense-text-secondary: #6C757D;
-  --expense-border: #E1E4E8;
-  --expense-border-light: #F1F3F5;
-  --expense-accent: #FF6B6B;
-  --expense-accent-hover: #E74C3C;
-  --expense-accent-light: #FFEBEE;
-  --expense-success: #28A745;
-  --expense-info: #4A90E2;
+  --expense-bg: #f5f7fa;
+  --expense-card-bg: #ffffff;
+  --expense-text-primary: #1a1a2e;
+  --expense-text-secondary: #6c757d;
+  --expense-border: #e1e4e8;
+  --expense-border-light: #f1f3f5;
+  --expense-accent: #ff6b6b;
+  --expense-accent-hover: #e74c3c;
+  --expense-accent-light: #ffebee;
+  --expense-success: #28a745;
+  --expense-info: #4a90e2;
   --expense-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --expense-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
   --expense-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 :host-context(.dark-theme) {
-  --expense-bg: #0F1419;
-  --expense-card-bg: #1A1F2E;
-  --expense-text-primary: #F8F9FA;
-  --expense-text-secondary: #ADB5BD;
-  --expense-border: #2C3E50;
-  --expense-border-light: #343A40;
-  --expense-accent: #FF8787;
-  --expense-accent-hover: #FF6B6B;
-  --expense-accent-light: #4D1F1C;
-  --expense-success: #34C759;
-  --expense-info: #5BA3F5;
+  --expense-bg: #0f1419;
+  --expense-card-bg: #1a1f2e;
+  --expense-text-primary: #f8f9fa;
+  --expense-text-secondary: #adb5bd;
+  --expense-border: #2c3e50;
+  --expense-border-light: #343a40;
+  --expense-accent: #ff8787;
+  --expense-accent-hover: #ff6b6b;
+  --expense-accent-light: #4d1f1c;
+  --expense-success: #34c759;
+  --expense-info: #5ba3f5;
   --expense-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --expense-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
   --expense-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
@@ -237,6 +237,15 @@
   pointer-events: none;
 }
 
+.rupee-symbol {
+  width: auto;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
 .form-input.with-icon {
   padding-left: 44px;
 }
@@ -274,7 +283,7 @@
 
 .btn-primary {
   background: var(--expense-accent);
-  color: #FFFFFF;
+  color: #ffffff;
   box-shadow: var(--expense-shadow-sm);
 }
 
@@ -427,7 +436,7 @@
 
 .edit-btn:hover {
   background: var(--expense-info);
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: var(--expense-info);
 }
 
@@ -437,7 +446,7 @@
 
 .delete-btn:hover {
   background: var(--expense-accent);
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: var(--expense-accent);
 }
 
@@ -532,33 +541,33 @@
   .expense-wrapper {
     padding: 16px;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .page-header .btn {
     width: 100%;
   }
-  
+
   .card-body {
     padding: 20px;
   }
-  
+
   .total-info {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .expense-main {
     flex-wrap: wrap;
   }
-  
+
   .expense-amount-wrapper {
     width: 100%;
     text-align: left;
@@ -569,19 +578,19 @@
   .expense-wrapper {
     padding: 12px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .card-header {
     padding: 16px;
   }
-  
+
   .card-body {
     padding: 16px;
   }
-  
+
   .expense-item {
     padding: 12px;
   }
