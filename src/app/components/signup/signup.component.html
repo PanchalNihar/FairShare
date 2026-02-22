@@ -1,33 +1,52 @@
 <div class="signup-wrapper">
   <div class="signup-container">
-    
     <!-- Left Side - Branding -->
     <div class="brand-section">
       <div class="brand-content">
         <div class="brand-logo">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+            />
           </svg>
         </div>
         <h1 class="brand-title">FairShare</h1>
-        <p class="brand-subtitle">Join thousands managing expenses effortlessly</p>
-        
+        <p class="brand-subtitle">
+          Join thousands managing expenses effortlessly
+        </p>
+
         <div class="brand-features">
           <div class="feature-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
             <span>Free to use forever</span>
           </div>
           <div class="feature-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
             <span>No credit card required</span>
           </div>
           <div class="feature-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
             <span>Start splitting in seconds</span>
           </div>
@@ -38,31 +57,53 @@
     <!-- Right Side - Sign Up Form -->
     <div class="form-section">
       <div class="form-container">
-        
         <div class="form-header">
           <h2 class="form-title">Create Account</h2>
-          <p class="form-subtitle">Sign up to start managing expenses with FairShare</p>
+          <p class="form-subtitle">
+            Sign up to start managing expenses with FairShare
+          </p>
         </div>
 
-        <form [formGroup]="signupForm" (ngSubmit)="onRegister()" class="signup-form">
-          
+        <form
+          [formGroup]="signupForm"
+          (ngSubmit)="onRegister()"
+          class="signup-form"
+        >
           <!-- Username Input -->
           <div class="form-group">
             <label class="form-label">Full Name</label>
             <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+              <svg
+                class="input-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+                />
               </svg>
               <input
                 type="text"
                 formControlName="username"
                 class="form-input"
                 placeholder="Enter your full name"
-                [class.error]="signupForm.get('username')?.invalid && signupForm.get('username')?.touched"
+                [class.error]="
+                  signupForm.get('username')?.invalid &&
+                  signupForm.get('username')?.touched
+                "
               />
             </div>
-            <div *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched" class="error-message">
-              <span *ngIf="signupForm.get('username')?.errors?.['required']">Name is required</span>
+            <div
+              *ngIf="
+                signupForm.get('username')?.invalid &&
+                signupForm.get('username')?.touched
+              "
+              class="error-message"
+            >
+              <span *ngIf="signupForm.get('username')?.errors?.['required']"
+                >Name is required</span
+              >
             </div>
           </div>
 
@@ -70,20 +111,40 @@
           <div class="form-group">
             <label class="form-label">Email Address</label>
             <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+              <svg
+                class="input-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                />
               </svg>
               <input
                 type="email"
                 formControlName="email"
                 class="form-input"
                 placeholder="Enter your email"
-                [class.error]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched"
+                [class.error]="
+                  signupForm.get('email')?.invalid &&
+                  signupForm.get('email')?.touched
+                "
               />
             </div>
-            <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched" class="error-message">
-              <span *ngIf="signupForm.get('email')?.errors?.['required']">Email is required</span>
-              <span *ngIf="signupForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+            <div
+              *ngIf="
+                signupForm.get('email')?.invalid &&
+                signupForm.get('email')?.touched
+              "
+              class="error-message"
+            >
+              <span *ngIf="signupForm.get('email')?.errors?.['required']"
+                >Email is required</span
+              >
+              <span *ngIf="signupForm.get('email')?.errors?.['email']"
+                >Please enter a valid email</span
+              >
             </div>
           </div>
 
@@ -91,35 +152,64 @@
           <div class="form-group">
             <label class="form-label">Password</label>
             <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+              <svg
+                class="input-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
+                />
               </svg>
               <input
                 type="password"
                 formControlName="password"
                 class="form-input"
                 placeholder="Create a password"
-                [class.error]="signupForm.get('password')?.invalid && signupForm.get('password')?.touched"
+                [class.error]="
+                  signupForm.get('password')?.invalid &&
+                  signupForm.get('password')?.touched
+                "
               />
             </div>
-            <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="error-message">
-              <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is required</span>
-              <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+            <div
+              *ngIf="
+                signupForm.get('password')?.invalid &&
+                signupForm.get('password')?.touched
+              "
+              class="error-message"
+            >
+              <span *ngIf="signupForm.get('password')?.errors?.['required']"
+                >Password is required</span
+              >
+              <span *ngIf="signupForm.get('password')?.errors?.['minlength']"
+                >Password must be at least 6 characters</span
+              >
             </div>
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" class="btn btn-primary" [disabled]="signupForm.invalid">
-            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="signupForm.invalid"
+          >
+            <svg
+              class="btn-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
             Create Account
           </button>
 
           <!-- Terms & Privacy -->
           <p class="terms-text">
-            By signing up, you agree to our 
-            <a href="#" class="link">Terms of Service</a> and 
+            By signing up, you agree to our
+            <a href="#" class="link">Terms of Service</a> and
             <a href="#" class="link">Privacy Policy</a>
           </p>
 
@@ -129,9 +219,16 @@
             <a (click)="onLogin()" class="link">Sign In</a>
           </div>
         </form>
-
       </div>
     </div>
-
   </div>
 </div>
+<app-custom-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [type]="modalType"
+  (confirm)="closeModal()"
+  (cancel)="closeModal()"
+>
+</app-custom-modal>

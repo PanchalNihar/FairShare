@@ -2,34 +2,34 @@
    CSS CUSTOM PROPERTIES
    ============================================ */
 :root {
-  --groups-bg: #F5F7FA;
-  --groups-card-bg: #FFFFFF;
-  --groups-text-primary: #1A1A2E;
-  --groups-text-secondary: #6C757D;
-  --groups-border: #E1E4E8;
-  --groups-border-light: #F1F3F5;
-  --groups-accent: #4A90E2;
-  --groups-accent-hover: #357ABD;
-  --groups-accent-light: #EBF4FB;
-  --groups-success: #28A745;
-  --groups-danger: #DC3545;
+  --groups-bg: #f5f7fa;
+  --groups-card-bg: #ffffff;
+  --groups-text-primary: #1a1a2e;
+  --groups-text-secondary: #6c757d;
+  --groups-border: #e1e4e8;
+  --groups-border-light: #f1f3f5;
+  --groups-accent: #4a90e2;
+  --groups-accent-hover: #357abd;
+  --groups-accent-light: #ebf4fb;
+  --groups-success: #28a745;
+  --groups-danger: #dc3545;
   --groups-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --groups-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
   --groups-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 :host-context(.dark-theme) {
-  --groups-bg: #0F1419;
-  --groups-card-bg: #1A1F2E;
-  --groups-text-primary: #F8F9FA;
-  --groups-text-secondary: #ADB5BD;
-  --groups-border: #2C3E50;
-  --groups-border-light: #343A40;
-  --groups-accent: #5BA3F5;
-  --groups-accent-hover: #4A90E2;
-  --groups-accent-light: #1E3A5F;
-  --groups-success: #34C759;
-  --groups-danger: #FF453A;
+  --groups-bg: #0f1419;
+  --groups-card-bg: #1a1f2e;
+  --groups-text-primary: #f8f9fa;
+  --groups-text-secondary: #adb5bd;
+  --groups-border: #2c3e50;
+  --groups-border-light: #343a40;
+  --groups-accent: #5ba3f5;
+  --groups-accent-hover: #4a90e2;
+  --groups-accent-light: #1e3a5f;
+  --groups-success: #34c759;
+  --groups-danger: #ff453a;
   --groups-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --groups-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
   --groups-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
@@ -195,7 +195,7 @@
   align-items: center;
   justify-content: center;
   background: var(--groups-accent);
-  color: #FFFFFF;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -282,7 +282,7 @@
 
 .btn-remove-member:hover {
   background: var(--groups-danger);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn-remove-member svg {
@@ -325,7 +325,7 @@
 
 .btn-primary {
   background: var(--groups-accent);
-  color: #FFFFFF;
+  color: #ffffff;
   box-shadow: var(--groups-shadow-sm);
 }
 
@@ -346,7 +346,7 @@
 }
 
 .btn-secondary:hover {
-  background: var(--groups-card-bg);
+  /* background: var(--groups-card-bg); */
   border-color: var(--groups-text-secondary);
 }
 
@@ -447,11 +447,13 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  padding: 0;
+  line-height: 1;
 }
 
 .action-btn:hover {
   background: var(--groups-accent);
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: var(--groups-accent);
 }
 
@@ -461,13 +463,16 @@
 
 .action-btn.delete-btn:hover {
   background: var(--groups-danger);
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: var(--groups-danger);
 }
 
 .action-btn svg {
   width: 18px;
   height: 18px;
+  display: block;
+  fill: currentColor;
+  pointer-events: none;
 }
 
 .group-members-list {
@@ -555,7 +560,7 @@
 
 .modal-close:hover {
   background: var(--groups-danger);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .modal-close svg {
@@ -575,7 +580,7 @@
   border-radius: 12px;
   margin: 0 auto 16px;
   display: block;
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 16px;
   box-shadow: var(--groups-shadow-md);
 }
@@ -622,7 +627,7 @@
   .groups-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .groups-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
@@ -632,24 +637,24 @@
   .groups-wrapper {
     padding: 16px;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .page-header .btn {
     width: 100%;
   }
-  
+
   .card-body {
     padding: 20px;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .groups-grid {
     grid-template-columns: 1fr;
   }
@@ -659,15 +664,15 @@
   .groups-wrapper {
     padding: 12px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .card-header {
     padding: 16px;
   }
-  
+
   .card-body {
     padding: 16px;
   }

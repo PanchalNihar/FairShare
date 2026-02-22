@@ -4,6 +4,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 
 interface UserProfile {
   username: string;
@@ -16,7 +17,7 @@ interface UserProfile {
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
   standalone: true,
-  imports: [NavbarComponent, FormsModule, CommonModule],
+  imports: [NavbarComponent, FormsModule, CommonModule,CustomModalComponent],
   encapsulation: ViewEncapsulation.None
 })
 export class ProfileComponent implements OnInit {
@@ -29,9 +30,17 @@ export class ProfileComponent implements OnInit {
   profileImage: string | ArrayBuffer | null = null;
   isEditing: boolean = false;
   showSaveButton: boolean = false;
-
+   isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
   constructor(private router: Router, private authService: AuthService) {}
-
+    openModal(title: string, message: string, type: any = 'info') {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.isModalOpen = true;
+  }
   ngOnInit(): void {
     try {
       const currentUser = localStorage.getItem('currentUser');
@@ -64,13 +73,13 @@ export class ProfileComponent implements OnInit {
           username: this.user.username,
           email: this.user.email,
         });
-        alert('Profile updated successfully!');
+        this.openModal('Success', 'Profile updated successfully!', 'success');
         this.isEditing = false;
       } catch (error) {
-        alert('Error updating profile');
+        this.openModal('Error', 'Error updating profile', 'error');
       }
     } else {
-      alert('Please fill out all fields.');
+      this.openModal('Error', 'Please fill out all fields.', 'error');
     }
   }
 
@@ -84,7 +93,7 @@ export class ProfileComponent implements OnInit {
     if (file) {
       if (file.size > 5000000) {
         // 5MB limit
-        alert('File size too large. Please choose an image under 5MB.');
+        this.openModal('Error', 'File size too large. Please choose an image under 5MB.', 'error');
         return;
       }
 
@@ -103,12 +112,14 @@ export class ProfileComponent implements OnInit {
         profileImage: this.profileImage as string,
       });
       this.showSaveButton = false;
-      alert('Profile image saved successfully!');
+      this.openModal('Success', 'Profile image saved successfully!', 'success');
     } catch (error) {
-      alert('Error saving profile image');
+      this.openModal('Error', 'Error saving profile image', 'error');
     }
   }
-
+   closeModal() {
+    this.isModalOpen = false;
+  }
   backToDashboard() {
     this.router.navigate(['/dashboard']);
   }

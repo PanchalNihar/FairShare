@@ -2,30 +2,44 @@
 
 <div class="groups-wrapper">
   <div class="groups-container">
-    
     <!-- Page Header -->
     <div class="page-header">
       <div class="header-content">
         <h1 class="page-title">Manage Groups</h1>
-        <p class="page-subtitle">Create, edit, and organize your expense groups</p>
+        <p class="page-subtitle">
+          Create, edit, and organize your expense groups
+        </p>
       </div>
       <button class="btn btn-secondary" (click)="backtoDashboard()">
-        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        <svg
+          class="btn-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
         </svg>
         Dashboard
       </button>
     </div>
 
     <div class="groups-layout">
-      
       <!-- Left Column: Create/Edit Form -->
       <div class="form-card">
         <div class="card-header">
-          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          <svg
+            class="header-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+            />
           </svg>
-          <h2 class="card-title">{{ selectedGroup ? 'Edit Group' : 'Create New Group' }}</h2>
+          <h2 class="card-title">
+            {{ selectedGroup ? "Edit Group" : "Create New Group" }}
+          </h2>
         </div>
 
         <div class="card-body">
@@ -52,9 +66,17 @@
                 placeholder="Enter member name"
                 (keyup.enter)="addMember()"
               />
-              <button class="btn-add" (click)="addMember()" [disabled]="!newMember.trim()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              <button
+                class="btn-add"
+                (click)="addMember()"
+                [disabled]="!newMember.trim()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                 </svg>
               </button>
             </div>
@@ -65,13 +87,29 @@
             <label class="form-label">Members ({{ members.length }})</label>
             <ul class="members-list">
               <li *ngFor="let member of members" class="member-item">
-                <svg class="member-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                <svg
+                  class="member-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+                  />
                 </svg>
                 <span class="member-name">{{ member }}</span>
-                <button class="btn-remove-member" (click)="deleteMember(member)">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                <button
+                  class="btn-remove-member"
+                  (click)="deleteMember(member)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                    />
                   </svg>
                 </button>
               </li>
@@ -80,20 +118,27 @@
 
           <!-- Action Buttons -->
           <div class="form-actions">
-            <button 
-              *ngIf="selectedGroup" 
+            <button
+              *ngIf="selectedGroup"
               class="btn btn-secondary"
-              (click)="clearGroupForm()">
+              (click)="clearGroupForm()"
+            >
               Cancel
             </button>
-            <button 
+            <button
               class="btn btn-primary"
               (click)="selectedGroup ? editGroup() : addGroup()"
-              [disabled]="!groupName.trim() || members.length === 0">
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              [disabled]="!groupName.trim() || members.length === 0"
+            >
+              <svg
+                class="btn-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
               </svg>
-              {{ selectedGroup ? 'Update Group' : 'Create Group' }}
+              {{ selectedGroup ? "Update Group" : "Create Group" }}
             </button>
           </div>
         </div>
@@ -102,10 +147,15 @@
       <!-- Right Column: Groups List -->
       <div class="groups-list-card">
         <div class="card-header">
-          <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l-5.5 9h11z"/>
-            <circle cx="17.5" cy="17.5" r="4.5"/>
-            <path d="M3 13.5h8v8H3z"/>
+          <svg
+            class="header-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 2l-5.5 9h11z" />
+            <circle cx="17.5" cy="17.5" r="4.5" />
+            <path d="M3 13.5h8v8H3z" />
           </svg>
           <h2 class="card-title">Your Groups ({{ groups.length }})</h2>
         </div>
@@ -113,8 +163,15 @@
         <div class="card-body">
           <!-- Empty State -->
           <div *ngIf="groups.length === 0" class="empty-state">
-            <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            <svg
+              class="empty-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+              />
             </svg>
             <p class="empty-text">No groups yet</p>
             <p class="empty-subtext">Create your first group to get started</p>
@@ -126,32 +183,73 @@
               <div class="group-header">
                 <div class="group-info">
                   <h3 class="group-name">{{ group.name }}</h3>
-                  <p class="group-members">{{ group.members?.length || 0 }} members</p>
+                  <p class="group-members">
+                    {{ group.members?.length || 0 }} members
+                  </p>
                 </div>
                 <div class="group-actions">
-                  <button class="action-btn" (click)="showQrCode(group)" title="Share QR Code">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/>
+                  <button
+                    class="action-btn"
+                    (click)="showQrCode(group)"
+                    title="Share QR Code"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"
+                      />
                     </svg>
                   </button>
-                  <button class="action-btn" (click)="selectGroup(group)" title="Edit Group">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  <button
+                    class="action-btn"
+                    (click)="selectGroup(group)"
+                    title="Edit Group"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                      />
                     </svg>
                   </button>
-                  <button class="action-btn delete-btn" (click)="removeGroup(group)" title="Delete Group">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  <button
+                    class="action-btn delete-btn"
+                    (click)="removeGroup(group)"
+                    title="Delete Group"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                      />
                     </svg>
                   </button>
                 </div>
               </div>
-              
-              <div class="group-members-list" *ngIf="group.members && group.members.length > 0">
-                <span *ngFor="let member of group.members.slice(0, 3)" class="member-badge">
+
+              <div
+                class="group-members-list"
+                *ngIf="group.members && group.members.length > 0"
+              >
+                <span
+                  *ngFor="let member of group.members.slice(0, 3)"
+                  class="member-badge"
+                >
                   {{ member }}
                 </span>
-                <span *ngIf="group.members.length > 3" class="member-badge more-badge">
+                <span
+                  *ngIf="group.members.length > 3"
+                  class="member-badge more-badge"
+                >
                   +{{ group.members.length - 3 }}
                 </span>
               </div>
@@ -169,8 +267,14 @@
     <div class="modal-header">
       <h3 class="modal-title">Share Group</h3>
       <button class="modal-close" (click)="closeQrCode()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
         </svg>
       </button>
     </div>
@@ -180,3 +284,12 @@
     </div>
   </div>
 </div>
+<app-custom-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [type]="modalType"
+  (confirm)="closeModal()"
+  (cancel)="closeModal()"
+>
+</app-custom-modal>

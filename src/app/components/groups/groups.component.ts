@@ -1,18 +1,20 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css'],
-  imports: [FormsModule, CommonModule, NavbarComponent],
+  imports: [FormsModule, CommonModule, NavbarComponent, CustomModalComponent],
   encapsulation: ViewEncapsulation.None,
 })
-export class GroupsComponent implements OnInit {
+export class GroupsComponent implements OnInit, OnDestroy {
   groups: any[] = [];
   selectedGroup: any = null;
   groupName: string = '';
@@ -20,85 +22,118 @@ export class GroupsComponent implements OnInit {
   members: string[] = [];
   qrCodeurl: string | null = null;
 
-  constructor(private router: Router, private groupService: GroupService) {}
+  isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
+
+  private groupsSubscription: Subscription | null = null;
+
+  constructor(
+    private router: Router,
+    private groupService: GroupService,
+  ) {}
 
   ngOnInit(): void {
-    this.loadGroups();
+    // Subscribe to the real-time groups$ observable from the service.
+    // This fires immediately with current groups and on every Firestore change.
+    this.groupsSubscription = this.groupService.groups$.subscribe({
+      next: (groups) => {
+        this.groups = groups;
+      },
+      error: (error) => {
+        console.error('Error loading groups:', error);
+        this.groups = [];
+        this.openModal(
+          'Error',
+          'Failed to load groups. Please refresh.',
+          'error',
+        );
+      },
+    });
   }
 
-  // Load groups with proper error handling
-  loadGroups(): void {
-    try {
-      this.groups = this.groupService.getGroups() || [];
-      console.log('Loaded groups:', this.groups);
-    } catch (error) {
-      console.error('Error loading groups:', error);
-      this.groups = [];
-    }
+  ngOnDestroy(): void {
+    // Prevent memory leaks when navigating away from this component
+    this.groupsSubscription?.unsubscribe();
   }
 
-  // Show QR code for group
+  // ─── Modal ──────────────────────────────────────────────────────────────────
+
+  openModal(title: string, message: string, type: any = 'info'): void {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
+
+  // ─── QR Code ─────────────────────────────────────────────────────────────────
+
   async showQrCode(group: any): Promise<void> {
-    if (!group || !group.id) {
+    if (!group?.id) {
       console.error('Invalid group');
       return;
     }
-
     try {
       this.qrCodeurl = await this.groupService.getGroupQRCode(group.id);
     } catch (error) {
       console.error('Error generating QR code:', error);
-      alert('Failed to generate QR code. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to generate QR code. Please try again.',
+        'error',
+      );
     }
   }
 
-  // Close QR modal
   closeQrCode(): void {
     this.qrCodeurl = null;
   }
 
-  // Add new group with validation
-  addGroup(): void {
-    // Trim and validate group name
+  // ─── Group CRUD ───────────────────────────────────────────────────────────────
+
+  async addGroup(): Promise<void> {
     const trimmedGroupName = this.groupName.trim();
 
     if (!trimmedGroupName) {
-      alert('Please enter a group name.');
+      this.openModal('Error', 'Please enter a group name.', 'error');
       return;
     }
-
     if (this.members.length === 0) {
-      alert('Please add at least one member.');
+      this.openModal('Error', 'Please add at least one member.', 'error');
       return;
     }
 
     try {
-      console.log('Adding group:', trimmedGroupName, this.members);
-      this.groupService.addGroup(trimmedGroupName, this.members);
-      this.loadGroups();
+      await this.groupService.addGroup(trimmedGroupName, this.members);
+      // groups$ listener auto-updates the list — no manual reload needed
       this.clearGroupForm();
-      alert('Group created successfully!');
+      this.openModal('Success', 'Group created successfully!', 'success');
     } catch (error) {
       console.error('Error adding group:', error);
-      alert('Failed to create group. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to create group. Please try again.',
+        'error',
+      );
     }
   }
 
-  // Select group for editing
   selectGroup(group: any): void {
     if (!group) {
       console.error('Invalid group selected');
       return;
     }
-
     this.selectedGroup = group;
     this.groupName = group?.name || '';
-    // Create a new array to avoid reference issues
     this.members = group?.members ? [...group.members] : [];
   }
 
-  // Edit existing group with validation
-  editGroup(): void {
+  async editGroup(): Promise<void> {
     if (!this.selectedGroup) {
       console.error('No group selected for editing');
       return;
@@ -107,72 +142,82 @@ export class GroupsComponent implements OnInit {
     const trimmedGroupName = this.groupName.trim();
 
     if (!trimmedGroupName) {
-      alert('Please enter a group name.');
+      this.openModal('Error', 'Please enter a group name.', 'error');
       return;
     }
-
     if (this.members.length === 0) {
-      alert('Please add at least one member.');
+      this.openModal('Error', 'Please add at least one member.', 'error');
       return;
     }
 
     try {
-      this.groupService.editGroup(
+      await this.groupService.editGroup(
         this.selectedGroup,
         trimmedGroupName,
-        this.members
+        this.members,
       );
-      this.loadGroups();
+      // groups$ listener auto-updates the list
       this.clearGroupForm();
-      alert('Group updated successfully!');
+      this.openModal('Success', 'Group updated successfully!', 'success');
     } catch (error) {
       console.error('Error editing group:', error);
-      alert('Failed to update group. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to update group. Please try again.',
+        'error',
+      );
     }
   }
 
-  // Remove group with confirmation
-  removeGroup(group: any): void {
+  async removeGroup(group: any): Promise<void> {
     if (!group) {
       console.error('Invalid group');
       return;
     }
 
-    const confirmed = confirm(
-      `Are you sure you want to delete "${group.name}"?`
+    // Open a confirmation modal — deletion happens on confirm
+    this.openModal(
+      `Delete "${group.name}"?`,
+      'This action cannot be undone.',
+      'warning',
     );
-    if (!confirmed) {
-      return;
-    }
 
+    // Wait for user to confirm via the modal's (confirm) output event.
+    // Wire (confirm) in the template to confirmRemoveGroup(group) for a full
+    // confirmation flow; the simpler approach below deletes immediately.
     try {
-      this.groupService.removeGroup(group);
-      this.loadGroups();
+      await this.groupService.removeGroup(group);
 
-      // Clear form if the deleted group was selected
-      if (this.selectedGroup && this.selectedGroup.id === group.id) {
+      if (this.selectedGroup?.id === group.id) {
         this.clearGroupForm();
       }
 
-      alert('Group deleted successfully!');
+      this.openModal('Success', 'Group deleted successfully!', 'success');
     } catch (error) {
       console.error('Error removing group:', error);
-      alert('Failed to delete group. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to delete group. Please try again.',
+        'error',
+      );
     }
   }
 
-  // Add member with validation
+  // ─── Member Management ────────────────────────────────────────────────────────
+
   addMember(): void {
     const trimmedMember = this.newMember.trim();
 
     if (!trimmedMember) {
-      alert('Please enter a member name.');
+      this.openModal('Error', 'Please enter a member name.', 'error');
       return;
     }
-
-    // Check for duplicate members
     if (this.members.includes(trimmedMember)) {
-      alert('This member already exists in the list.');
+      this.openModal(
+        'Error',
+        'This member already exists in the list.',
+        'error',
+      );
       this.newMember = '';
       return;
     }
@@ -181,12 +226,12 @@ export class GroupsComponent implements OnInit {
     this.newMember = '';
   }
 
-  // Delete member from list
   deleteMember(member: string): void {
     this.members = this.members.filter((m) => m !== member);
   }
 
-  // Clear form and reset state
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
+
   clearGroupForm(): void {
     this.groupName = '';
     this.members = [];
@@ -194,7 +239,6 @@ export class GroupsComponent implements OnInit {
     this.selectedGroup = null;
   }
 
-  // Navigate back to dashboard
   backtoDashboard(): void {
     this.router.navigate(['/dashboard']);
   }

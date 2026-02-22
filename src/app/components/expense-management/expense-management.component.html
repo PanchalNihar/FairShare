@@ -227,3 +227,11 @@
 
   </div>
 </div>
+<app-custom-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [type]="modalType"
+  (confirm)="closeModal()"
+  (cancel)="closeModal()">
+</app-custom-modal>

@@ -11,24 +11,38 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    CustomModalComponent,
+  ],
   templateUrl: './signin.component.html',
   styleUrls: ['./signin.component.css'],
 })
 export class SigninComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   private authSubscription?: Subscription;
-
+  isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
   ) {}
-
+  openModal(title: string, message: string, type: any = 'info') {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.isModalOpen = true;
+  }
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
       this.router.navigate(['/about']);
@@ -74,7 +88,7 @@ export class SigninComponent implements OnInit, OnDestroy {
       this.router.navigate(['/about']);
     } catch (err) {
       console.error(err);
-      alert('Failed to sign in with google. Please try again later');
+      this.openModal('Google Sign-in Failed', 'Failed to sign in with Google. Please try again later.', 'error');
     }
   }
   private handleError(error: any): void {
@@ -86,9 +100,12 @@ export class SigninComponent implements OnInit, OnDestroy {
     } else if (error.code === 'auth/invalid-email') {
       errorMessage = 'Invalid email format.';
     }
-    alert(errorMessage);
+    this.openModal('Login Error', errorMessage, 'error');
   }
   onRegister(): void {
     this.router.navigate(['/signup']);
+  }
+  closeModal() {
+    this.isModalOpen = false;
   }
 }

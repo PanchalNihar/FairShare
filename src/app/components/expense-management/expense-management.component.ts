@@ -6,10 +6,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GroupService } from '../../services/group.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { Subscription } from 'rxjs';
+import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 
 @Component({
   selector: 'app-expense-management',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NavbarComponent,
+    CustomModalComponent
+  ],
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -26,14 +33,26 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   selectedGroup: string = '';
   totalExpense: number = 0;
 
+  isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
+
   private expensesSub?: Subscription;
   private groupsSub?: Subscription;
 
   constructor(
     private router: Router,
     private expenseService: ExpenseService,
-    private groupService: GroupService
+    private groupService: GroupService,
   ) {}
+
+  openModal(title: string, message: string, type: any = 'info') {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.isModalOpen = true;
+  }
 
   ngOnInit(): void {
     this.loadAvailableGroup();
@@ -42,7 +61,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expensesSub = this.expenseService.expenses$.subscribe((expenses) => {
       if (this.selectedGroup) {
         this.expenseList = expenses.filter(
-          (expense) => expense.groupName === this.selectedGroup
+          (expense) => expense.groupName === this.selectedGroup,
         );
         this.calculateTotalExpense();
       }
@@ -88,22 +107,22 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   async addExpense(): Promise<void> {
     // Validation
     if (!this.expensePayer.trim()) {
-      alert('Please select who paid for this expense.');
+      this.openModal('Error', 'Please select who paid for this expense.', 'error');
       return;
     }
 
     if (!this.expenseAmount || this.expenseAmount <= 0) {
-      alert('Please enter a valid amount greater than 0.');
+      this.openModal('Error', 'Please enter a valid amount greater than 0.', 'error');
       return;
     }
 
     if (!this.expenseDescription.trim()) {
-      alert('Please enter a description for this expense.');
+      this.openModal('Error', 'Please enter a description for this expense.', 'error');
       return;
     }
 
     if (!this.expenseDate) {
-      alert('Please select a date for this expense.');
+      this.openModal('Error', 'Please select a date for this expense.', 'error');
       return;
     }
 
@@ -113,13 +132,17 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         this.expenseAmount,
         this.expenseDescription,
         this.expenseDate,
-        this.selectedGroup
+        this.selectedGroup,
       );
       this.clearForm();
-      alert('Expense added successfully!');
+      this.openModal('Success', 'Expense added successfully!', 'success');
     } catch (error) {
       console.error('Error adding expense:', error);
-      alert('Failed to add expense. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to add expense. Please try again.',
+        'error',
+      );
     }
   }
 
@@ -127,7 +150,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   calculateTotalExpense(): void {
     this.totalExpense = this.expenseList.reduce(
       (total, expense) => total + Number(expense.amount),
-      0
+      0,
     );
   }
 
@@ -149,22 +172,22 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
     // Validation
     if (!this.expensePayer.trim()) {
-      alert('Please select who paid for this expense.');
+      this.openModal('Error', 'Please select who paid for this expense.', 'error');
       return;
     }
 
     if (!this.expenseAmount || this.expenseAmount <= 0) {
-      alert('Please enter a valid amount greater than 0.');
+      this.openModal('Error', 'Please enter a valid amount greater than 0.', 'error');
       return;
     }
 
     if (!this.expenseDescription.trim()) {
-      alert('Please enter a description for this expense.');
+      this.openModal('Error', 'Please enter a description for this expense.', 'error');
       return;
     }
 
     if (!this.expenseDate) {
-      alert('Please select a date for this expense.');
+      this.openModal('Error', 'Please select a date for this expense.', 'error');
       return;
     }
 
@@ -176,17 +199,21 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         date: this.expenseDate,
       });
       this.clearForm();
-      alert('Expense updated successfully!');
+      this.openModal('Success', 'Expense updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating expense:', error);
-      alert('Failed to update expense. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to update expense. Please try again.',
+        'error',
+      );
     }
   }
 
   // Delete expense with confirmation
   async deleteExpense(expense: Expense): Promise<void> {
     const confirmed = confirm(
-      `Are you sure you want to delete this expense: "${expense.description}"?`
+      `Are you sure you want to delete this expense: "${expense.description}"?`,
     );
 
     if (!confirmed) {
@@ -201,10 +228,14 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         this.clearForm();
       }
 
-      alert('Expense deleted successfully!');
+      this.openModal('Success', 'Expense deleted successfully!', 'success');
     } catch (error) {
       console.error('Error deleting expense:', error);
-      alert('Failed to delete expense. Please try again.');
+      this.openModal(
+        'Error',
+        'Failed to delete expense. Please try again.',
+        'error',
+      );
     }
   }
 
@@ -216,7 +247,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expenseDescription = '';
     this.selectedExpense = null;
   }
-
+  closeModal() {
+    this.isModalOpen = false;
+  }
   // Navigate back to dashboard
   backtoDashboard(): void {
     this.router.navigate(['/dashboard']);
