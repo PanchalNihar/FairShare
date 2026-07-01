@@ -22,6 +22,12 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              "src/manifest.webmanifest",
+              {
+                "glob": "**/*",
+                "input": "src/icons",
+                "output": "icons"
               }
             ],
             "styles": ["src/styles.css"],
@@ -32,9 +38,10 @@
             "outputMode": "server",
             "ssr": {
               "entry": "src/server.ts"
-            }
+            },
+            "serviceWorker": "ngsw-config.json"
           },
-          "configurations": { 
+          "configurations": {
             "production": {
               "budgets": [
                 {
