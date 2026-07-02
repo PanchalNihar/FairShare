@@ -76,3 +76,63 @@ export const getMyGroups = async (req, res) => {
     }
 
 };
+export const joinGroup = async (req, res) => {
+
+    try {
+
+        const { inviteCode } = req.body;
+
+        if (!inviteCode) {
+            return res.status(400).json({
+                success: false,
+                message: "Invite code is required."
+            });
+        }
+
+        const group = await Group.findOne({
+            inviteCode: inviteCode.toUpperCase()
+        });
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found."
+            });
+        }
+
+        const alreadyMember = group.members.some(
+            member => member.user.toString() === req.user._id.toString()
+        );
+
+        if (alreadyMember) {
+            return res.status(400).json({
+                success: false,
+                message: "You are already a member."
+            });
+        }
+
+        group.members.push({
+            user: req.user._id,
+            role: "member"
+        });
+
+        await group.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Joined group successfully."
+        });
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        });
+
+    }
+
+};
