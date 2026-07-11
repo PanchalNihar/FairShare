@@ -7,6 +7,7 @@ import { GroupService } from '../../services/group.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { combineLatest, Subscription } from 'rxjs';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-expense-management',
@@ -23,28 +24,35 @@ import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.com
 })
 export class ExpenseManagementComponent implements OnInit, OnDestroy {
   expenseList: Expense[] = [];
-  availableGroups: string[] = [];
-  expensePayer: string = '';
-  expenseAmount: number = 0;
-  expenseDate: string = '';
-  expenseDescription: string = '';
-  groupMembers: string[] = [];
-  selectedExpense: Expense | null = null;
+  availableGroups: any[] = [];
+  expenseAmount = 0;
+  expenseDescription = '';
+  // groupMembers: string[] = [];
+  // selectedExpense: Expense | null = null;
   selectedGroup: string = '';
   totalExpense: number = 0;
-
+  selectedGroupId = '';
+  expenseCategory = 'Other';
   isModalOpen = false;
   modalTitle = '';
   modalMessage = '';
   modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
 
+  selectedGroupMembers: any[] = [];
+  selectedPayeeId: string = '';
+  currentUser: any = null;
+  isEditing: boolean = false;
+  editingExpenseId: string = '';
+
   private expensesSub?: Subscription;
   private groupsSub?: Subscription;
+  private authSub?: Subscription;
 
   constructor(
     private router: Router,
     private expenseService: ExpenseService,
     private groupService: GroupService,
+    private authService: AuthService,
   ) {}
 
   openModal(title: string, message: string, type: any = 'info') {
@@ -55,30 +63,69 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadAvailableGroup();
 
-    // Subscribe to real-time expense + group changes.
-    // combineLatest ensures the list refreshes after page refresh once
-    // both auth-gated Firestore listeners have emitted their first value.
-    this.expensesSub = combineLatest([
-      this.expenseService.expenses$,
-      this.groupService.groups$,
-    ]).subscribe(([expenses]) => {
-      this.availableGroups = this.groupService.getGroupForTracking();
-      if (this.selectedGroup) {
-        this.groupMembers = this.groupService.getGroupMember(
-          this.selectedGroup,
-        );
-        this.expenseList = expenses.filter(
-          (expense) => expense.groupName === this.selectedGroup,
-        );
-        this.calculateTotalExpense();
+  // Load groups from backend
+  this.groupsSub = this.groupService.groups$.subscribe({
+
+    next: (groups) => {
+
+      this.availableGroups = groups;
+
+      // If a group is already selected after refresh,
+      // reload its expenses.
+      if (this.selectedGroupId) {
+        this.onGroupChange();
       }
-    });
 
-    // Set default date to today
-    this.expenseDate = new Date().toISOString().split('T')[0];
-  }
+    },
+
+    error: (error) => {
+
+      console.error(error);
+
+      this.openModal(
+        'Error',
+        'Failed to load groups.',
+        'error'
+      );
+
+    }
+
+  });
+
+  // Listen for expense updates
+  this.expensesSub = this.expenseService.expenses$.subscribe({
+
+    next: (expenses) => {
+
+      this.expenseList = expenses;
+
+      this.calculateTotalExpense();
+
+    },
+
+    error: (error) => {
+
+      console.error(error);
+
+      this.openModal(
+        'Error',
+        'Failed to load expenses.',
+        'error'
+      );
+
+    }
+
+  });
+
+  this.authSub = this.authService.currentUser$.subscribe({
+    next: (user) => {
+      this.currentUser = user;
+      this.defaultPayeeToCurrentUser();
+    },
+  });
+
+}
 
   ngOnDestroy(): void {
     if (this.expensesSub) {
@@ -86,6 +133,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     }
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
+    }
+    if (this.authSub) {
+      this.authSub.unsubscribe();
     }
   }
 
@@ -97,80 +147,168 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   }
 
   // Handle group change
-  onGroupChange(): void {
-    if (this.selectedGroup) {
-      this.groupMembers = this.groupService.getGroupMember(this.selectedGroup);
-      this.expenseList = this.expenseService
-        .getExpense()
-        .filter((expense) => expense.groupName === this.selectedGroup);
-      this.calculateTotalExpense();
-      this.clearForm(); // Clear form when switching groups
-    } else {
-      this.groupMembers = [];
-      this.expenseList = [];
-      this.totalExpense = 0;
+ async onGroupChange() {
+
+    if (!this.selectedGroupId) {
+
+        this.expenseList = [];
+        this.selectedGroupMembers = [];
+        this.selectedPayeeId = '';
+
+        return;
+
+    }
+
+    const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
+    if (group) {
+      this.selectedGroupMembers = group.members || [];
+      this.defaultPayeeToCurrentUser();
+    }
+
+    await this.expenseService.loadExpenses(
+        this.selectedGroupId
+    );
+
+}
+
+  defaultPayeeToCurrentUser() {
+    if (!this.currentUser || !this.selectedGroupMembers.length) {
+      this.selectedPayeeId = '';
+      return;
+    }
+    const currentUserId = this.currentUser._id || this.currentUser.id;
+    const found = this.selectedGroupMembers.find((m) => {
+      const memberId = m.user?._id || m.user?.id || m.user;
+      return memberId && currentUserId && memberId.toString() === currentUserId.toString();
+    });
+    if (found) {
+      this.selectedPayeeId = (found.user?._id || found.user?.id || found.user).toString();
+    } else if (this.selectedGroupMembers.length > 0) {
+      const firstMember = this.selectedGroupMembers[0];
+      this.selectedPayeeId = (firstMember.user?._id || firstMember.user?.id || firstMember.user).toString();
     }
   }
 
   // Add new expense
-  async addExpense(): Promise<void> {
-    // Validation
-    if (!this.expensePayer.trim()) {
-      this.openModal(
-        'Error',
-        'Please select who paid for this expense.',
-        'error',
-      );
-      return;
+  async addExpense() {
+
+    if (!this.selectedGroupId) {
+
+        this.openModal(
+            'Error',
+            'Please select a group.',
+            'error'
+        );
+
+        return;
     }
 
-    if (!this.expenseAmount || this.expenseAmount <= 0) {
-      this.openModal(
-        'Error',
-        'Please enter a valid amount greater than 0.',
-        'error',
-      );
-      return;
+    if (this.expenseAmount <= 0) {
+
+        this.openModal(
+            'Error',
+            'Enter a valid amount.',
+            'error'
+        );
+
+        return;
     }
 
     if (!this.expenseDescription.trim()) {
-      this.openModal(
-        'Error',
-        'Please enter a description for this expense.',
-        'error',
-      );
-      return;
+
+        this.openModal(
+            'Error',
+            'Enter description.',
+            'error'
+        );
+
+        return;
     }
 
-    if (!this.expenseDate) {
-      this.openModal(
-        'Error',
-        'Please select a date for this expense.',
-        'error',
-      );
+    try {
+
+        if (this.isEditing) {
+            await this.expenseService.updateExpense(
+                this.editingExpenseId,
+                this.selectedGroupId,
+                this.expenseAmount,
+                this.expenseDescription,
+                this.expenseCategory,
+                this.selectedPayeeId
+            );
+
+            this.openModal(
+                'Success',
+                'Expense Updated.',
+                'success'
+            );
+        } else {
+            await this.expenseService.addExpense(
+
+                this.selectedGroupId,
+
+                this.expenseAmount,
+
+                this.expenseDescription,
+
+                this.expenseCategory,
+
+                this.selectedPayeeId || undefined
+
+            );
+
+            this.openModal(
+                'Success',
+                'Expense Added.',
+                'success'
+            );
+        }
+
+        await this.expenseService.loadExpenses(
+            this.selectedGroupId
+        );
+
+        this.clearForm();
+        this.isEditing = false;
+        this.editingExpenseId = '';
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+  editExpense(expense: Expense) {
+    this.isEditing = true;
+    this.editingExpenseId = expense._id;
+    this.expenseAmount = expense.amount;
+    this.expenseDescription = expense.description;
+    this.expenseCategory = expense.category;
+    this.selectedPayeeId = expense.paidBy._id || (expense.paidBy as any);
+  }
+
+  cancelEdit() {
+    this.clearForm();
+    this.isEditing = false;
+    this.editingExpenseId = '';
+  }
+
+  async deleteExpense(expense: Expense) {
+    if (!confirm(`Are you sure you want to delete the expense "${expense.description}"?`)) {
       return;
     }
 
     try {
-      await this.expenseService.addExpense(
-        this.expensePayer,
-        this.expenseAmount,
-        this.expenseDescription,
-        this.expenseDate,
-        this.selectedGroup,
-      );
-      this.clearForm();
-      this.openModal('Success', 'Expense added successfully!', 'success');
+      await this.expenseService.deleteExpense(expense._id, this.selectedGroupId);
+      this.openModal('Success', 'Expense deleted successfully.', 'success');
     } catch (error) {
-      console.error('Error adding expense:', error);
-      this.openModal(
-        'Error',
-        'Failed to add expense. Please try again.',
-        'error',
-      );
+      console.error(error);
+      this.openModal('Error', 'Unable to delete expense.', 'error');
     }
-  }
-
+  } 
   // Calculate total expense
   calculateTotalExpense(): void {
     this.totalExpense = this.expenseList.reduce(
@@ -179,115 +317,18 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Select expense for editing
-  selectExpense(expense: Expense): void {
-    this.selectedExpense = expense;
-    this.expensePayer = expense.payer;
-    this.expenseAmount = expense.amount;
-    this.expenseDescription = expense.description;
-    this.expenseDate = expense.date.split('T')[0]; // Format date for input
-  }
 
-  // Edit existing expense
-  async editExpense(): Promise<void> {
-    if (!this.selectedExpense) {
-      console.error('No expense selected for editing');
-      return;
-    }
+  clearForm(){
 
-    // Validation
-    if (!this.expensePayer.trim()) {
-      this.openModal(
-        'Error',
-        'Please select who paid for this expense.',
-        'error',
-      );
-      return;
-    }
-
-    if (!this.expenseAmount || this.expenseAmount <= 0) {
-      this.openModal(
-        'Error',
-        'Please enter a valid amount greater than 0.',
-        'error',
-      );
-      return;
-    }
-
-    if (!this.expenseDescription.trim()) {
-      this.openModal(
-        'Error',
-        'Please enter a description for this expense.',
-        'error',
-      );
-      return;
-    }
-
-    if (!this.expenseDate) {
-      this.openModal(
-        'Error',
-        'Please select a date for this expense.',
-        'error',
-      );
-      return;
-    }
-
-    try {
-      await this.expenseService.updateExpense(this.selectedExpense.id, {
-        payer: this.expensePayer,
-        amount: this.expenseAmount,
-        description: this.expenseDescription,
-        date: this.expenseDate,
-      });
-      this.clearForm();
-      this.openModal('Success', 'Expense updated successfully!', 'success');
-    } catch (error) {
-      console.error('Error updating expense:', error);
-      this.openModal(
-        'Error',
-        'Failed to update expense. Please try again.',
-        'error',
-      );
-    }
-  }
-
-  // Delete expense with confirmation
-  async deleteExpense(expense: Expense): Promise<void> {
-    const confirmed = confirm(
-      `Are you sure you want to delete this expense: "${expense.description}"?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await this.expenseService.deleteExpense(expense.id);
-
-      // Clear form if the deleted expense was selected
-      if (this.selectedExpense && this.selectedExpense.id === expense.id) {
-        this.clearForm();
-      }
-
-      this.openModal('Success', 'Expense deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting expense:', error);
-      this.openModal(
-        'Error',
-        'Failed to delete expense. Please try again.',
-        'error',
-      );
-    }
-  }
-
-  // Clear form and reset state
-  clearForm(): void {
-    this.expensePayer = '';
     this.expenseAmount = 0;
-    this.expenseDate = new Date().toISOString().split('T')[0];
+
     this.expenseDescription = '';
-    this.selectedExpense = null;
-  }
+
+    this.expenseCategory = 'Other';
+
+    this.defaultPayeeToCurrentUser();
+
+}
   closeModal() {
     this.isModalOpen = false;
   }

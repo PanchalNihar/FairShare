@@ -104,8 +104,8 @@
 }
 
 .profile-header-bg {
-  height: 120px;
-  background-color: var(--profile-header-bg);
+  height: 140px;
+  background: linear-gradient(135deg, var(--profile-accent), #72a2ff);
   border-bottom: 2px solid var(--profile-border);
 }
 
@@ -126,7 +126,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--profile-spacing-md);
-  margin-top: -90px;
+  margin-top: -110px;
 }
 
 .profile-image-wrapper {

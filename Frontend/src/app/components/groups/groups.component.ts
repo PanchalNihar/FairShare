@@ -6,7 +6,8 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 import { Subscription } from 'rxjs';
-
+import { UserSearch } from '../../services/group.service';
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
@@ -16,230 +17,241 @@ import { Subscription } from 'rxjs';
 })
 export class GroupsComponent implements OnInit, OnDestroy {
   groups: any[] = [];
-  selectedGroup: any = null;
-  groupName: string = '';
-  newMember: string = '';
-  members: string[] = [];
+  groupName = '';
+  groupDescription = '';
   qrCodeurl: string | null = null;
-
   isModalOpen = false;
   modalTitle = '';
   modalMessage = '';
   modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
 
-  private groupsSubscription: Subscription | null = null;
+  newMember = '';
+  searchResults: UserSearch[] = [];
+  selectedMembers: UserSearch[] = [];
+  selectedGroupForManage: any = null;
+  currentUser: any = null;
+
+  private groupsSubscription?: Subscription;
+  private authSubscription?: Subscription;
 
   constructor(
     private router: Router,
     private groupService: GroupService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to the real-time groups$ observable from the service.
-    // This fires immediately with current groups and on every Firestore change.
     this.groupsSubscription = this.groupService.groups$.subscribe({
       next: (groups) => {
         this.groups = groups;
+        if (this.selectedGroupForManage) {
+          const updated = groups.find((g) => g._id === this.selectedGroupForManage._id);
+          if (updated) {
+            this.selectedGroupForManage = updated;
+          }
+        }
       },
-      error: (error) => {
-        console.error('Error loading groups:', error);
-        this.groups = [];
-        this.openModal(
-          'Error',
-          'Failed to load groups. Please refresh.',
-          'error',
-        );
+      error: (err) => {
+        console.error(err);
+
+        this.openModal('Error', 'Unable to load groups.', 'error');
+      },
+    });
+
+    this.authSubscription = this.authService.currentUser$.subscribe({
+      next: (user) => {
+        this.currentUser = user;
       },
     });
   }
 
   ngOnDestroy(): void {
-    // Prevent memory leaks when navigating away from this component
     this.groupsSubscription?.unsubscribe();
+    this.authSubscription?.unsubscribe();
   }
 
-  // ─── Modal ──────────────────────────────────────────────────────────────────
-
-  openModal(title: string, message: string, type: any = 'info'): void {
+  openModal(
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info' = 'info',
+  ) {
     this.modalTitle = title;
     this.modalMessage = message;
     this.modalType = type;
     this.isModalOpen = true;
   }
 
-  closeModal(): void {
+  closeModal() {
     this.isModalOpen = false;
   }
 
-  // ─── QR Code ─────────────────────────────────────────────────────────────────
-
-  async showQrCode(group: any): Promise<void> {
-    if (!group?.id) {
-      console.error('Invalid group');
+  async addGroup() {
+    if (!this.groupName.trim()) {
       return;
     }
+
     try {
-      this.qrCodeurl = await this.groupService.getGroupQRCode(group.id);
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-      this.openModal(
-        'Error',
-        'Failed to generate QR code. Please try again.',
-        'error',
+      const membersPayload = this.selectedMembers.map((m) => {
+        if (m._id) {
+          return m._id;
+        }
+        return {
+          username: m.username,
+          email: m.email,
+          isNew: true
+        };
+      });
+
+      await this.groupService.addGroup(
+        this.groupName,
+        this.groupDescription,
+        membersPayload,
       );
+
+      this.groupName = '';
+      this.groupDescription = '';
+      this.newMember = '';
+      this.selectedMembers = [];
+      this.searchResults = [];
+
+      this.openModal('Success', 'Group created successfully.', 'success');
+    } catch {
+      this.openModal('Error', 'Unable to create group.', 'error');
     }
   }
 
-  closeQrCode(): void {
+  async showQrCode(group: any) {
+    try {
+      this.qrCodeurl = await this.groupService.getGroupQRCode(group._id);
+    } catch (error) {
+      console.error(error);
+
+      this.openModal('Error', 'Unable to generate QR Code.', 'error');
+    }
+  }
+
+  closeQrCode() {
     this.qrCodeurl = null;
   }
 
-  // ─── Group CRUD ───────────────────────────────────────────────────────────────
-
-  async addGroup(): Promise<void> {
-    const trimmedGroupName = this.groupName.trim();
-
-    if (!trimmedGroupName) {
-      this.openModal('Error', 'Please enter a group name.', 'error');
-      return;
-    }
-    if (this.members.length === 0) {
-      this.openModal('Error', 'Please add at least one member.', 'error');
-      return;
-    }
-
+  async copyInviteCode(inviteCode: string) {
     try {
-      await this.groupService.addGroup(trimmedGroupName, this.members);
-      // groups$ listener auto-updates the list — no manual reload needed
-      this.clearGroupForm();
-      this.openModal('Success', 'Group created successfully!', 'success');
-    } catch (error) {
-      console.error('Error adding group:', error);
-      this.openModal(
-        'Error',
-        'Failed to create group. Please try again.',
-        'error',
-      );
+      await navigator.clipboard.writeText(inviteCode);
+
+      this.openModal('Copied', 'Invite code copied to clipboard.', 'success');
+    } catch {
+      this.openModal('Error', 'Unable to copy invite code.', 'error');
     }
   }
 
-  selectGroup(group: any): void {
-    if (!group) {
-      console.error('Invalid group selected');
-      return;
-    }
-    this.selectedGroup = group;
-    this.groupName = group?.name || '';
-    this.members = group?.members ? [...group.members] : [];
-  }
-
-  async editGroup(): Promise<void> {
-    if (!this.selectedGroup) {
-      console.error('No group selected for editing');
+  async searchUser() {
+    if (!this.newMember.trim()) {
+      this.searchResults = [];
       return;
     }
 
-    const trimmedGroupName = this.groupName.trim();
+    const results = await this.groupService.searchUsers(this.newMember);
+    const input = this.newMember.trim();
+    let customUser: UserSearch;
 
-    if (!trimmedGroupName) {
-      this.openModal('Error', 'Please enter a group name.', 'error');
-      return;
-    }
-    if (this.members.length === 0) {
-      this.openModal('Error', 'Please add at least one member.', 'error');
-      return;
-    }
-
-    try {
-      await this.groupService.editGroup(
-        this.selectedGroup,
-        trimmedGroupName,
-        this.members,
-      );
-      // groups$ listener auto-updates the list
-      this.clearGroupForm();
-      this.openModal('Success', 'Group updated successfully!', 'success');
-    } catch (error) {
-      console.error('Error editing group:', error);
-      this.openModal(
-        'Error',
-        'Failed to update group. Please try again.',
-        'error',
-      );
-    }
-  }
-
-  async removeGroup(group: any): Promise<void> {
-    if (!group) {
-      console.error('Invalid group');
-      return;
+    if (input.includes('@')) {
+      const parts = input.split('@');
+      customUser = {
+        username: parts[0],
+        email: input,
+        isNew: true
+      };
+    } else {
+      const emailPrefix = input.toLowerCase().replace(/[^a-z0-9]/g, '');
+      customUser = {
+        username: input,
+        email: `${emailPrefix}_temp@fairshare.fake`,
+        isNew: true
+      };
     }
 
-    // Open a confirmation modal — deletion happens on confirm
-    this.openModal(
-      `Delete "${group.name}"?`,
-      'This action cannot be undone.',
-      'warning',
+    // Filter out duplicates from API results that might match email/username
+    const filteredResults = results.filter(
+      (r) => r.email.toLowerCase() !== customUser.email.toLowerCase()
     );
 
-    // Wait for user to confirm via the modal's (confirm) output event.
-    // Wire (confirm) in the template to confirmRemoveGroup(group) for a full
-    // confirmation flow; the simpler approach below deletes immediately.
-    try {
-      await this.groupService.removeGroup(group);
+    this.searchResults = [customUser, ...filteredResults];
+  }
 
-      if (this.selectedGroup?.id === group.id) {
-        this.clearGroupForm();
+  selectUser(user: UserSearch) {
+    if (
+      this.selectedMembers.find((m) => {
+        if (user._id && m._id) {
+          return m._id === user._id;
+        }
+        return m.email.toLowerCase() === user.email.toLowerCase();
+      })
+    ) {
+      return;
+    }
+
+    this.selectedMembers.push(user);
+
+    this.newMember = '';
+
+    this.searchResults = [];
+  }
+
+  removeSelectedUser(user: UserSearch) {
+    this.selectedMembers = this.selectedMembers.filter((m) => {
+      if (user._id && m._id) {
+        return m._id !== user._id;
       }
-
-      this.openModal('Success', 'Group deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error removing group:', error);
-      this.openModal(
-        'Error',
-        'Failed to delete group. Please try again.',
-        'error',
-      );
-    }
+      return m.email.toLowerCase() !== user.email.toLowerCase();
+    });
   }
 
-  // ─── Member Management ────────────────────────────────────────────────────────
+  manageGroup(group: any) {
+    this.selectedGroupForManage = group;
+  }
 
-  addMember(): void {
-    const trimmedMember = this.newMember.trim();
+  async addMemberToGroup(user: UserSearch) {
+    const memberParam = user._id ? user._id : { username: user.username, email: user.email, isNew: true };
+    await this.groupService.addMember(
+      this.selectedGroupForManage._id,
+      memberParam,
+    );
 
-    if (!trimmedMember) {
-      this.openModal('Error', 'Please enter a member name.', 'error');
+    this.newMember = '';
+
+    this.searchResults = [];
+  }
+
+  async removeMember(group: any, member: any) {
+    await this.groupService.removeMember(group._id, member.user._id);
+  }
+
+  async removeGroup(group: any) {
+    if (!confirm(`Are you sure you want to delete "${group.name}"? This will also delete all associated expenses.`)) {
       return;
     }
-    if (this.members.includes(trimmedMember)) {
-      this.openModal(
-        'Error',
-        'This member already exists in the list.',
-        'error',
-      );
-      this.newMember = '';
-      return;
+
+    try {
+      await this.groupService.deleteGroup(group._id);
+      this.openModal('Success', 'Group deleted successfully.', 'success');
+    } catch {
+      this.openModal('Error', 'Unable to delete group.', 'error');
     }
-
-    this.members.push(trimmedMember);
-    this.newMember = '';
   }
 
-  deleteMember(member: string): void {
-    this.members = this.members.filter((m) => m !== member);
+  isOwner(group: any): boolean {
+    if (!this.currentUser || !group.members) {
+      return false;
+    }
+    const member = group.members.find((m: any) => {
+      const memberId = m.user?._id || m.user?.id || m.user;
+      const currentId = this.currentUser._id || this.currentUser.id;
+      return memberId && currentId && memberId.toString() === currentId.toString();
+    });
+    return member?.role === 'owner';
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-  clearGroupForm(): void {
-    this.groupName = '';
-    this.members = [];
-    this.newMember = '';
-    this.selectedGroup = null;
-  }
-
-  backtoDashboard(): void {
+  backtoDashboard() {
     this.router.navigate(['/dashboard']);
   }
 }

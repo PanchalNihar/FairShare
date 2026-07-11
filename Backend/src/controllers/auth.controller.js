@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import sendToken from "../utils/sendToken.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -49,15 +50,17 @@ export const signup = async (req, res) => {
     sendToken(res, token);
 
     return res.status(201).json({
-      success: true,
-      message: "Account created successfully.",
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        avatar: user.avatar,
-      },
-    });
+    success: true,
+    message: "Account created successfully.",
+    data: {
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            avatar: user.avatar
+        }
+    }
+});
   } catch (error) {
     console.error("Signup Error:", error);
 
@@ -139,6 +142,56 @@ export const getCurrentUser = async (req, res) => {
     });
   }
 };
+export const searchUsers = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    if (!search) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+      });
+    }
+
+    const users = await User.find({
+      $and: [
+        {
+          $or: [
+            {
+              username: {
+                $regex: search,
+                $options: "i",
+              },
+            },
+            {
+              email: {
+                $regex: search,
+                $options: "i",
+              },
+            },
+          ],
+        },
+        {
+          _id: {
+            $ne: new mongoose.Types.ObjectId(req.user._id),
+          },
+        },
+      ],
+    }).select("_id username email avatar");
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 export const logout = async (req, res) => {
 
     try {
@@ -161,4 +214,55 @@ export const logout = async (req, res) => {
 
     }
 
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, email, avatar } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (username) user.username = username;
+    
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          message: "Email already exists.",
+        });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    if (avatar !== undefined) {
+      user.avatar = avatar;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      data: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
 };

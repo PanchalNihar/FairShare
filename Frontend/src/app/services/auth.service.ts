@@ -1,133 +1,115 @@
 import { Injectable } from '@angular/core';
-import {
-  Auth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User,
-} from '@angular/fire/auth';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-interface UserProfile {
-  uid: string;
-  email: string;
+export interface UserProfile {
+  id: string;
   username: string;
-  profileImage?: string;
+  email: string;
+  avatar?: string;
 }
-
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private apiUrl = `${environment.apiUrl}/auth`;
+
+  private currentUserSubject = new BehaviorSubject<UserProfile | null>(null);
+  private authLoadedSubject = new BehaviorSubject<boolean>(false);
+
   currentUser$ = this.currentUserSubject.asObservable();
+  authLoaded$ = this.authLoadedSubject.asObservable();
 
-  constructor(private auth: Auth) {
-    // Initialize with any existing auth state
-    const currentUser = localStorage.getItem('currentUser');
-    // console.log("Current User:",currentUser)
-    if (currentUser) {
-      const userProfile = JSON.parse(currentUser);
-      this.currentUserSubject.next(userProfile as unknown as User);
-    }
-
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUserSubject.next(user);
-      if (user) {
-        // Ensure user data is properly stored in localStorage
-        const storedUser = localStorage.getItem(`user_${user.uid}`);
-        if (!storedUser) {
-          const userProfile: UserProfile = {
-            uid: user.uid,
-            email: user.email || '',
-            username: user.email?.split('@')[0] || 'User'
-          };
-          localStorage.setItem(`user_${user.uid}`, JSON.stringify(userProfile));
-          localStorage.setItem('currentUser', JSON.stringify(userProfile));
-        }
-      } else {
-        // Clear localStorage when user signs out
-        localStorage.clear();
-      }
-    });
+  constructor(private http: HttpClient) {
+    this.loadCurrentUser();
   }
 
+  // onAuthStateChanged(this.auth, (user) => {
+  //   this.currentUserSubject.next(user);
+  //   if (user) {
+  //     // Ensure user data is properly stored in localStorage
+  //     const storedUser = localStorage.getItem(`user_${user.uid}`);
+  //     if (!storedUser) {
+  //       const userProfile: UserProfile = {
+  //         uid: user.uid,
+  //         email: user.email || '',
+  //         username: user.email?.split('@')[0] || 'User',
+  //       };
+  //       localStorage.setItem(`user_${user.uid}`, JSON.stringify(userProfile));
+  //       localStorage.setItem('currentUser', JSON.stringify(userProfile));
+  //     }
+  //   } else {
+  //     // Clear localStorage when user signs out
+  //     localStorage.clear();
+  //   }
+  // });
+
   async signUp(email: string, password: string, username: string) {
-    try {
-      // Clear any existing data
-      localStorage.clear();
-      
-      const result = await createUserWithEmailAndPassword(
-        this.auth,
-        email,
-        password
-      );
-      
-      if (!result.user.uid) {
-        throw new Error('User creation failed - no user ID');
-      }
+    const response: any = await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/signup`,
+        {
+          username,
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        },
+      ),
+    );
 
-      const userProfile: UserProfile = {
-        uid: result.user.uid,
-        email: email,
-        username: username,
-      };
+    this.currentUserSubject.next(response.data.user);
 
-      // Store user profile
-      localStorage.setItem(`user_${result.user.uid}`, JSON.stringify(userProfile));
-      localStorage.setItem('currentUser', JSON.stringify(userProfile));
-      
-      return userProfile;
-    } catch (error) {
-      console.error('Signup error:', error);
-      throw error;
-    }
+    return response.data.user;
   }
 
   async signIn(email: string, password: string) {
-    try {
-      // Clear any existing data
-      localStorage.clear();
-      
-      const result = await signInWithEmailAndPassword(this.auth, email, password);
-      
-      if (!result.user.uid) {
-        throw new Error('Sign in failed - no user ID');
-      }
+    const response: any = await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/login`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        },
+      ),
+    );
 
-      // Create or get user profile
-      let userProfile = JSON.parse(
-        localStorage.getItem(`user_${result.user.uid}`) || 'null'
-      );
+    this.currentUserSubject.next(response.data.user);
 
-      if (!userProfile) {
-        userProfile = {
-          uid: result.user.uid,
-          email: result.user.email || email,
-          username: email.split('@')[0]
-        };
-      }
-      
-      // Store user profile
-      localStorage.setItem(`user_${result.user.uid}`, JSON.stringify(userProfile));
-      localStorage.setItem('currentUser', JSON.stringify(userProfile));
-      
-      return userProfile;
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
-    }
+    return response.data.user;
   }
 
   async signOut() {
+    await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/logout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      ),
+    );
+
+    this.currentUserSubject.next(null);
+  }
+  async loadCurrentUser() {
     try {
-      await signOut(this.auth);
-      localStorage.clear();
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.apiUrl}/me`, {
+          withCredentials: true,
+        }),
+      );
+
+      this.currentUserSubject.next(response.data);
+    } catch {
       this.currentUserSubject.next(null);
-    } catch (error) {
-      console.error('Sign out error:', error);
-      throw error;
+    } finally {
+      this.authLoadedSubject.next(true);
     }
   }
 
@@ -136,18 +118,45 @@ export class AuthService {
     return currentUser ? JSON.parse(currentUser) : null;
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getCurrentUser();
+  isAuthenticated() {
+    return this.currentUserSubject.value != null;
   }
 
-  updateUserProfile(profile: Partial<UserProfile>) {
-    const currentUser = this.getCurrentUser();
-    if (currentUser?.uid) {
-      const updatedProfile = { ...currentUser, ...profile };
-      localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(updatedProfile));
-      localStorage.setItem('currentUser', JSON.stringify(updatedProfile));
-      return updatedProfile;
+  async updateUserProfile(updatedData: any) {
+    const currentUser = this.currentUserSubject.value;
+
+    if (!currentUser) {
+      return null;
     }
-    throw new Error('No user logged in');
+
+    const payload: any = {};
+    if (updatedData.username) payload.username = updatedData.username;
+    if (updatedData.email) payload.email = updatedData.email;
+    if (updatedData.profileImage !== undefined) {
+      payload.avatar = updatedData.profileImage;
+    } else if (updatedData.avatar !== undefined) {
+      payload.avatar = updatedData.avatar;
+    }
+
+    const response: any = await firstValueFrom(
+      this.http.put(
+        `${this.apiUrl}/profile`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      )
+    );
+
+    const updatedUser = response.data;
+    const mappedUser = {
+      id: updatedUser.id || updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      avatar: updatedUser.avatar,
+    };
+
+    this.currentUserSubject.next(mappedUser);
+    return mappedUser;
   }
 }

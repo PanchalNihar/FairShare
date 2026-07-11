@@ -1,202 +1,176 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  CollectionReference,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  query,
-  where,
-  collectionData,
-} from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, Subscription, of, switchMap } from 'rxjs';
-import { Auth, authState, User } from '@angular/fire/auth';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import QRCode from 'qrcode';
+import { environment } from '../../environments/environment';
 
-interface Group {
-  id: string;
+export interface GroupMember {
+  user: {
+    _id: string;
+    username: string;
+    email: string;
+    avatar?: string;
+  };
+
+  role: 'owner' | 'member';
+
+  joinedAt: string;
+}
+export interface UserSearch {
+  _id?: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  isNew?: boolean;
+}
+export interface Group {
+  _id: string;
   name: string;
-  members: string[];
-  createdBy: string;
-  sharingCode: string;
+  description: string;
+  inviteCode: string;
+  members: GroupMember[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class GroupService implements OnDestroy {
-  private groups: Group[] = [];
+export class GroupService {
+  private apiUrl = `${environment.apiUrl}/groups`;
+
   private groupsSubject = new BehaviorSubject<Group[]>([]);
+
   groups$ = this.groupsSubject.asObservable();
 
-  private currentUser: User | null = null;
-  private authSubscription: Subscription;
-
-  constructor(
-    private firestore: Firestore,
-    private auth: Auth,
-  ) {
-    // Wait for auth to restore before querying Firestore.
-    // authState() emits null while restoring, then the user (or null if signed out).
-    // switchMap cancels previous Firestore subscription when auth state changes,
-    // preventing stale listeners and memory leaks.
-    this.authSubscription = authState(this.auth)
-      .pipe(
-        switchMap((user: User | null): Observable<Group[]> => {
-          this.currentUser = user;
-          if (!user) {
-            // Not logged in — clear local state and emit empty array
-            this.groups = [];
-            this.groupsSubject.next([]);
-            return of<Group[]>([]);
-          }
-
-          // User is authenticated — set up a real-time listener on their groups.
-          // collectionData with idField automatically maps the doc.id into each object.
-          const groupsRef = collection(
-            this.firestore,
-            'groups',
-          ) as CollectionReference<Group>;
-          const groupsQuery = query(
-            groupsRef,
-            where('createdBy', '==', user.uid),
-          );
-          return collectionData<Group>(groupsQuery, { idField: 'id' });
-        }),
-      )
-      .subscribe((groups: Group[]) => {
-        this.groups = groups;
-        this.groupsSubject.next(this.groups);
-      });
+  constructor(private http: HttpClient) {
+    this.loadGroups();
   }
 
-  ngOnDestroy(): void {
-    this.authSubscription.unsubscribe();
-  }
-
-  // ─── Private Helpers ────────────────────────────────────────────────────────
-
-  private generateSharingCode(): string {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
-  }
-
-  private async generateQrCode(sharingCode: string): Promise<string> {
+  async loadGroups(): Promise<void> {
     try {
-      const url = `${window.location.origin}/joingroup?code=${sharingCode}`;
-      return await QRCode.toDataURL(url);
+      const response: any = await firstValueFrom(
+        this.http.get(this.apiUrl, {
+          withCredentials: true,
+        }),
+      );
+
+      this.groupsSubject.next(response.data);
     } catch (error) {
-      console.error('Error generating QR code:', error);
-      throw error;
+      console.error('Failed to load groups:', error);
     }
   }
 
-  // ─── Public Getters ──────────────────────────────────────────────────────────
-
   getGroups(): Group[] {
-    return this.groups;
+    return this.groupsSubject.value;
   }
 
   getGroupForTracking(): string[] {
-    return this.groups.map((group) => group.name);
+    return this.groupsSubject.value.map((group) => group.name);
   }
 
-  getGroupMember(groupName: string): string[] {
-    const group = this.groups.find((g) => g.name === groupName);
+  getGroupMembers(groupId: string): any[] {
+    const group = this.groupsSubject.value.find((g) => g._id === groupId);
+
     return group ? group.members : [];
   }
 
-  // ─── CRUD Operations ─────────────────────────────────────────────────────────
-
-  async addGroup(groupName: string, members: string[]): Promise<void> {
-    if (!this.currentUser) {
-      throw new Error('No user is logged in');
-    }
-
-    const sharingCode = this.generateSharingCode();
-    const groupData = {
-      name: groupName,
-      members,
-      createdBy: this.currentUser.uid, // consistent field name used in the query above
-      sharingCode,
-    };
-
-    await addDoc(collection(this.firestore, 'groups'), groupData);
-    // No need to manually push — the real-time collectionData listener updates groups$ automatically
-  }
-
-  async editGroup(
-    selectedGroup: Group,
-    updatedName: string,
-    updatedMembers: string[],
+  async addGroup(
+    name: string,
+    description: string,
+    members: (string | { username: string; email: string; isNew?: boolean })[],
   ): Promise<void> {
-    const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
-    await updateDoc(groupRef, {
-      name: updatedName,
-      members: updatedMembers,
-    });
-    // Real-time listener handles local state update automatically
+    await firstValueFrom(
+      this.http.post(
+        this.apiUrl,
+        {
+          name,
+          description,
+          members,
+        },
+        {
+          withCredentials: true,
+        },
+      ),
+    );
+
+    await this.loadGroups();
   }
+  async addMember(
+    groupId: string,
+    user: string | { username: string; email: string; isNew?: boolean }
+  ): Promise<void> {
+    const body = typeof user === 'string' ? { userId: user } : { username: user.username, email: user.email };
+    await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/${groupId}/add-member`,
+        body,
+        {
+          withCredentials: true,
+        },
+      ),
+    );
 
-  async removeGroup(group: Group): Promise<void> {
-    const groupRef = doc(this.firestore, 'groups', group.id);
-    await deleteDoc(groupRef);
-    // Real-time listener handles local state update automatically
+    await this.loadGroups();
   }
+  async joinGroup(inviteCode: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/join`,
+        {
+          inviteCode,
+        },
+        {
+          withCredentials: true,
+        },
+      ),
+    );
 
-  async addMember(selectedGroup: Group, newMember: string): Promise<void> {
-    if (newMember && selectedGroup.id) {
-      const updatedMembers = [...selectedGroup.members, newMember];
-      const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
-      await updateDoc(groupRef, { members: updatedMembers });
-    }
-  }
-
-  async removeMember(selectedGroup: Group, member: string): Promise<void> {
-    const updatedMembers = selectedGroup.members.filter((m) => m !== member);
-    const groupRef = doc(this.firestore, 'groups', selectedGroup.id);
-    await updateDoc(groupRef, { members: updatedMembers });
-  }
-
-  async joinGroup(sharingCode: string): Promise<void> {
-    if (!this.currentUser) {
-      throw new Error('No user is logged in');
-    }
-
-    // Find group by sharingCode using a one-time read
-    const { getDocs } = await import('@angular/fire/firestore');
-    const groupRef = collection(this.firestore, 'groups');
-    const groupQuery = query(groupRef, where('sharingCode', '==', sharingCode));
-    const querySnapshot = await getDocs(groupQuery);
-
-    if (querySnapshot.empty) {
-      throw new Error('Invalid sharing code. Group not found.');
-    }
-
-    const groupDoc = querySnapshot.docs[0];
-    const group = { id: groupDoc.id, ...groupDoc.data() } as Group;
-
-    if (group.members.includes(this.currentUser.uid)) {
-      throw new Error('You are already a member of this group.');
-    }
-
-    const updatedMembers = [...group.members, this.currentUser.uid];
-    await updateDoc(doc(this.firestore, 'groups', group.id), {
-      members: updatedMembers,
-    });
-
-    console.log(`Successfully joined the group: ${group.name}`);
+    await this.loadGroups();
   }
 
   async getGroupQRCode(groupId: string): Promise<string> {
-    const group = this.groups.find((g) => g.id === groupId);
+    const group = this.groupsSubject.value.find((g) => g._id === groupId);
+
     if (!group) {
       throw new Error('Group not found');
     }
-    return this.generateQrCode(group.sharingCode);
+
+    return QRCode.toDataURL(
+      `${window.location.origin}/join?code=${group.inviteCode}`,
+    );
+  }
+
+  async searchUsers(search: string): Promise<UserSearch[]> {
+    const response: any = await firstValueFrom(
+      this.http.get(`${environment.apiUrl}/auth/search?search=${search}`, {
+        withCredentials: true,
+      }),
+    );
+
+    return response.data;
+  }
+  async removeMember(groupId: string, userId: string): Promise<void> {
+
+  await firstValueFrom(
+    this.http.delete(
+      `${this.apiUrl}/${groupId}/remove-member/${userId}`,
+      {
+        withCredentials: true,
+      }
+    )
+  );
+
+  await this.loadGroups();
+}
+  async deleteGroup(groupId: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/${groupId}`, {
+        withCredentials: true,
+      })
+    );
+
+    await this.loadGroups();
+  }
+  getGroupById(groupId: string): Group | undefined {
+    return this.groupsSubject.value.find((g) => g._id === groupId);
   }
 }

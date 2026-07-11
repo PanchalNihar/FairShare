@@ -41,35 +41,33 @@ export class ProfileComponent implements OnInit {
     this.modalType = type;
     this.isModalOpen = true;
   }
-  ngOnInit(): void {
-    try {
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const userData = JSON.parse(currentUser);
+  ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+
+        if (!user) {
+            this.router.navigate(['/signin']);
+            return;
+        }
+
         this.user = {
-          username: userData.username || '',
-          email: userData.email || '',
-          profileImage: userData.profileImage || '',
+            username: user.username,
+            email: user.email,
+            profileImage: user.avatar || ''
         };
-        console.log("UserData:", userData);
-        this.profileImage = userData.profileImage || null;
-      } else {
-        this.router.navigate(['/signin']);
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      this.router.navigate(['/signin']);
-    }
-  }
+
+        this.profileImage = user.avatar || '';
+
+    });
+}
 
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
   }
 
-  onUpdateProfile(): void {
+  async onUpdateProfile(): Promise<void> {
     if (this.user.username && this.user.email) {
       try {
-        const updatedProfile = this.authService.updateUserProfile({
+        await this.authService.updateUserProfile({
           username: this.user.username,
           email: this.user.email,
         });
@@ -106,9 +104,9 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  saveImage(): void {
+  async saveImage(): Promise<void> {
     try {
-      const updatedProfile = this.authService.updateUserProfile({
+      await this.authService.updateUserProfile({
         profileImage: this.profileImage as string,
       });
       this.showSaveButton = false;

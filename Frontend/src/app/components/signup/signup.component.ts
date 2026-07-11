@@ -22,7 +22,6 @@ import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.com
   ],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
-  providers: [AuthService],
 })
 export class SignupComponent implements OnInit {
   signupForm!: FormGroup;

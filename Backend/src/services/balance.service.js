@@ -19,15 +19,17 @@ export const calculateBalances = async (groupId) => {
 
   // Initialize every member
   group.members.forEach((member) => {
-    balances[member.user._id] = {
-      userId: member.user._id,
+    if (member.user) {
+      balances[member.user._id.toString()] = {
+        userId: member.user._id.toString(),
 
-      username: member.user.username,
+        username: member.user.username,
 
-      paid: 0,
+        paid: 0,
 
-      balance: 0,
-    };
+        balance: 0,
+      };
+    }
   });
 
   let totalExpense = 0;
@@ -36,10 +38,15 @@ export const calculateBalances = async (groupId) => {
   expenses.forEach((expense) => {
     totalExpense += expense.amount;
 
-    balances[expense.paidBy].paid += expense.amount;
+    if (expense.paidBy) {
+      const paidById = expense.paidBy.toString();
+      if (balances[paidById]) {
+        balances[paidById].paid += expense.amount;
+      }
+    }
   });
 
-  const perPerson = totalExpense / group.members.length;
+  const perPerson = group.members.length > 0 ? totalExpense / group.members.length : 0;
 
   Object.values(balances).forEach((member) => {
     member.balance = member.paid - perPerson;

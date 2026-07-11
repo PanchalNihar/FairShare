@@ -2,6 +2,7 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { isPlatformBrowser } from '@angular/common';
+import { filter, map, take } from 'rxjs';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
@@ -10,13 +11,19 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // Check if the code is running in the browser
   if (isPlatformBrowser(platformId)) {
-    const isLoggedIn = authService.isAuthenticated();
+    return authService.authLoaded$.pipe(
+      filter((loaded) => loaded === true),
+      take(1),
+      map(() => {
+        const isLoggedIn = authService.isAuthenticated();
 
-    if (!isLoggedIn) {
-      router.navigate(['/signin']);
-      return false;
-    }
-    return true;
+        if (!isLoggedIn) {
+          router.navigate(['/signin']);
+          return false;
+        }
+        return true;
+      })
+    );
   }
 
   // If on the server, block navigation

@@ -78,19 +78,19 @@ export class SigninComponent implements OnInit, OnDestroy {
       }
     }
   }
-  async onGoogleSignIn() {
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log('Google Sign-in sucessfull: ', user);
-      this.router.navigate(['/about']);
-    } catch (err) {
-      console.error(err);
-      this.openModal('Google Sign-in Failed', 'Failed to sign in with Google. Please try again later.', 'error');
-    }
-  }
+  // async onGoogleSignIn() {
+  //   const auth = getAuth();
+  //   const provider = new GoogleAuthProvider();
+  //   try {
+  //     const result = await signInWithPopup(auth, provider);
+  //     const user = result.user;
+  //     console.log('Google Sign-in sucessfull: ', user);
+  //     this.router.navigate(['/about']);
+  //   } catch (err) {
+  //     console.error(err);
+  //     this.openModal('Google Sign-in Failed', 'Failed to sign in with Google. Please try again later.', 'error');
+  //   }
+  // }
   private handleError(error: any): void {
     let errorMessage = 'An error occurred during login.';
     if (error.code === 'auth/user-not-found') {

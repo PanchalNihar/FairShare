@@ -37,13 +37,11 @@
               d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
             />
           </svg>
-          <h2 class="card-title">
-            {{ selectedGroup ? "Edit Group" : "Create New Group" }}
-          </h2>
+          <h2 class="card-title">Create New Group</h2>
         </div>
 
         <div class="card-body">
-          <!-- Group Name Input -->
+          <!-- Group Name -->
           <div class="form-group">
             <label class="form-label">Group Name</label>
             <input
@@ -51,94 +49,81 @@
               class="form-input"
               [(ngModel)]="groupName"
               placeholder="Enter group name"
-              required
             />
           </div>
 
-          <!-- Add Member Section -->
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea
+              class="form-input"
+              rows="3"
+              [(ngModel)]="groupDescription"
+              placeholder="Enter description"
+            ></textarea>
+          </div>
+
+          <!-- Add Members -->
           <div class="form-group">
             <label class="form-label">Add Members</label>
-            <div class="input-with-button">
-              <input
-                type="text"
-                class="form-input"
-                [(ngModel)]="newMember"
-                placeholder="Enter member name"
-                (keyup.enter)="addMember()"
-              />
-              <button
-                class="btn-add"
-                (click)="addMember()"
-                [disabled]="!newMember.trim()"
+
+            <input
+              class="form-input"
+              placeholder="Search by username or email"
+              [(ngModel)]="newMember"
+              (input)="searchUser()"
+            />
+
+            <div
+              *ngIf="searchResults.length"
+              style="
+                margin-top: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                max-height: 180px;
+                overflow: auto;
+                background-color: #ffffff;
+              "
+            >
+              <div
+                *ngFor="let user of searchResults"
+                (click)="selectUser(user)"
+                style="
+                  padding: 12px;
+                  cursor: pointer;
+                  border-bottom: 1px solid #eee;
+                "
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
+                <strong *ngIf="user.isNew">➕ Add "{{ user.username }}" as a new member</strong>
+                <strong *ngIf="!user.isNew">{{ user.username }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Members -->
+
+          <div class="members-section" *ngIf="selectedMembers.length">
+            <label class="form-label"> Selected Members </label>
+
+            <div class="member-item" *ngFor="let member of selectedMembers">
+              <span class="member-name">
+                {{ member.username }}
+
+                ({{ member.email }})
+              </span>
+
+              <button
+                class="btn-remove-member"
+                (click)="removeSelectedUser(member)"
+              >
+                ✖
               </button>
             </div>
           </div>
 
-          <!-- Members List -->
-          <div class="members-section" *ngIf="members.length > 0">
-            <label class="form-label">Members ({{ members.length }})</label>
-            <ul class="members-list">
-              <li *ngFor="let member of members" class="member-item">
-                <svg
-                  class="member-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
-                  />
-                </svg>
-                <span class="member-name">{{ member }}</span>
-                <button
-                  class="btn-remove-member"
-                  (click)="deleteMember(member)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path
-                      d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                    />
-                  </svg>
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Action Buttons -->
           <div class="form-actions">
-            <button
-              *ngIf="selectedGroup"
-              class="btn btn-secondary"
-              (click)="clearGroupForm()"
-            >
-              Cancel
-            </button>
-            <button
-              class="btn btn-primary"
-              (click)="selectedGroup ? editGroup() : addGroup()"
-              [disabled]="!groupName.trim() || members.length === 0"
-            >
-              <svg
-                class="btn-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-              {{ selectedGroup ? "Update Group" : "Create Group" }}
+            <button class="btn btn-primary" (click)="addGroup()">
+              Create Group
             </button>
           </div>
         </div>
@@ -183,6 +168,10 @@
               <div class="group-header">
                 <div class="group-info">
                   <h3 class="group-name">{{ group.name }}</h3>
+                  <p class="invite-code">
+                    Invite Code:
+                    <strong>{{ group.inviteCode }}</strong>
+                  </p>
                   <p class="group-members">
                     {{ group.members?.length || 0 }} members
                   </p>
@@ -205,6 +194,13 @@
                   </button>
                   <button
                     class="action-btn"
+                    (click)="copyInviteCode(group.inviteCode)"
+                    title="Copy Invite Code"
+                  >
+                    📋
+                  </button>
+                  <!-- <button
+                    class="action-btn"
                     (click)="selectGroup(group)"
                     title="Edit Group"
                   >
@@ -217,8 +213,9 @@
                         d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
                       />
                     </svg>
-                  </button>
+                  </button> -->
                   <button
+                    *ngIf="isOwner(group)"
                     class="action-btn delete-btn"
                     (click)="removeGroup(group)"
                     title="Delete Group"
@@ -244,7 +241,7 @@
                   *ngFor="let member of group.members.slice(0, 3)"
                   class="member-badge"
                 >
-                  {{ member }}
+                  {{ member.user.username }}
                 </span>
                 <span
                   *ngIf="group.members.length > 3"
@@ -252,6 +249,14 @@
                 >
                   +{{ group.members.length - 3 }}
                 </span>
+                <div style="margin-top: 15px">
+                  <button
+                    class="btn btn-secondary"
+                    (click)="manageGroup(group)"
+                  >
+                    Manage Members
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -283,6 +288,94 @@
       <p class="qr-instruction">Scan this QR code to join the group</p>
     </div>
   </div>
+</div>
+<div
+  class="qr-modal"
+  *ngIf="selectedGroupForManage"
+>
+
+  <div
+    class="qr-modal-content"
+  >
+
+    <div class="modal-header">
+
+      <h3>
+
+        {{selectedGroupForManage.name}}
+
+      </h3>
+
+      <button
+        class="modal-close"
+        (click)="selectedGroupForManage=null"
+      >
+        ✖
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <input
+        class="form-input"
+        placeholder="Search member..."
+        [(ngModel)]="newMember"
+        (input)="searchUser()"
+      >
+
+      <div
+        *ngFor="let user of searchResults"
+        class="member-item"
+      >
+
+        <span class="member-name">
+
+          <span *ngIf="user.isNew">➕ Add "{{user.username}}"</span>
+          <span *ngIf="!user.isNew">{{user.username}}</span>
+
+        </span>
+
+        <button
+          class="btn btn-primary"
+          (click)="addMemberToGroup(user)"
+        >
+          Add
+        </button>
+
+      </div>
+
+      <hr>
+
+      <div
+        *ngFor="let member of selectedGroupForManage.members"
+        class="member-item"
+      >
+
+        <span class="member-name">
+
+          {{member.user.username}}
+
+          <span *ngIf="member.role=='owner'">
+            👑
+          </span>
+
+        </span>
+
+        <button
+          *ngIf="member.role!='owner'"
+          class="btn-remove-member"
+          (click)="removeMember(selectedGroupForManage,member)"
+        >
+          ✖
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </div>
 <app-custom-modal
   [isOpen]="isModalOpen"
