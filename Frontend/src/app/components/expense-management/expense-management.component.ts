@@ -46,6 +46,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   currentUser: any = null;
   isEditing: boolean = false;
   editingExpenseId: string = '';
+  isScanning: boolean = false;
+
 
   private expensesSub?: Subscription;
   private groupsSub?: Subscription;
@@ -191,6 +193,71 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
       const firstMember = this.selectedGroupMembers[0];
       this.selectedPayeeId = (firstMember.user?._id || firstMember.user?.id || firstMember.user).toString();
     }
+  }
+
+  // Handle receipt scan selection
+  async onReceiptSelected(event: any): Promise<void> {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.openModal('Error', 'File size exceeds the 5MB limit.', 'error');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.openModal('Error', 'Please upload an image file.', 'error');
+      return;
+    }
+
+    this.isScanning = true;
+
+    try {
+      const base64Image = await this.fileToBase64(file);
+      const mimeType = file.type;
+
+      const response = await this.expenseService.scanReceipt(base64Image, mimeType);
+
+      if (response) {
+        if (response.amount) {
+          this.expenseAmount = response.amount;
+        }
+        if (response.merchant) {
+          this.expenseDescription = response.merchant;
+        }
+
+        const allowedCategories = ['Food', 'Travel', 'Shopping', 'Entertainment', 'Other'];
+        let matchedCategory = 'Other';
+        if (response.category) {
+          const capitalized = response.category.charAt(0).toUpperCase() + response.category.slice(1).toLowerCase();
+          if (allowedCategories.includes(capitalized)) {
+            matchedCategory = capitalized;
+          }
+        }
+        this.expenseCategory = matchedCategory;
+
+        this.openModal('Success', 'Receipt scanned successfully! Form pre-filled.', 'success');
+      }
+    } catch (error: any) {
+      console.error(error);
+      this.openModal(
+        'Scan Failed',
+        error.error?.message || error.message || 'Could not parse the receipt. Please try another photo or enter details manually.',
+        'error'
+      );
+    } finally {
+      this.isScanning = false;
+      event.target.value = '';
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   }
 
   // Add new expense

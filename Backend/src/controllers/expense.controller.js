@@ -1,6 +1,8 @@
 import Expense from "../models/Expense.js";
 import Group from "../models/Group.js";
 import jwt from "jsonwebtoken";
+import { scanReceipt } from "../services/gemini.service.js";
+
 /**
  * Create Expense
  */
@@ -259,3 +261,37 @@ export const deleteExpense = async (req, res) => {
         });
     }
 };
+
+/**
+ * Scan Receipt with Gemini AI
+ */
+export const scanReceiptController = async (req, res) => {
+    try {
+        const { image, mimeType } = req.body;
+
+        if (!image || !mimeType) {
+            return res.status(400).json({
+                success: false,
+                message: "Image (base64) and mimeType are required."
+            });
+        }
+
+        // Clean base64 string if it contains the data URI prefix (e.g. data:image/png;base64,)
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+
+        const parsedData = await scanReceipt(base64Data, mimeType);
+
+        res.status(200).json({
+            success: true,
+            message: "Receipt scanned successfully.",
+            data: parsedData
+        });
+
+    } catch (error) {
+        console.error("Error scanning receipt:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to scan receipt with AI."
+        });
+    }
+};

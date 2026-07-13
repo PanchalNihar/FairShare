@@ -48,6 +48,27 @@
 
         <div class="card-body">
           <form (ngSubmit)="addExpense()">
+            <!-- AI Receipt Scanner -->
+            <div class="ai-scanner-section">
+              <div class="scan-btn-wrapper" [class.disabled]="isScanning">
+                <label class="btn btn-ai-scan">
+                  <span class="sparkle-icon">✨</span>
+                  {{ isScanning ? 'Parsing Receipt...' : 'Scan Receipt with AI' }}
+                  <input
+                    type="file"
+                    (change)="onReceiptSelected($event)"
+                    accept="image/*"
+                    [disabled]="isScanning"
+                    class="scan-file-input"
+                  />
+                </label>
+              </div>
+              <div *ngIf="isScanning" class="scan-loader">
+                <div class="pulse-ring"></div>
+                <span>Reading receipt details...</span>
+              </div>
+            </div>
+
             <div class="form-group">
               <label>Amount</label>
 

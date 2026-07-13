@@ -105,4 +105,14 @@ export class ExpenseService {
 
     await this.loadExpenses(groupId);
   }
+
+  async scanReceipt(base64Image: string, mimeType: string): Promise<any> {
+    const response: any = await firstValueFrom(
+      this.http.post(`${this.apiUrl}/scan-receipt`, {
+        image: base64Image,
+        mimeType: mimeType
+      })
+    );
+    return response.data;
+  }
 }
