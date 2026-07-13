@@ -181,8 +181,21 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     return this.selectedGroupMembers.length || 1;
   }
 
-  getSplitShare(amount: number): number {
-    const count = this.getMemberCount();
+  getActiveMembersCountAt(expenseDateStr: string | Date): number {
+    if (!this.selectedGroupMembers.length) return 1;
+    const expenseDate = new Date(expenseDateStr);
+    let count = 0;
+    this.selectedGroupMembers.forEach((member) => {
+      const joinedDate = new Date(member.joinedAt || member.user?.createdAt || Date.now());
+      if (joinedDate <= expenseDate) {
+        count++;
+      }
+    });
+    return count || this.selectedGroupMembers.length || 1;
+  }
+
+  getSplitShare(amount: number, expenseDateStr: string | Date): number {
+    const count = this.getActiveMembersCountAt(expenseDateStr);
     return Number((amount / count).toFixed(2));
   }
 
@@ -195,7 +208,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
   getUserLentAmount(expense: Expense): number {
     const total = expense.amount;
-    const share = this.getSplitShare(total);
+    const share = this.getSplitShare(total, expense.expenseDate);
     return Number((total - share).toFixed(2));
   }
 

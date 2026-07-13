@@ -220,10 +220,10 @@
                 <!-- Dynamic Split Information -->
                 <div class="expense-split-info">
                   <span *ngIf="isUserPayer(expense)" class="lent-status lent">
-                    You lent <strong>₹{{ getUserLentAmount(expense) }}</strong> (₹{{ getSplitShare(expense.amount) }}/person)
+                    You lent <strong>₹{{ getUserLentAmount(expense) }}</strong> (₹{{ getSplitShare(expense.amount, expense.expenseDate) }}/person)
                   </span>
                   <span *ngIf="!isUserPayer(expense)" class="lent-status owed">
-                    You owe <strong>₹{{ getSplitShare(expense.amount) }}</strong> to {{ expense.paidBy.username }}
+                    You owe <strong>₹{{ getSplitShare(expense.amount, expense.expenseDate) }}</strong> to {{ expense.paidBy.username }}
                   </span>
                 </div>
               </div>
