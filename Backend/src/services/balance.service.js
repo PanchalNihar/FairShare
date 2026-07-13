@@ -35,37 +35,51 @@ export const calculateBalances = async (groupId) => {
 
   // Sum expenses using temporal splits
   expenses.forEach((expense) => {
-    totalExpense += expense.amount;
-
-    if (expense.paidBy) {
+    if (expense.isSettlement && expense.paidTo) {
+      // Direct peer-to-peer settlement
       const paidById = expense.paidBy.toString();
+      const paidToId = expense.paidTo.toString();
+      
       if (balances[paidById]) {
         balances[paidById].paid += expense.amount;
       }
-    }
+      if (balances[paidToId]) {
+        balances[paidToId].owed += expense.amount;
+      }
+    } else {
+      // Regular group expense
+      totalExpense += expense.amount;
 
-    // Determine who was in the group when the expense occurred
-    const expenseDate = new Date(expense.expenseDate || expense.createdAt);
-    
-    let activeMembers = group.members.filter((member) => {
-      const joinedDate = new Date(member.joinedAt);
-      return joinedDate <= expenseDate;
-    });
-
-    // Fallback: if no active members found, split among all current members
-    if (activeMembers.length === 0) {
-      activeMembers = group.members;
-    }
-
-    const activeCount = activeMembers.length;
-    if (activeCount > 0) {
-      const share = expense.amount / activeCount;
-      activeMembers.forEach((member) => {
-        const memberId = member.user ? member.user._id.toString() : member._id.toString();
-        if (balances[memberId]) {
-          balances[memberId].owed += share;
+      if (expense.paidBy) {
+        const paidById = expense.paidBy.toString();
+        if (balances[paidById]) {
+          balances[paidById].paid += expense.amount;
         }
+      }
+
+      // Determine who was in the group when the expense occurred
+      const expenseDate = new Date(expense.expenseDate || expense.createdAt);
+      
+      let activeMembers = group.members.filter((member) => {
+        const joinedDate = new Date(member.joinedAt);
+        return joinedDate <= expenseDate;
       });
+
+      // Fallback: if no active members found, split among all current members
+      if (activeMembers.length === 0) {
+        activeMembers = group.members;
+      }
+
+      const activeCount = activeMembers.length;
+      if (activeCount > 0) {
+        const share = expense.amount / activeCount;
+        activeMembers.forEach((member) => {
+          const memberId = member.user ? member.user._id.toString() : member._id.toString();
+          if (balances[memberId]) {
+            balances[memberId].owed += share;
+          }
+        });
+      }
     }
   });
 

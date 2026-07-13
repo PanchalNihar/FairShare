@@ -169,11 +169,17 @@
                   </div>
                 </div>
 
-                <div class="balance-amount-wrapper">
-                  <span class="balance-amount" style="color: var(--tracking-accent);">
-                    ₹{{ settlement.amount | number: "1.2-2" }}
-                  </span>
-                  <span class="balance-label">Suggested Settlement</span>
+                <div class="balance-amount-wrapper" style="align-items: center; justify-content: space-between;">
+                  <div class="amount-details" style="display: flex; align-items: baseline; gap: 8px;">
+                    <span class="balance-amount" style="color: var(--tracking-accent);">
+                      ₹{{ settlement.amount | number: "1.0-0" }}
+                    </span>
+                    <span class="balance-label">Suggested Settlement</span>
+                  </div>
+
+                  <button class="btn-settle" (click)="confirmSettleUp(settlement)">
+                    Settle Up
+                  </button>
                 </div>
               </div>
             </div>
@@ -191,3 +197,13 @@
     </div>
   </div>
 </div>
+
+<app-custom-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [type]="modalType"
+  [showCancel]="isConfirmMode"
+  (confirm)="isConfirmMode ? executeSettlement() : closeModal()"
+  (cancel)="closeModal()"
+></app-custom-modal>

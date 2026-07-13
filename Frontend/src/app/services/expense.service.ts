@@ -25,6 +25,14 @@ export interface Expense {
   createdAt?: string;
 
   updatedAt?: string;
+
+  paidTo?: {
+    _id: string;
+    username: string;
+    email: string;
+  };
+
+  isSettlement?: boolean;
 }
 
 @Injectable({
@@ -71,6 +79,31 @@ export class ExpenseService {
         description,
         category,
         paidBy,
+        expenseDate,
+      })
+    );
+
+    await this.loadExpenses(groupId);
+  }
+
+  async addSettlement(
+    groupId: string,
+    amount: number,
+    description: string,
+    paidBy: string,
+    paidTo: string,
+    expenseDate?: string
+  ): Promise<void> {
+
+    await firstValueFrom(
+      this.http.post(this.apiUrl, {
+        groupId,
+        amount,
+        description,
+        category: 'Settlement',
+        paidBy,
+        paidTo,
+        isSettlement: true,
         expenseDate,
       })
     );

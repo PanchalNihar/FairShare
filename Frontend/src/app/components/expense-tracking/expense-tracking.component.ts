@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { GroupService } from '../../services/group.service';
 import { ExpenseTrackingService } from '../../services/expense-tracking.service';
+import { ExpenseService } from '../../services/expense.service';
+import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
 
 @Component({
   selector: 'app-expense-tracking',
@@ -14,7 +16,8 @@ import { ExpenseTrackingService } from '../../services/expense-tracking.service'
     NavbarComponent,
     CommonModule,
     FormsModule,
-    DecimalPipe
+    DecimalPipe,
+    CustomModalComponent
   ],
   templateUrl: './expense-tracking.component.html',
   styleUrls: ['./expense-tracking.component.css'],
@@ -36,9 +39,18 @@ export class ExpenseTrackingComponent implements OnInit {
 
   loading = false;
 
+  // Modal State
+  isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
+  isConfirmMode = false;
+  selectedSettlement: any = null;
+
   constructor(
     private groupService: GroupService,
     private expenseTracking: ExpenseTrackingService,
+    private expenseService: ExpenseService,
     private router: Router
   ) {}
 
@@ -117,6 +129,58 @@ export class ExpenseTrackingComponent implements OnInit {
 
     this.router.navigate(['/dashboard']);
 
+  }
+
+  openModal(title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', confirmMode = false) {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.isConfirmMode = confirmMode;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedSettlement = null;
+  }
+
+  confirmSettleUp(settlement: any) {
+    this.selectedSettlement = settlement;
+    this.openModal(
+      'Confirm Settlement',
+      `Are you sure you want to clarify and record a payment of ₹${settlement.amount.toFixed(2)} from "${settlement.from}" to "${settlement.to}" as settled?`,
+      'info',
+      true
+    );
+  }
+
+  async executeSettlement() {
+    if (!this.selectedSettlement || !this.selectedGroupId) return;
+
+    const settlement = this.selectedSettlement;
+    this.closeModal();
+    this.loading = true;
+
+    try {
+      const description = `Settlement: ${settlement.from} to ${settlement.to}`;
+      await this.expenseService.addSettlement(
+        this.selectedGroupId,
+        settlement.amount,
+        description,
+        settlement.fromId,
+        settlement.toId
+      );
+
+      this.openModal('Success', 'Settlement recorded successfully!', 'success');
+
+      // Reload balances and settlements
+      await this.onGroupSelect();
+    } catch (error: any) {
+      console.error(error);
+      this.openModal('Error', error.error?.message || error.message || 'Failed to record settlement.', 'error');
+    } finally {
+      this.loading = false;
+    }
   }
 
 }

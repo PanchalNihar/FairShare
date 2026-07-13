@@ -43,15 +43,17 @@ export const calculateSettlements = (balances) => {
             debtor.balance
         );
 
-        settlements.push({
+        const roundedAmount = Math.round(amount);
 
-            from: debtor.username,
-
-            to: creditor.username,
-
-            amount: Number(amount.toFixed(2))
-
-        });
+        if (roundedAmount > 0) {
+            settlements.push({
+                from: debtor.username,
+                fromId: debtor.userId,
+                to: creditor.username,
+                toId: creditor.userId,
+                amount: roundedAmount
+            });
+        }
 
         creditor.balance -= amount;
 

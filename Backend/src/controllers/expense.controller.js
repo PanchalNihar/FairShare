@@ -16,7 +16,9 @@ export const createExpense = async (req, res) => {
             description,
             category,
             expenseDate,
-            paidBy
+            paidBy,
+            paidTo,
+            isSettlement
         } = req.body;
 
         if (!groupId || !amount || !description) {
@@ -61,6 +63,24 @@ export const createExpense = async (req, res) => {
             });
         }
 
+        if (isSettlement) {
+            if (!paidTo) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Recipient is required for settlements."
+                });
+            }
+            const isRecipientMember = group.members.some(
+                member => (member.user ? member.user.toString() : member._id.toString()) === paidTo.toString()
+            );
+            if (!isRecipientMember) {
+                return res.status(400).json({
+                    success: false,
+                    message: "The recipient must be a member of this group."
+                });
+            }
+        }
+
         // Create expense
         const expense = await Expense.create({
 
@@ -72,15 +92,19 @@ export const createExpense = async (req, res) => {
 
             description,
 
-            category: category || "Other",
+            category: category || (isSettlement ? "Settlement" : "Other"),
 
-            expenseDate: expenseDate || Date.now()
+            expenseDate: expenseDate || Date.now(),
+
+            paidTo: isSettlement ? paidTo : undefined,
+
+            isSettlement: isSettlement || false
 
         });
 
         res.status(201).json({
             success: true,
-            message: "Expense added successfully.",
+            message: isSettlement ? "Settlement recorded successfully." : "Expense added successfully.",
             data: expense
         });
 
