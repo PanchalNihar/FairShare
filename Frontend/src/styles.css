@@ -86,6 +86,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ============================================
@@ -244,6 +245,348 @@ a:hover {
 }
 
 /* ============================================
+   NAVBAR STYLES (Moved globally to avoid FOUC blink during navigation)
+   ============================================ */
+:root {
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-border: rgba(225, 228, 232, 0.6);
+  --nav-text: #1A1A2E;
+  --nav-text-muted: #6C757D;
+  --nav-hover-bg: #F5F7FA;
+  --nav-active-bg: #EBF4FB;
+  --nav-active-text: #4A90E2;
+  --nav-card-bg: rgba(255, 255, 255, 0.95);
+  --nav-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.dark-theme {
+  --nav-bg: rgba(26, 31, 46, 0.85);
+  --nav-border: rgba(44, 62, 80, 0.6);
+  --nav-text: #F8F9FA;
+  --nav-text-muted: #ADB5BD;
+  --nav-hover-bg: #16202E;
+  --nav-active-bg: #1E3A5F;
+  --nav-active-text: #5BA3F5;
+  --nav-card-bg: rgba(26, 31, 46, 0.95);
+  --nav-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.navbar {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--nav-text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.02);
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  color: #4A90E2;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+  background: var(--nav-hover-bg);
+}
+
+.mobile-menu-toggle svg,
+.mobile-menu-toggle .toggle-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex: 1;
+  justify-content: space-between;
+  margin-left: 48px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: var(--nav-text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background: var(--nav-hover-bg);
+  color: var(--nav-text);
+}
+
+.nav-link.active {
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #FF6B6B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background: #E74C3C;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1200px) {
+  .navbar-menu {
+    margin-left: 32px;
+    gap: 24px;
+  }
+
+  .nav-links {
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar-menu {
+    margin-left: 24px;
+    gap: 16px;
+  }
+
+  .nav-link span {
+    display: none;
+  }
+
+  .nav-link {
+    padding: 10px;
+  }
+
+  .logout-btn span {
+    display: none;
+  }
+
+  .logout-btn {
+    padding: 10px;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .navbar-container {
+    padding: 0 16px;
+  }
+
+  .navbar-menu {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    left: auto;
+    bottom: auto;
+    width: 280px;
+    background: var(--nav-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--nav-border);
+    border-radius: 16px;
+    flex-direction: column;
+    padding: 20px;
+    gap: 12px;
+    margin-left: 0;
+    transform: translateY(-10px) scale(0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--nav-shadow);
+    overflow-y: auto;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .navbar-menu.mobile-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 15px;
+    justify-content: flex-start;
+    border-radius: 10px;
+  }
+
+  .nav-link span {
+    display: inline;
+  }
+
+  .navbar-actions {
+    width: 100%;
+    flex-direction: column;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--nav-border);
+  }
+
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .logout-btn span {
+    display: inline;
+  }
+
+  .brand-name {
+    font-size: 20px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    height: 64px;
+  }
+
+  .navbar-menu {
+    top: 72px;
+    right: 12px;
+    width: calc(100% - 24px);
+    max-width: 280px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .logo-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* ============================================
    PRINT STYLES
    ============================================ */
 @media print {
@@ -253,9 +596,8 @@ a:hover {
   }
   
   .navbar,
-  .hamburger,
-  .theme-toggle,
-  .logout-button {
+  .mobile-menu-toggle,
+  .logout-btn {
     display: none !important;
   }
 }

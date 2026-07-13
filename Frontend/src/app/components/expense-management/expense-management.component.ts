@@ -38,6 +38,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   modalMessage = '';
   modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
 
+  isConfirmMode = false;
+  expenseToDelete: Expense | null = null;
+
   selectedGroupMembers: any[] = [];
   selectedPayeeId: string = '';
   currentUser: any = null;
@@ -59,6 +62,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.modalTitle = title;
     this.modalMessage = message;
     this.modalType = type;
+    this.isConfirmMode = false;
     this.isModalOpen = true;
   }
 
@@ -296,19 +300,26 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.editingExpenseId = '';
   }
 
-  async deleteExpense(expense: Expense) {
-    if (!confirm(`Are you sure you want to delete the expense "${expense.description}"?`)) {
-      return;
-    }
+  deleteExpense(expense: Expense) {
+    this.expenseToDelete = expense;
+    this.modalTitle = 'Confirm Delete';
+    this.modalMessage = `Are you sure you want to delete the expense "${expense.description}"?`;
+    this.modalType = 'warning';
+    this.isConfirmMode = true;
+    this.isModalOpen = true;
+  }
 
+  async executeDeleteExpense(expense: Expense) {
     try {
       await this.expenseService.deleteExpense(expense._id, this.selectedGroupId);
       this.openModal('Success', 'Expense deleted successfully.', 'success');
     } catch (error) {
       console.error(error);
       this.openModal('Error', 'Unable to delete expense.', 'error');
+    } finally {
+      this.expenseToDelete = null;
     }
-  } 
+  }
   // Calculate total expense
   calculateTotalExpense(): void {
     this.totalExpense = this.expenseList.reduce(
@@ -331,6 +342,14 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 }
   closeModal() {
     this.isModalOpen = false;
+    this.isConfirmMode = false;
+    this.expenseToDelete = null;
+  }
+  onModalConfirm() {
+    this.closeModal();
+    if (this.isConfirmMode && this.expenseToDelete) {
+      this.executeDeleteExpense(this.expenseToDelete);
+    }
   }
   // Navigate back to dashboard
   backtoDashboard(): void {

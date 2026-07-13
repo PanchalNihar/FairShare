@@ -25,6 +25,9 @@ export class GroupsComponent implements OnInit, OnDestroy {
   modalMessage = '';
   modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
 
+  isConfirmMode = false;
+  groupToDelete: any = null;
+
   newMember = '';
   searchResults: UserSearch[] = [];
   selectedMembers: UserSearch[] = [];
@@ -78,11 +81,21 @@ export class GroupsComponent implements OnInit, OnDestroy {
     this.modalTitle = title;
     this.modalMessage = message;
     this.modalType = type;
+    this.isConfirmMode = false;
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.isConfirmMode = false;
+    this.groupToDelete = null;
+  }
+
+  onModalConfirm() {
+    this.closeModal();
+    if (this.isConfirmMode && this.groupToDelete) {
+      this.executeDeleteGroup(this.groupToDelete);
+    }
   }
 
   async addGroup() {
@@ -226,16 +239,23 @@ export class GroupsComponent implements OnInit, OnDestroy {
     await this.groupService.removeMember(group._id, member.user._id);
   }
 
-  async removeGroup(group: any) {
-    if (!confirm(`Are you sure you want to delete "${group.name}"? This will also delete all associated expenses.`)) {
-      return;
-    }
+  removeGroup(group: any) {
+    this.groupToDelete = group;
+    this.modalTitle = 'Confirm Delete';
+    this.modalMessage = `Are you sure you want to delete "${group.name}"? This will also delete all associated expenses.`;
+    this.modalType = 'warning';
+    this.isConfirmMode = true;
+    this.isModalOpen = true;
+  }
 
+  async executeDeleteGroup(group: any) {
     try {
       await this.groupService.deleteGroup(group._id);
       this.openModal('Success', 'Group deleted successfully.', 'success');
     } catch {
       this.openModal('Error', 'Unable to delete group.', 'error');
+    } finally {
+      this.groupToDelete = null;
     }
   }
 

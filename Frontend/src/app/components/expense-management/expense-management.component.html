@@ -189,7 +189,8 @@
   [title]="modalTitle"
   [message]="modalMessage"
   [type]="modalType"
-  (confirm)="closeModal()"
+  [showCancel]="isConfirmMode"
+  (confirm)="onModalConfirm()"
   (cancel)="closeModal()"
 >
 </app-custom-modal>
