@@ -21,6 +21,10 @@ export interface Expense {
   category: string;
 
   expenseDate: string;
+
+  createdAt?: string;
+
+  updatedAt?: string;
 }
 
 @Injectable({
@@ -56,7 +60,8 @@ export class ExpenseService {
     amount: number,
     description: string,
     category: string = 'Other',
-    paidBy?: string
+    paidBy?: string,
+    expenseDate?: string
   ): Promise<void> {
 
     await firstValueFrom(
@@ -66,6 +71,7 @@ export class ExpenseService {
         description,
         category,
         paidBy,
+        expenseDate,
       })
     );
 
@@ -84,7 +90,8 @@ export class ExpenseService {
     amount: number,
     description: string,
     category: string,
-    paidBy: string
+    paidBy: string,
+    expenseDate?: string
   ): Promise<void> {
     await firstValueFrom(
       this.http.put(`${this.apiUrl}/${expenseId}`, {
@@ -92,6 +99,7 @@ export class ExpenseService {
         description,
         category,
         paidBy,
+        expenseDate,
       })
     );
 

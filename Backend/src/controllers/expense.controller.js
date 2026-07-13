@@ -192,7 +192,7 @@ export const getGroupExpenses = async (req, res) => {
 export const updateExpense = async (req, res) => {
     try {
         const { expenseId } = req.params;
-        const { amount, description, category, paidBy } = req.body;
+        const { amount, description, category, paidBy, expenseDate } = req.body;
 
         const expense = await Expense.findById(expenseId);
         if (!expense) {
@@ -239,6 +239,7 @@ export const updateExpense = async (req, res) => {
         if (amount !== undefined) expense.amount = amount;
         if (description !== undefined) expense.description = description;
         if (category !== undefined) expense.category = category;
+        if (expenseDate !== undefined) expense.expenseDate = expenseDate;
 
         await expense.save();
 

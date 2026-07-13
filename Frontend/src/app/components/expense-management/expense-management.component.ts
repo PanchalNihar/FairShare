@@ -49,6 +49,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   isScanning: boolean = false;
   quickAddInputText = '';
   isQuickAdding = false;
+  expenseDate: string = new Date().toISOString().split('T')[0];
 
 
 
@@ -403,7 +404,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 this.expenseAmount,
                 this.expenseDescription,
                 this.expenseCategory,
-                this.selectedPayeeId
+                this.selectedPayeeId,
+                this.expenseDate
             );
 
             this.openModal(
@@ -413,17 +415,12 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
             );
         } else {
             await this.expenseService.addExpense(
-
                 this.selectedGroupId,
-
                 this.expenseAmount,
-
                 this.expenseDescription,
-
                 this.expenseCategory,
-
-                this.selectedPayeeId || undefined
-
+                this.selectedPayeeId || undefined,
+                this.expenseDate
             );
 
             this.openModal(
@@ -457,6 +454,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expenseDescription = expense.description;
     this.expenseCategory = expense.category;
     this.selectedPayeeId = expense.paidBy._id || (expense.paidBy as any);
+    this.expenseDate = new Date(expense.expenseDate || expense.createdAt || new Date().toISOString()).toISOString().split('T')[0];
   }
 
   cancelEdit() {
@@ -501,6 +499,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expenseDescription = '';
 
     this.expenseCategory = 'Other';
+
+    this.expenseDate = new Date().toISOString().split('T')[0];
 
     this.defaultPayeeToCurrentUser();
 
