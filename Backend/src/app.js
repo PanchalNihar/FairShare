@@ -11,9 +11,19 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:4200",
+  "https://fairshare2624.netlify.app"
+];
+
+if (process.env.FRONTEND_URL) {
+  // Strip trailing slash if present
+  allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ""));
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
