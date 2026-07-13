@@ -2,6 +2,7 @@ import Expense from "../models/Expense.js";
 import Group from "../models/Group.js";
 import jwt from "jsonwebtoken";
 import { scanReceipt } from "../services/gemini.service.js";
+import User from "../models/User.js";
 
 /**
  * Create Expense
@@ -50,7 +51,7 @@ export const createExpense = async (req, res) => {
         const payeeId = paidBy || req.user.id;
 
         const isPayeeMember = group.members.some(
-            member => member.user.toString() === payeeId.toString()
+            member => (member.user ? member.user.toString() : member._id.toString()) === payeeId.toString()
         );
 
         if (!isPayeeMember) {
@@ -127,12 +128,52 @@ export const getGroupExpenses = async (req, res) => {
         const expenses = await Expense.find({
             group: groupId
         })
-        .populate("paidBy", "username email avatar")
-        .sort({ expenseDate: -1 });
+        .sort({ expenseDate: -1 })
+        .lean();
+
+        // Get group guest members to construct virtual user profiles
+        const guestMemberIds = group.members
+            .filter(m => !m.user)
+            .map(m => m._id.toString());
+
+        // Find registered user IDs to populate
+        const registeredUserIds = expenses
+            .map(e => e.paidBy ? e.paidBy.toString() : null)
+            .filter(id => id && !guestMemberIds.includes(id));
+
+        // Fetch registered user details
+        const users = await User.find({ _id: { $in: registeredUserIds } }, "username email avatar").lean();
+        const userMap = {};
+        users.forEach(u => {
+            userMap[u._id.toString()] = u;
+        });
+
+        // Construct populated expenses
+        const populatedExpenses = expenses.map(expense => {
+            if (expense.paidBy) {
+                const payerIdStr = expense.paidBy.toString();
+                if (guestMemberIds.includes(payerIdStr)) {
+                    const guestMember = group.members.find(m => m._id.toString() === payerIdStr);
+                    expense.paidBy = {
+                        _id: guestMember._id,
+                        username: guestMember.username,
+                        email: guestMember.email || "temp@fairshare.fake",
+                        avatar: ""
+                    };
+                } else {
+                    expense.paidBy = userMap[payerIdStr] || {
+                        _id: expense.paidBy,
+                        username: "Unknown User",
+                        email: ""
+                    };
+                }
+            }
+            return expense;
+        });
 
         res.status(200).json({
             success: true,
-            data: expenses
+            data: populatedExpenses
         });
 
     } catch (error) {
@@ -184,7 +225,7 @@ export const updateExpense = async (req, res) => {
         // If payee is being updated, verify payee is a member
         if (paidBy) {
             const isPayeeMember = group.members.some(
-                member => member.user.toString() === paidBy.toString()
+                member => (member.user ? member.user.toString() : member._id.toString()) === paidBy.toString()
             );
             if (!isPayeeMember) {
                 return res.status(400).json({

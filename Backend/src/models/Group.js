@@ -4,7 +4,15 @@ const memberSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: false
+    },
+
+    username: {
+        type: String
+    },
+
+    email: {
+        type: String
     },
 
     role: {
@@ -17,7 +25,7 @@ const memberSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-}, { _id: false });
+});
 
 const groupSchema = new mongoose.Schema({
 

@@ -20,15 +20,15 @@ export const calculateBalances = async (groupId) => {
 
   // Initialize every member
   group.members.forEach((member) => {
-    if (member.user) {
-      balances[member.user._id.toString()] = {
-        userId: member.user._id.toString(),
-        username: member.user.username,
-        paid: 0,
-        owed: 0,
-        balance: 0,
-      };
-    }
+    const memberId = member.user ? member.user._id.toString() : member._id.toString();
+    const username = member.user ? member.user.username : member.username;
+    balances[memberId] = {
+      userId: memberId,
+      username: username,
+      paid: 0,
+      owed: 0,
+      balance: 0,
+    };
   });
 
   let totalExpense = 0;
@@ -48,21 +48,20 @@ export const calculateBalances = async (groupId) => {
     const expenseDate = new Date(expense.expenseDate || expense.createdAt);
     
     let activeMembers = group.members.filter((member) => {
-      if (!member.user) return false;
       const joinedDate = new Date(member.joinedAt);
       return joinedDate <= expenseDate;
     });
 
     // Fallback: if no active members found, split among all current members
     if (activeMembers.length === 0) {
-      activeMembers = group.members.filter(m => m.user);
+      activeMembers = group.members;
     }
 
     const activeCount = activeMembers.length;
     if (activeCount > 0) {
       const share = expense.amount / activeCount;
       activeMembers.forEach((member) => {
-        const memberId = member.user._id.toString();
+        const memberId = member.user ? member.user._id.toString() : member._id.toString();
         if (balances[memberId]) {
           balances[memberId].owed += share;
         }

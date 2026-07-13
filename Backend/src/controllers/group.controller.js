@@ -5,6 +5,25 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import Expense from "../models/Expense.js";
 
+const formatGroupMembers = (group) => {
+  if (!group) return null;
+  const groupObj = group.toObject ? group.toObject() : group;
+  if (groupObj.members) {
+    groupObj.members = groupObj.members.map((member) => {
+      if (!member.user) {
+        member.user = {
+          _id: member._id,
+          username: member.username,
+          email: member.email || "temp@fairshare.fake",
+          avatar: ""
+        };
+      }
+      return member;
+    });
+  }
+  return groupObj;
+};
+
 export const createGroup = async (req, res) => {
   try {
     const { name, description, members = [] } = req.body;
@@ -52,26 +71,27 @@ export const createGroup = async (req, res) => {
 
       for (const newM of newMembers) {
         let emailToUse = newM.email;
-        if (!emailToUse) {
-          const emailPrefix = newM.username.toLowerCase().replace(/[^a-z0-9]/g, "");
-          emailToUse = `${emailPrefix}_${nanoid(4)}@fairshare.fake`;
+        let isFakeEmail = !emailToUse || emailToUse.endsWith("@fairshare.fake");
+
+        let user = null;
+        if (!isFakeEmail) {
+          user = await User.findOne({ email: emailToUse.toLowerCase() });
         }
-        let user = await User.findOne({ email: emailToUse.toLowerCase() });
-        if (!user) {
-          const dummyPassword = nanoid(10);
-          const hashedPassword = await bcrypt.hash(dummyPassword, 10);
-          user = await User.create({
-            username: newM.username,
-            email: emailToUse.toLowerCase(),
-            password: hashedPassword,
-          });
-        }
-        const isAlreadyAdded = groupMembers.some(
-          (m) => m.user.toString() === user._id.toString()
-        );
-        if (!isAlreadyAdded && user._id.toString() !== req.user._id.toString()) {
+
+        if (user) {
+          const isAlreadyAdded = groupMembers.some(
+            (m) => m.user && m.user.toString() === user._id.toString()
+          );
+          if (!isAlreadyAdded && user._id.toString() !== req.user._id.toString()) {
+            groupMembers.push({
+              user: user._id,
+              role: "member",
+            });
+          }
+        } else {
           groupMembers.push({
-            user: user._id,
+            username: newM.username,
+            email: "temp@fairshare.fake",
             role: "member",
           });
         }
@@ -90,10 +110,12 @@ export const createGroup = async (req, res) => {
       "username email avatar"
     );
 
+    const formattedGroup = formatGroupMembers(populatedGroup);
+
     res.status(201).json({
       success: true,
       message: "Group created successfully.",
-      data: populatedGroup,
+      data: formattedGroup,
     });
   } catch (error) {
     console.error(error);
@@ -114,9 +136,11 @@ export const getMyGroups = async (req, res) => {
         .populate("members.user", "username email avatar")
         .sort({ createdAt: -1 });
 
+        const formattedGroups = groups.map(g => formatGroupMembers(g));
+
         res.status(200).json({
             success: true,
-            data: groups
+            data: formattedGroups
         });
 
     } catch (error) {
@@ -208,6 +232,7 @@ export const addMember = async (req, res) => {
 
     const owner = group.members.find(
       (m) =>
+        m.user &&
         m.user.toString() === req.user._id.toString() &&
         m.role === "owner"
     );
@@ -219,49 +244,70 @@ export const addMember = async (req, res) => {
       });
     }
 
+    let isTempMember = false;
+    let tempUsername = "";
+    let tempEmail = "";
     let targetUserId = userId;
 
     if (!targetUserId && username) {
       let emailToUse = email;
-      if (!emailToUse) {
-        const emailPrefix = username.toLowerCase().replace(/[^a-z0-9]/g, "");
-        emailToUse = `${emailPrefix}_${nanoid(4)}@fairshare.fake`;
+      let isFakeEmail = !emailToUse || emailToUse.endsWith("@fairshare.fake");
+
+      let user = null;
+      if (!isFakeEmail) {
+        user = await User.findOne({ email: emailToUse.toLowerCase() });
       }
-      let user = await User.findOne({ email: emailToUse.toLowerCase() });
-      if (!user) {
-        const dummyPassword = nanoid(10);
-        const hashedPassword = await bcrypt.hash(dummyPassword, 10);
-        user = await User.create({
-          username,
-          email: emailToUse.toLowerCase(),
-          password: hashedPassword,
+
+      if (user) {
+        targetUserId = user._id.toString();
+      } else {
+        isTempMember = true;
+        tempUsername = username;
+        tempEmail = "temp@fairshare.fake";
+      }
+    }
+
+    if (isTempMember) {
+      const exists = group.members.find(
+        (m) => !m.user && m.username === tempUsername
+      );
+
+      if (exists) {
+        return res.status(400).json({
+          success: false,
+          message: "User already exists in the group.",
         });
       }
-      targetUserId = user._id.toString();
-    }
 
-    if (!targetUserId) {
-      return res.status(400).json({
-        success: false,
-        message: "User identifier is required.",
+      group.members.push({
+        username: tempUsername,
+        email: tempEmail,
+        role: "member",
+      });
+    } else {
+      if (!targetUserId) {
+        return res.status(400).json({
+          success: false,
+          message: "User identifier is required.",
+        });
+      }
+
+      const exists = group.members.find(
+        (m) => m.user && m.user.toString() === targetUserId
+      );
+
+      if (exists) {
+        return res.status(400).json({
+          success: false,
+          message: "User already exists.",
+        });
+      }
+
+      group.members.push({
+        user: targetUserId,
+        role: "member",
       });
     }
-
-    const exists = group.members.find(
-      (m) => m.user.toString() === targetUserId
-    );
-
-    if (exists) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists.",
-      });
-    }
-
-    group.members.push({
-      user: targetUserId,
-      role: "member",
-    });
 
     await group.save();
 
@@ -294,6 +340,7 @@ export const removeMember = async (req, res) => {
 
     const owner = group.members.find(
       (m) =>
+        m.user &&
         m.user.toString() === req.user._id.toString() &&
         m.role === "owner"
     );
@@ -305,9 +352,10 @@ export const removeMember = async (req, res) => {
       });
     }
 
-    group.members = group.members.filter(
-      (m) => m.user.toString() !== userId
-    );
+    group.members = group.members.filter((m) => {
+      const memberUserId = m.user ? m.user.toString() : m._id.toString();
+      return memberUserId !== userId;
+    });
 
     await group.save();
 
