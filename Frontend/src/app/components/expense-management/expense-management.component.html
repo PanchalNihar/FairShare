@@ -69,6 +69,36 @@
               </div>
             </div>
 
+            <!-- AI Natural Language Quick Add -->
+            <div class="ai-quickadd-section">
+              <div class="quickadd-title">
+                <span class="sparkle-icon">✨</span> Quick Add with AI
+              </div>
+              <div class="quickadd-input-wrapper">
+                <input
+                  type="text"
+                  class="form-input quickadd-input"
+                  [(ngModel)]="quickAddInputText"
+                  name="quickAddText"
+                  placeholder="e.g. 'Paid 850 for groceries yesterday'"
+                  [disabled]="isQuickAdding"
+                  (keyup.enter)="onQuickAdd()"
+                />
+                <button
+                  type="button"
+                  class="btn btn-quickadd"
+                  (click)="onQuickAdd()"
+                  [disabled]="isQuickAdding"
+                >
+                  {{ isQuickAdding ? 'Parsing...' : 'Add' }}
+                </button>
+              </div>
+              <div *ngIf="isQuickAdding" class="scan-loader">
+                <div class="pulse-ring"></div>
+                <span>Analyzing description...</span>
+              </div>
+            </div>
+
             <div class="form-group">
               <label>Amount</label>
 

@@ -47,6 +47,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   isEditing: boolean = false;
   editingExpenseId: string = '';
   isScanning: boolean = false;
+  quickAddInputText = '';
+  isQuickAdding = false;
+
 
 
   private expensesSub?: Subscription;
@@ -227,6 +230,66 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     } else if (this.selectedGroupMembers.length > 0) {
       const firstMember = this.selectedGroupMembers[0];
       this.selectedPayeeId = (firstMember.user?._id || firstMember.user?.id || firstMember.user).toString();
+    }
+  }
+
+  // Handle Natural Language Quick Add
+  async onQuickAdd(): Promise<void> {
+    if (!this.quickAddInputText.trim()) {
+      this.openModal('Error', 'Please enter some text description first.', 'error');
+      return;
+    }
+
+    this.isQuickAdding = true;
+
+    try {
+      const memberNames = this.selectedGroupMembers.map(m => m.user?.username).filter(Boolean);
+      
+      const response = await this.expenseService.quickAddText(this.quickAddInputText, memberNames);
+
+      if (response) {
+        if (response.amount) {
+          this.expenseAmount = response.amount;
+        }
+        if (response.description) {
+          this.expenseDescription = response.description;
+        }
+        
+        const allowedCategories = ['Food', 'Travel', 'Shopping', 'Entertainment', 'Other'];
+        let matchedCategory = 'Other';
+        if (response.category) {
+          const capitalized = response.category.charAt(0).toUpperCase() + response.category.slice(1).toLowerCase();
+          if (allowedCategories.includes(capitalized)) {
+            matchedCategory = capitalized;
+          }
+        }
+        this.expenseCategory = matchedCategory;
+
+        if (response.payerName) {
+          const matchedMember = this.selectedGroupMembers.find(m => 
+            m.user?.username?.toLowerCase() === response.payerName.toLowerCase()
+          );
+          if (matchedMember) {
+            this.selectedPayeeId = (matchedMember.user?._id || matchedMember.user?.id || matchedMember.user).toString();
+          } else {
+            this.defaultPayeeToCurrentUser();
+          }
+        } else {
+          this.defaultPayeeToCurrentUser();
+        }
+
+        this.openModal('Success', 'Description parsed successfully! Form pre-filled.', 'success');
+        this.quickAddInputText = '';
+      }
+    } catch (error: any) {
+      console.error(error);
+      this.openModal(
+        'Quick Add Failed',
+        error.error?.message || error.message || 'Could not parse the description. Please enter details manually.',
+        'error'
+      );
+    } finally {
+      this.isQuickAdding = false;
     }
   }
 

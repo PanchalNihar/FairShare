@@ -1,7 +1,7 @@
 import Expense from "../models/Expense.js";
 import Group from "../models/Group.js";
 import jwt from "jsonwebtoken";
-import { scanReceipt } from "../services/gemini.service.js";
+import { scanReceipt, quickAddExpense } from "../services/gemini.service.js";
 import User from "../models/User.js";
 
 /**
@@ -333,6 +333,37 @@ export const scanReceiptController = async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message || "Failed to scan receipt with AI."
+        });
+    }
+};
+
+/**
+ * Parse Natural Language Expense with Gemini AI via LangChain
+ */
+export const quickAddController = async (req, res) => {
+    try {
+        const { text, members = [] } = req.body;
+
+        if (!text) {
+            return res.status(400).json({
+                success: false,
+                message: "Input text is required."
+            });
+        }
+
+        const parsedData = await quickAddExpense(text, members);
+
+        res.status(200).json({
+            success: true,
+            message: "Sentence parsed successfully.",
+            data: parsedData
+        });
+
+    } catch (error) {
+        console.error("Error in quickAddController:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to parse sentence with AI."
         });
     }
 };

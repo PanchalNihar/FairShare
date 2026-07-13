@@ -115,4 +115,14 @@ export class ExpenseService {
     );
     return response.data;
   }
+
+  async quickAddText(text: string, members: string[]): Promise<any> {
+    const response: any = await firstValueFrom(
+      this.http.post(`${this.apiUrl}/quick-add`, {
+        text,
+        members
+      })
+    );
+    return response.data;
+  }
 }
