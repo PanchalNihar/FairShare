@@ -6,12 +6,14 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import groupRoutes from "./routes/group.routes.js";
 import expenseRoutes from "./routes/expense.routes.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:4200",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   }),
 );
