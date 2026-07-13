@@ -177,6 +177,28 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
 }
 
+  getMemberCount(): number {
+    return this.selectedGroupMembers.length || 1;
+  }
+
+  getSplitShare(amount: number): number {
+    const count = this.getMemberCount();
+    return Number((amount / count).toFixed(2));
+  }
+
+  isUserPayer(expense: Expense): boolean {
+    if (!this.currentUser || !expense.paidBy) return false;
+    const currentUserId = (this.currentUser._id || this.currentUser.id || '').toString();
+    const payerId = (expense.paidBy._id || expense.paidBy || '').toString();
+    return currentUserId && payerId && currentUserId === payerId;
+  }
+
+  getUserLentAmount(expense: Expense): number {
+    const total = expense.amount;
+    const share = this.getSplitShare(total);
+    return Number((total - share).toFixed(2));
+  }
+
   defaultPayeeToCurrentUser() {
     if (!this.currentUser || !this.selectedGroupMembers.length) {
       this.selectedPayeeId = '';

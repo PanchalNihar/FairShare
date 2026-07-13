@@ -50,38 +50,53 @@
       <!-- Stats -->
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <!-- Total Expense -->
+        <div class="stat-card total-card">
+          <div class="stat-icon-wrapper">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
           <div class="stat-content">
-            <span class="stat-label"> Total Expense </span>
-
-            <span class="stat-value">
-              ₹{{ totalExpense | number: "1.2-2" }}
-            </span>
+            <span class="stat-label">Total Expense</span>
+            <span class="stat-value">₹{{ totalExpense | number: "1.2-2" }}</span>
           </div>
         </div>
 
-        <div class="stat-card">
+        <!-- Per Person -->
+        <div class="stat-card transactions-card">
+          <div class="stat-icon-wrapper">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 8v4l3 3"></path>
+            </svg>
+          </div>
           <div class="stat-content">
-            <span class="stat-label"> Per Person </span>
-
-            <span class="stat-value"> ₹{{ perPerson | number: "1.2-2" }} </span>
+            <span class="stat-label">Per Person</span>
+            <span class="stat-value">₹{{ perPerson | number: "1.2-2" }}</span>
           </div>
         </div>
 
-        <div class="stat-card">
+        <!-- Members -->
+        <div class="stat-card members-card">
+          <div class="stat-icon-wrapper">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
           <div class="stat-content">
-            <span class="stat-label"> Members </span>
-
-            <span class="stat-value">
-              {{ balances.length }}
-            </span>
+            <span class="stat-label">Members</span>
+            <span class="stat-value">{{ balances.length }}</span>
           </div>
         </div>
       </div>
 
       <div class="tracking-layout">
         <!-- Member Balances -->
-
         <div class="spending-card">
           <div class="card-header">
             <h2 class="card-title">Member Balances</h2>
@@ -92,30 +107,32 @@
               No balance information found.
             </div>
 
-            <div *ngFor="let member of balances" class="spending-item">
-              <div>
-                <strong>
-                  {{ member.username }}
-                </strong>
+            <div class="spending-list" *ngIf="balances.length > 0">
+              <div *ngFor="let member of balances" class="spending-item">
+                <div class="member-info">
+                  <div class="member-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div class="member-details">
+                    <span class="member-name">{{ member.username }}</span>
+                    <span class="member-share">Paid ₹{{ member.paid | number: "1.2-2" }}</span>
+                  </div>
+                </div>
 
-                <br />
-
-                Paid ₹{{ member.paid }}
-              </div>
-
-              <div>
-                <span [style.color]="member.balance >= 0 ? 'green' : 'red'">
-                  {{ member.balance >= 0 ? "+" : "" }}
-
-                  ₹{{ member.balance | number: "1.2-2" }}
-                </span>
+                <div>
+                  <span class="spending-amount" [style.color]="member.balance >= 0 ? 'var(--tracking-accent)' : 'var(--tracking-danger)'">
+                    {{ member.balance >= 0 ? "+" : "" }}₹{{ member.balance | number: "1.2-2" }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Settlement -->
-
         <div class="balances-card">
           <div class="card-header">
             <h2 class="card-title">Suggested Settlements</h2>
@@ -130,24 +147,33 @@
               <div *ngFor="let settlement of settlements" class="balance-item">
                 <div class="balance-header">
                   <div class="balance-from">
-                    <strong>
-                      {{ settlement.from }}
-                    </strong>
+                    <svg class="balance-icon owes-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span class="balance-name">{{ settlement.from }}</span>
                   </div>
 
-                  <div>➜</div>
+                  <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
 
                   <div class="balance-to">
-                    <strong>
-                      {{ settlement.to }}
-                    </strong>
+                    <svg class="balance-icon receives-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span class="balance-name">{{ settlement.to }}</span>
                   </div>
                 </div>
 
                 <div class="balance-amount-wrapper">
-                  <span class="balance-amount">
+                  <span class="balance-amount" style="color: var(--tracking-accent);">
                     ₹{{ settlement.amount | number: "1.2-2" }}
                   </span>
+                  <span class="balance-label">Suggested Settlement</span>
                 </div>
               </div>
             </div>
