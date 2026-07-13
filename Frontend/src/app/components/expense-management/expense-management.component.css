@@ -786,4 +786,122 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
+/* ============================================
+   SPLITS CONFIGURATION STYLING
+   ============================================ */
+.splits-config-container {
+  border: 1px solid var(--expense-border);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.02);
+  margin-top: 15px;
+}
+
+:host-context(.dark-theme) .splits-config-container {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.splits-header-label {
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.split-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.split-member-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.split-member-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.split-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--expense-accent);
+}
+
+.split-member-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.split-member-name.inactive {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.split-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 150px;
+}
+
+.split-number-input {
+  width: 100%;
+  padding: 6px 12px;
+  text-align: right;
+  font-size: 14px;
+}
+
+.split-unit-prefix {
+  position: absolute;
+  left: 8px;
+  color: var(--expense-text-secondary);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.split-unit-suffix {
+  position: absolute;
+  right: 8px;
+  color: var(--expense-text-secondary);
+  font-size: 12px;
+  pointer-events: none;
+  background: transparent;
+}
+
+.split-number-input {
+  padding-left: 20px !important;
+  padding-right: 45px !important;
+}
+
+.split-validation-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.split-validation-alert.alert-valid {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.split-validation-alert.alert-invalid {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #c0392b;
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
 

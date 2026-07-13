@@ -22,6 +22,20 @@ const userSchema = new mongoose.Schema(
         minlength:6
     },
 
+    mobileNumber:{
+        type:String,
+        unique:true,
+        sparse:true,
+        trim:true
+    },
+
+    googleId:{
+        type:String,
+        unique:true,
+        sparse:true,
+        trim:true
+    },
+
     avatar:{
         type:String,
         default:""

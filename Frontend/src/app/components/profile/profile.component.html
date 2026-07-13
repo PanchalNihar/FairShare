@@ -144,6 +144,28 @@
             </div>
           </div>
 
+          <!-- Mobile Number Field -->
+          <div class="form-group">
+            <label for="mobileNumber" class="form-label">
+              <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+              </svg>
+              Mobile Number
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="mobileNumber"
+                name="mobileNumber"
+                [(ngModel)]="user.mobileNumber"
+                [disabled]="!isEditing"
+                [class.editing]="isEditing"
+                class="form-input"
+                placeholder="Enter 10-digit number"
+              />
+            </div>
+          </div>
+
           <!-- Action Buttons -->
           <div class="form-actions" *ngIf="isEditing">
             <button 

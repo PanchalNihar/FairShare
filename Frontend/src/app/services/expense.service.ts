@@ -33,6 +33,13 @@ export interface Expense {
   };
 
   isSettlement?: boolean;
+
+  splitType?: string;
+
+  splits?: Array<{
+    memberId: string;
+    value: number;
+  }>;
 }
 
 @Injectable({
@@ -69,7 +76,9 @@ export class ExpenseService {
     description: string,
     category: string = 'Other',
     paidBy?: string,
-    expenseDate?: string
+    expenseDate?: string,
+    splitType?: string,
+    splits?: Array<{ memberId: string; value: number }>
   ): Promise<void> {
 
     await firstValueFrom(
@@ -80,6 +89,8 @@ export class ExpenseService {
         category,
         paidBy,
         expenseDate,
+        splitType,
+        splits,
       })
     );
 
@@ -124,7 +135,9 @@ export class ExpenseService {
     description: string,
     category: string,
     paidBy: string,
-    expenseDate?: string
+    expenseDate?: string,
+    splitType?: string,
+    splits?: Array<{ memberId: string; value: number }>
   ): Promise<void> {
     await firstValueFrom(
       this.http.put(`${this.apiUrl}/${expenseId}`, {
@@ -133,6 +146,8 @@ export class ExpenseService {
         category,
         paidBy,
         expenseDate,
+        splitType,
+        splits,
       })
     );
 

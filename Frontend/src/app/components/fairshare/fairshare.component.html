@@ -1,65 +1,160 @@
 <app-navbar></app-navbar>
 
 <div class="fairshare-wrapper">
-  
+  <!-- Glowing Background Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-        </svg>
+      <div class="badge-pill">
+        <span class="sparkle-icon">✨</span> Splitting Bills Reimagined
       </div>
-      <h1 class="hero-title">Welcome to FairShare</h1>
-      <p class="hero-subtitle">A powerful, user-friendly expense management application designed to make splitting bills and managing shared expenses effortless.</p>
-      <button class="btn btn-primary" (click)="backToDashBoard()">
-        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-        </svg>
-        Go to Dashboard
-      </button>
+      <h1 class="hero-title">FairShare</h1>
+      <p class="hero-tagline">Track, Split, and Settle Expenses Easily</p>
+      <p class="hero-subtitle">
+        A premium, smart expense manager powered by AI scanning, customizable unequal split methods, and interactive analytics dashboards.
+      </p>
+      <div class="hero-cta-wrapper">
+        <button class="btn btn-dashboard-cta" (click)="backToDashBoard()">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          Go to Dashboard
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- Main Content Container -->
+  <!-- Main Container -->
   <div class="content-container">
     
+    <!-- Interactive App Preview Card -->
+    <section class="preview-section">
+      <div class="preview-glass-card">
+        <div class="preview-header">
+          <div class="preview-title-group">
+            <span class="preview-icon">✈️</span>
+            <div>
+              <h3>Trip to Goa</h3>
+              <p>Active Group Expenses</p>
+            </div>
+          </div>
+          <span class="preview-badge active">In Progress</span>
+        </div>
+        
+        <div class="preview-body">
+          <div class="preview-column">
+            <h4>Group Members</h4>
+            <div class="preview-member-list">
+              <div class="preview-member-item">
+                <div class="member-avatar nihar-avatar">N</div>
+                <div class="member-info">
+                  <span class="member-name">Nihar (Owner)</span>
+                  <span class="member-status-text">Paid ₹8,500</span>
+                </div>
+                <span class="member-balance positive">+₹3,200</span>
+              </div>
+              <div class="preview-member-item">
+                <div class="member-avatar aman-avatar">A</div>
+                <div class="member-info">
+                  <span class="member-name">Aman</span>
+                  <span class="member-status-text">Paid ₹3,000</span>
+                </div>
+                <span class="member-balance negative">-₹2,300</span>
+              </div>
+              <div class="preview-member-item">
+                <div class="member-avatar rahul-avatar">R</div>
+                <div class="member-info">
+                  <span class="member-name">Rahul</span>
+                  <span class="member-status-text">Paid ₹4,000</span>
+                </div>
+                <span class="member-balance negative">-₹900</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="preview-column divider-left">
+            <h4>Suggested Settlement</h4>
+            <div class="preview-settlement-card">
+              <div class="settlement-path">
+                <span class="settle-node">Aman</span>
+                <svg class="settle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="2" y1="12" x2="22" y2="12" stroke-dasharray="3" />
+                  <polyline points="15 5 22 12 15 19" />
+                </svg>
+                <span class="settle-node highlighted">Nihar</span>
+              </div>
+              <div class="settlement-amount">₹2,300</div>
+              <button class="btn btn-settle-preview" (click)="backToDashBoard()">Settle Up Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Key Features Section -->
     <section class="features-section">
       <div class="section-header">
-        <h2 class="section-title">Key Features</h2>
-        <p class="section-subtitle">Everything you need to manage group expenses efficiently</p>
+        <h2 class="section-title">Smart Features</h2>
+        <p class="section-subtitle">A modern toolkit to simplify group budget calculations</p>
       </div>
 
       <div class="features-grid">
+        <!-- Feature 1 -->
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon-wrapper f-primary">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
             </svg>
           </div>
-          <h3 class="feature-title">Group Management</h3>
-          <p class="feature-description">Easily create groups and add members for managing shared expenses with complete flexibility.</p>
+          <h3 class="feature-title">Unequal Splitting</h3>
+          <p class="feature-description">
+            Customize splits precisely by exact currency amounts, percentages, or proportional shares. No more forced equal divisions.
+          </p>
         </div>
 
+        <!-- Feature 2 -->
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon-wrapper f-info">
+            <span class="feature-sparkle">✨</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
             </svg>
           </div>
-          <h3 class="feature-title">Smart Split</h3>
-          <p class="feature-description">Automatically split expenses among group members and calculate balances with precision.</p>
+          <h3 class="feature-title">AI Receipt OCR Scan</h3>
+          <p class="feature-description">
+            Upload images of receipts, and Gemini AI automatically extracts merchants, dates, categories, and totals for instant pre-filling.
+          </p>
         </div>
 
+        <!-- Feature 3 -->
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon-wrapper f-success">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
             </svg>
           </div>
-          <h3 class="feature-title">Clean Interface</h3>
-          <p class="feature-description">Enjoy a modern and intuitive interface that makes navigating the app a breeze.</p>
+          <h3 class="feature-title">Spend Analytics</h3>
+          <p class="feature-description">
+            Monitor spending breakdowns using interactive circular doughnut segments, tracking bars, and lists of top group costs.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper f-danger">
+            <span class="feature-sparkle">✨</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">AI Natural Language Add</h3>
+          <p class="feature-description">
+            Enter expense details like you are texting a friend. Type *"Rent 15000 paid by Rahul"* and watch AI parse the details in real-time.
+          </p>
         </div>
       </div>
     </section>
@@ -68,7 +163,7 @@
     <section class="how-it-works-section">
       <div class="section-header">
         <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">Get started in just 4 simple steps</p>
+        <p class="section-subtitle">Settle balances in four streamlined steps</p>
       </div>
 
       <div class="steps-grid">
@@ -80,7 +175,7 @@
             </svg>
           </div>
           <h3 class="step-title">Create Group</h3>
-          <p class="step-description">Create a new group and add members who share expenses together.</p>
+          <p class="step-description">Establish a group for trips, dinners, or rent, and invite members.</p>
         </div>
 
         <div class="step-card">
@@ -90,8 +185,8 @@
               <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
             </svg>
           </div>
-          <h3 class="step-title">Add Expenses</h3>
-          <p class="step-description">Add expenses and specify who paid and who owes money.</p>
+          <h3 class="step-title">Record Expenses</h3>
+          <p class="step-description">Use manual inputs, quick AI parsing, or receipt photo scan uploads.</p>
         </div>
 
         <div class="step-card">
@@ -101,8 +196,8 @@
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
             </svg>
           </div>
-          <h3 class="step-title">Auto Calculate</h3>
-          <p class="step-description">FairShare automatically calculates balances for each member.</p>
+          <h3 class="step-title">Choose Splitting</h3>
+          <p class="step-description">Divide costs equally or set specific shares for unequal participants.</p>
         </div>
 
         <div class="step-card">
@@ -112,8 +207,8 @@
               <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
             </svg>
           </div>
-          <h3 class="step-title">Track & Settle</h3>
-          <p class="step-description">View all groups and expenses for easy management and settlement.</p>
+          <h3 class="step-title">Settle Debts</h3>
+          <p class="step-description">Run our simplified settlement solver to pay back balances in a snap.</p>
         </div>
       </div>
     </section>
@@ -122,7 +217,7 @@
     <section class="why-fairshare-section">
       <div class="section-header">
         <h2 class="section-title">Why Choose FairShare?</h2>
-        <p class="section-subtitle">Built with simplicity and efficiency in mind</p>
+        <p class="section-subtitle">Designed for simplicity, built for scale</p>
       </div>
 
       <div class="why-content">
@@ -131,8 +226,8 @@
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
           </svg>
           <div class="why-text">
-            <h3>Simple & Intuitive</h3>
-            <p>No complex setups or lengthy registrations. Get started in seconds.</p>
+            <h3>Clean & Dynamic Aesthetics</h3>
+            <p>A beautiful visual scheme tailored to support both responsive light modes and cyber dark themes.</p>
           </div>
         </div>
 
@@ -141,8 +236,8 @@
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
           </svg>
           <div class="why-text">
-            <h3>Fast & Efficient</h3>
-            <p>Optimized for speed with instant calculations and real-time updates.</p>
+            <h3>Zero Latency Ledger</h3>
+            <p>Calculates and refreshes split data instantly. View active group balances, totals, and suggestions immediately.</p>
           </div>
         </div>
 
@@ -151,48 +246,19 @@
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
           </svg>
           <div class="why-text">
-            <h3>Secure & Private</h3>
-            <p>Your data is safe with encrypted storage and privacy-first design.</p>
+            <h3>Privacy First Design</h3>
+            <p>Your details are stored in securely configured databases with clean authentication tokens.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Profile Features Section -->
-    <section class="profile-features-section">
-      <div class="section-header">
-        <h2 class="section-title">Profile Management</h2>
-        <p class="section-subtitle">Personalize your FairShare experience</p>
-      </div>
-
-      <div class="profile-grid">
-        <div class="profile-card">
-          <svg class="profile-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-          </svg>
-          <p>View your name and email on your profile page</p>
-        </div>
-
-        <div class="profile-card">
-          <svg class="profile-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-          </svg>
-          <p>Upload a profile picture or use a default avatar</p>
-        </div>
-
-        <div class="profile-card">
-          <svg class="profile-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-          </svg>
-          <p>Add a bio or description about yourself</p>
-        </div>
-
-        <div class="profile-card">
-          <svg class="profile-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-          </svg>
-          <p>All changes reflect instantly for a smooth experience</p>
-        </div>
+    <!-- Bottom CTA -->
+    <section class="bottom-cta-section">
+      <div class="cta-card">
+        <h2>Start Splitting Smarter</h2>
+        <p>Join thousands of groups managing trips, events, and bills without the calculation headache.</p>
+        <button class="btn btn-dashboard-cta" (click)="backToDashBoard()">Get Started Free</button>
       </div>
     </section>
 

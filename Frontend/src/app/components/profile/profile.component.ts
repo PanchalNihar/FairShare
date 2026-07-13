@@ -10,6 +10,7 @@ interface UserProfile {
   username: string;
   email: string;
   profileImage?: string;
+  mobileNumber?: string;
 }
 
 @Component({
@@ -25,6 +26,7 @@ export class ProfileComponent implements OnInit {
     username: '',
     email: '',
     profileImage: '',
+    mobileNumber: '',
   };
   
   profileImage: string | ArrayBuffer | null = null;
@@ -52,7 +54,8 @@ export class ProfileComponent implements OnInit {
         this.user = {
             username: user.username,
             email: user.email,
-            profileImage: user.avatar || ''
+            profileImage: user.avatar || '',
+            mobileNumber: user.mobileNumber || ''
         };
 
         this.profileImage = user.avatar || '';
@@ -66,10 +69,15 @@ export class ProfileComponent implements OnInit {
 
   async onUpdateProfile(): Promise<void> {
     if (this.user.username && this.user.email) {
+      if (this.user.mobileNumber && !/^[0-9]{10}$/.test(this.user.mobileNumber)) {
+        this.openModal('Error', 'Please enter a valid 10-digit mobile number.', 'error');
+        return;
+      }
       try {
         await this.authService.updateUserProfile({
           username: this.user.username,
           email: this.user.email,
+          mobileNumber: this.user.mobileNumber,
         });
         this.openModal('Success', 'Profile updated successfully!', 'success');
         this.isEditing = false;

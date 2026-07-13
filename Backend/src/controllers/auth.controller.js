@@ -4,12 +4,13 @@ import generateToken from "../utils/generateToken.js";
 import sendToken from "../utils/sendToken.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { OAuth2Client } from "google-auth-library";
 export const signup = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, mobileNumber } = req.body;
 
     // Validation
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !mobileNumber) {
       return res.status(400).json({
         success: false,
         message: "All fields are required.",
@@ -23,13 +24,22 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Check existing user
+    // Check existing email
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(409).json({
         success: false,
         message: "Email already exists.",
+      });
+    }
+
+    // Check existing mobile number
+    const existingMobile = await User.findOne({ mobileNumber });
+    if (existingMobile) {
+      return res.status(409).json({
+        success: false,
+        message: "Mobile number already exists.",
       });
     }
 
@@ -41,6 +51,7 @@ export const signup = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      mobileNumber
     });
 
     // Generate JWT
@@ -58,7 +69,8 @@ export const signup = async (req, res) => {
             id: user._id,
             username: user.username,
             email: user.email,
-            avatar: user.avatar
+            avatar: user.avatar,
+            mobileNumber: user.mobileNumber
         }
     }
 });
@@ -224,7 +236,7 @@ export const logout = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { username, email, avatar } = req.body;
+    const { username, email, avatar, mobileNumber } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -248,6 +260,19 @@ export const updateProfile = async (req, res) => {
       user.email = email.toLowerCase();
     }
 
+    if (mobileNumber !== undefined) {
+      if (mobileNumber && mobileNumber !== user.mobileNumber) {
+        const existingMobile = await User.findOne({ mobileNumber });
+        if (existingMobile) {
+          return res.status(409).json({
+            success: false,
+            message: "Mobile number already exists.",
+          });
+        }
+      }
+      user.mobileNumber = mobileNumber || undefined;
+    }
+
     if (avatar !== undefined) {
       user.avatar = avatar;
     }
@@ -262,6 +287,7 @@ export const updateProfile = async (req, res) => {
         username: user.username,
         email: user.email,
         avatar: user.avatar,
+        mobileNumber: user.mobileNumber
       },
     });
   } catch (error) {
@@ -269,6 +295,71 @@ export const updateProfile = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+    });
+  }
+};
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleLogin = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Google ID Token is required."
+      });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
+
+    // Find user by googleId or email
+    let user = await User.findOne({ $or: [{ googleId }, { email: email.toLowerCase() }] });
+    if (!user) {
+      // Create new user with placeholder password
+      const dummyPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await User.create({
+        username: name,
+        email: email.toLowerCase(),
+        password: dummyPassword,
+        googleId,
+        avatar: picture || ""
+      });
+    } else if (!user.googleId) {
+      // Link existing local account to Google
+      user.googleId = googleId;
+      if (!user.avatar && picture) user.avatar = picture;
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+    sendToken(res, token);
+
+    return res.status(200).json({
+      success: true,
+      message: "Google Sign-in successful.",
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          mobileNumber: user.mobileNumber
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Google verify error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid Google credential token."
     });
   }
 };

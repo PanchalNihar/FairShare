@@ -8,6 +8,7 @@ export interface UserProfile {
   username: string;
   email: string;
   avatar?: string;
+  mobileNumber?: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -64,7 +65,7 @@ export class AuthService {
   //   }
   // });
 
-  async signUp(email: string, password: string, username: string) {
+  async signUp(email: string, password: string, username: string, mobileNumber: string) {
     const response: any = await firstValueFrom(
       this.http.post(
         `${this.apiUrl}/signup`,
@@ -72,6 +73,32 @@ export class AuthService {
           username,
           email,
           password,
+          mobileNumber,
+        },
+        {
+          withCredentials: true,
+        },
+      ),
+    );
+
+    if (response.data.token) {
+      this.setLocalStorageItem('token', response.data.token);
+    }
+    if (response.data.user) {
+      this.setLocalStorageItem('currentUser', JSON.stringify(response.data.user));
+    }
+
+    this.currentUserSubject.next(response.data.user);
+
+    return response.data.user;
+  }
+
+  async signInWithGoogle(idToken: string) {
+    const response: any = await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/google`,
+        {
+          idToken,
         },
         {
           withCredentials: true,
@@ -182,6 +209,9 @@ export class AuthService {
     const payload: any = {};
     if (updatedData.username) payload.username = updatedData.username;
     if (updatedData.email) payload.email = updatedData.email;
+    if (updatedData.mobileNumber !== undefined) {
+      payload.mobileNumber = updatedData.mobileNumber;
+    }
     if (updatedData.profileImage !== undefined) {
       payload.avatar = updatedData.profileImage;
     } else if (updatedData.avatar !== undefined) {
@@ -204,6 +234,7 @@ export class AuthService {
       username: updatedUser.username,
       email: updatedUser.email,
       avatar: updatedUser.avatar,
+      mobileNumber: updatedUser.mobileNumber,
     };
 
     this.currentUserSubject.next(mappedUser);

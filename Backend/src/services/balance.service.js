@@ -57,28 +57,72 @@ export const calculateBalances = async (groupId) => {
         }
       }
 
-      // Determine who was in the group when the expense occurred
-      const expenseDate = new Date(expense.expenseDate || expense.createdAt);
-      
-      let activeMembers = group.members.filter((member) => {
-        const joinedDate = new Date(member.joinedAt);
-        return joinedDate <= expenseDate;
-      });
+      const splitType = expense.splitType || "equal";
 
-      // Fallback: if no active members found, split among all current members
-      if (activeMembers.length === 0) {
-        activeMembers = group.members;
-      }
-
-      const activeCount = activeMembers.length;
-      if (activeCount > 0) {
-        const share = expense.amount / activeCount;
-        activeMembers.forEach((member) => {
-          const memberId = member.user ? member.user._id.toString() : member._id.toString();
-          if (balances[memberId]) {
-            balances[memberId].owed += share;
-          }
+      if (splitType === "equal" && (!expense.splits || expense.splits.length === 0)) {
+        // Determine who was in the group when the expense occurred
+        const expenseDate = new Date(expense.expenseDate || expense.createdAt);
+        
+        let activeMembers = group.members.filter((member) => {
+          const joinedDate = new Date(member.joinedAt);
+          return joinedDate <= expenseDate;
         });
+
+        // Fallback: if no active members found, split among all current members
+        if (activeMembers.length === 0) {
+          activeMembers = group.members;
+        }
+
+        const activeCount = activeMembers.length;
+        if (activeCount > 0) {
+          const share = expense.amount / activeCount;
+          activeMembers.forEach((member) => {
+            const memberId = member.user ? member.user._id.toString() : member._id.toString();
+            if (balances[memberId]) {
+              balances[memberId].owed += share;
+            }
+          });
+        }
+      } else {
+        // Custom splits specified
+        if (splitType === "equal") {
+          const partakersCount = expense.splits.length;
+          if (partakersCount > 0) {
+            const share = expense.amount / partakersCount;
+            expense.splits.forEach((split) => {
+              const mId = split.memberId.toString();
+              if (balances[mId]) {
+                balances[mId].owed += share;
+              }
+            });
+          }
+        } else if (splitType === "exact") {
+          expense.splits.forEach((split) => {
+            const mId = split.memberId.toString();
+            if (balances[mId]) {
+              balances[mId].owed += split.value;
+            }
+          });
+        } else if (splitType === "percentage") {
+          expense.splits.forEach((split) => {
+            const mId = split.memberId.toString();
+            const share = (expense.amount * split.value) / 100;
+            if (balances[mId]) {
+              balances[mId].owed += share;
+            }
+          });
+        } else if (splitType === "shares") {
+          const totalShares = expense.splits.reduce((sum, s) => sum + s.value, 0);
+          if (totalShares > 0) {
+            expense.splits.forEach((split) => {
+              const mId = split.memberId.toString();
+              const share = (expense.amount * split.value) / totalShares;
+              if (balances[mId]) {
+                balances[mId].owed += share;
+              }
+            });
+          }
+        }
       }
     }
   });

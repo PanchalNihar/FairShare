@@ -148,6 +148,47 @@
             </div>
           </div>
 
+          <!-- Mobile Number Input -->
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <div class="input-wrapper">
+              <svg
+                class="input-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"
+                />
+              </svg>
+              <input
+                type="text"
+                formControlName="mobileNumber"
+                class="form-input"
+                placeholder="Enter 10-digit mobile number"
+                [class.error]="
+                  signupForm.get('mobileNumber')?.invalid &&
+                  signupForm.get('mobileNumber')?.touched
+                "
+              />
+            </div>
+            <div
+              *ngIf="
+                signupForm.get('mobileNumber')?.invalid &&
+                signupForm.get('mobileNumber')?.touched
+              "
+              class="error-message"
+            >
+              <span *ngIf="signupForm.get('mobileNumber')?.errors?.['required']"
+                >Mobile number is required</span
+              >
+              <span *ngIf="signupForm.get('mobileNumber')?.errors?.['pattern']"
+                >Please enter a valid 10-digit number</span
+              >
+            </div>
+          </div>
+
           <!-- Password Input -->
           <div class="form-group">
             <label class="form-label">Password</label>

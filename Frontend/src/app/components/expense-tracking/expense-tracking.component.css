@@ -654,3 +654,238 @@
 .btn-settle:active {
   transform: translateY(0);
 }
+
+/* ============================================
+   SPEND ANALYTICS & TABS STYLING
+   ============================================ */
+.tracking-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--tracking-border);
+  padding-bottom: 8px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tracking-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: var(--tracking-accent);
+}
+
+.tab-btn.active {
+  color: var(--tracking-accent);
+  border-bottom-color: var(--tracking-accent);
+}
+
+.analytics-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doughnut-chart-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.doughnut-chart-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.chart-visual {
+  flex: 0 0 160px;
+  display: flex;
+  justify-content: center;
+}
+
+.doughnut-svg {
+  overflow: visible;
+}
+
+.chart-center-label, .chart-center-val {
+  /* No special rotation needed as text anchors are already aligned */
+}
+
+.chart-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.legend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+:host-context(.dark-theme) .legend-item {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+.legend-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--tracking-text-primary);
+}
+
+.legend-values {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend-amount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tracking-text-primary);
+}
+
+.legend-percentage {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tracking-text-secondary);
+  background-color: var(--tracking-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Trend SVG styling */
+.trend-chart-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.trend-svg {
+  overflow: visible;
+}
+
+.trend-bar {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.trend-bar:hover {
+  opacity: 0.85;
+  filter: brightness(1.1);
+}
+
+/* Top expenses styling */
+.top-expenses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top-expense-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border: 1px solid var(--tracking-border);
+  transition: all 0.2s ease;
+}
+
+:host-context(.dark-theme) .top-expense-row {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.top-expense-row:hover {
+  transform: translateX(4px);
+  border-color: var(--tracking-accent);
+}
+
+.top-exp-rank {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tracking-accent);
+  margin-right: 16px;
+  width: 24px;
+}
+
+.top-exp-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.top-exp-desc {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--tracking-text-primary);
+}
+
+.top-exp-meta {
+  font-size: 12px;
+  color: var(--tracking-text-secondary);
+}
+
+.top-exp-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.top-exp-category {
+  font-size: 10px;
+  font-weight: 600;
+  background-color: var(--tracking-border);
+  color: var(--tracking-text-secondary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.top-exp-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tracking-text-primary);
+}

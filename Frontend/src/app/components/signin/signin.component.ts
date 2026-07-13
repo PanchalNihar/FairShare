@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, AfterViewInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,8 +10,8 @@ import {
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signin',
@@ -25,17 +25,20 @@ import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.com
   templateUrl: './signin.component.html',
   styleUrls: ['./signin.component.css'],
 })
-export class SigninComponent implements OnInit, OnDestroy {
+export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
   loginForm!: FormGroup;
   private authSubscription?: Subscription;
   isModalOpen = false;
   modalTitle = '';
   modalMessage = '';
   modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
+  googleClientId = environment.googleClientId;
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private auth: AuthService,
+    private zone: NgZone,
   ) {}
   openModal(title: string, message: string, type: any = 'info') {
     this.modalTitle = title;
@@ -58,6 +61,32 @@ export class SigninComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.initializeGoogleButton();
+  }
+
+  private initializeGoogleButton(): void {
+    if (typeof window !== 'undefined') {
+      if ((window as any).google) {
+        (window as any).google.accounts.id.initialize({
+          client_id: this.googleClientId,
+          callback: (response: any) => {
+            this.zone.run(() => {
+              this.onGoogleLogin(response.credential);
+            });
+          }
+        });
+        (window as any).google.accounts.id.renderButton(
+          document.getElementById('google-signin-btn'),
+          { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with' }
+        );
+      } else {
+        // script not fully ready, check again shortly
+        setTimeout(() => this.initializeGoogleButton(), 100);
+      }
+    }
+  }
+
   ngOnDestroy(): void {
     // Clean up subscription when component is destroyed
     if (this.authSubscription) {
@@ -78,19 +107,17 @@ export class SigninComponent implements OnInit, OnDestroy {
       }
     }
   }
-  // async onGoogleSignIn() {
-  //   const auth = getAuth();
-  //   const provider = new GoogleAuthProvider();
-  //   try {
-  //     const result = await signInWithPopup(auth, provider);
-  //     const user = result.user;
-  //     console.log('Google Sign-in sucessfull: ', user);
-  //     this.router.navigate(['/about']);
-  //   } catch (err) {
-  //     console.error(err);
-  //     this.openModal('Google Sign-in Failed', 'Failed to sign in with Google. Please try again later.', 'error');
-  //   }
-  // }
+  async onGoogleLogin(idToken: string) {
+    try {
+      const user = await this.auth.signInWithGoogle(idToken);
+      if (user) {
+        this.router.navigate(['/about']);
+      }
+    } catch (err) {
+      console.error(err);
+      this.openModal('Google Sign-in Failed', 'Failed to sign in with Google. Please try again later.', 'error');
+    }
+  }
   private handleError(error: any): void {
     let errorMessage = 'An error occurred during login.';
     if (error.code === 'auth/user-not-found') {

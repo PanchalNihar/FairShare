@@ -50,6 +50,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   quickAddInputText = '';
   isQuickAdding = false;
   expenseDate: string = new Date().toISOString().split('T')[0];
+  splitType: string = 'equal';
+  splitValues: { [memberId: string]: number } = {};
+  splitChecked: { [memberId: string]: boolean } = {};
 
 
 
@@ -173,6 +176,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     if (group) {
       this.selectedGroupMembers = group.members || [];
       this.defaultPayeeToCurrentUser();
+      this.initializeSplits();
     }
 
     await this.expenseService.loadExpenses(
@@ -180,6 +184,136 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     );
 
 }
+
+  getMemberId(member: any): string {
+    if (!member) return '';
+    return member.user?._id || member.user?.id || member.user || member._id || '';
+  }
+
+  getMemberName(member: any): string {
+    if (!member) return '';
+    return member.user?.username || member.username || 'Unknown';
+  }
+
+  initializeSplits() {
+    this.splitValues = {};
+    this.splitChecked = {};
+    const equalShare = this.expenseAmount > 0 && this.selectedGroupMembers.length > 0
+      ? Number((this.expenseAmount / this.selectedGroupMembers.length).toFixed(2))
+      : 0;
+    
+    this.selectedGroupMembers.forEach((member) => {
+      const mId = this.getMemberId(member);
+      this.splitChecked[mId] = true;
+      if (this.splitType === 'shares') {
+        this.splitValues[mId] = 1;
+      } else if (this.splitType === 'percentage') {
+        this.splitValues[mId] = this.selectedGroupMembers.length > 0 
+          ? Number((100 / this.selectedGroupMembers.length).toFixed(2)) 
+          : 0;
+      } else if (this.splitType === 'exact') {
+        this.splitValues[mId] = equalShare;
+      } else {
+        this.splitValues[mId] = 0;
+      }
+    });
+  }
+
+  onSplitTypeChange() {
+    this.initializeSplits();
+  }
+
+  onAmountChange() {
+    if (this.splitType === 'exact') {
+      const equalShare = this.expenseAmount > 0 && this.selectedGroupMembers.length > 0
+        ? Number((this.expenseAmount / this.selectedGroupMembers.length).toFixed(2))
+        : 0;
+      this.selectedGroupMembers.forEach((member) => {
+        const mId = this.getMemberId(member);
+        this.splitValues[mId] = equalShare;
+      });
+    }
+  }
+
+  getSplitsTotal(): number {
+    let total = 0;
+    this.selectedGroupMembers.forEach((member) => {
+      const mId = this.getMemberId(member);
+      if (this.splitChecked[mId]) {
+        total += Number(this.splitValues[mId] || 0);
+      }
+    });
+    return Number(total.toFixed(2));
+  }
+
+  getCheckedCount(): number {
+    let count = 0;
+    this.selectedGroupMembers.forEach((member) => {
+      const mId = this.getMemberId(member);
+      if (this.splitChecked[mId]) {
+        count++;
+      }
+    });
+    return count;
+  }
+
+  isSplitValid(): boolean {
+    if (this.splitType === 'equal') {
+      return this.getCheckedCount() > 0;
+    }
+    if (this.splitType === 'exact') {
+      const totalSplits = this.getSplitsTotal();
+      return Math.abs(totalSplits - this.expenseAmount) <= 0.05;
+    }
+    if (this.splitType === 'percentage') {
+      const totalPct = this.getSplitsTotal();
+      return Math.abs(totalPct - 100) <= 0.05;
+    }
+    if (this.splitType === 'shares') {
+      const totalShares = this.getSplitsTotal();
+      return totalShares > 0;
+    }
+    return true;
+  }
+
+  getSplitValidationMessage(): string {
+    if (this.splitType === 'equal') {
+      const count = this.getCheckedCount();
+      if (count === 0) {
+        return 'Please select at least one member to split the expense.';
+      }
+      const share = count > 0 ? (this.expenseAmount / count).toFixed(2) : 0;
+      return `Splitting equally among ${count} members (₹${share} each).`;
+    }
+    if (this.splitType === 'exact') {
+      const totalSplits = this.getSplitsTotal();
+      const diff = this.expenseAmount - totalSplits;
+      if (Math.abs(diff) <= 0.05) {
+        return 'Exact amounts match total expense amount!';
+      }
+      return diff > 0 
+        ? `Remaining to assign: ₹${diff.toFixed(2)}` 
+        : `Over-assigned by: ₹${Math.abs(diff).toFixed(2)}`;
+    }
+    if (this.splitType === 'percentage') {
+      const totalPct = this.getSplitsTotal();
+      const diff = 100 - totalPct;
+      if (Math.abs(diff) <= 0.05) {
+        return 'Percentages match 100%!';
+      }
+      return diff > 0 
+        ? `Remaining percentage: ${diff.toFixed(1)}%` 
+        : `Over-assigned percentage: ${Math.abs(diff).toFixed(1)}%`;
+    }
+    if (this.splitType === 'shares') {
+      const totalShares = this.getSplitsTotal();
+      if (totalShares <= 0) {
+        return 'Total shares must be greater than zero.';
+      }
+      return `Total shares: ${totalShares}. Proportional split will be calculated automatically.`;
+    }
+    return '';
+  }
 
   getMemberCount(): number {
     return this.selectedGroupMembers.length || 1;
@@ -395,7 +529,29 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         return;
     }
 
+    if (!this.isSplitValid()) {
+        this.openModal(
+            'Error',
+            'Invalid splits: ' + this.getSplitValidationMessage(),
+            'error'
+        );
+        return;
+    }
+
     try {
+        const splitsPayload: any[] = [];
+        this.selectedGroupMembers.forEach((member) => {
+          const mId = this.getMemberId(member);
+          if (this.splitType === 'equal') {
+            if (this.splitChecked[mId]) {
+              splitsPayload.push({ memberId: mId, value: 1 });
+            }
+          } else {
+            if (this.splitChecked[mId]) {
+              splitsPayload.push({ memberId: mId, value: Number(this.splitValues[mId] || 0) });
+            }
+          }
+        });
 
         if (this.isEditing) {
             await this.expenseService.updateExpense(
@@ -405,7 +561,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 this.expenseDescription,
                 this.expenseCategory,
                 this.selectedPayeeId,
-                this.expenseDate
+                this.expenseDate,
+                this.splitType,
+                splitsPayload
             );
 
             this.openModal(
@@ -420,7 +578,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 this.expenseDescription,
                 this.expenseCategory,
                 this.selectedPayeeId || undefined,
-                this.expenseDate
+                this.expenseDate,
+                this.splitType,
+                splitsPayload
             );
 
             this.openModal(
@@ -455,6 +615,22 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expenseCategory = expense.category;
     this.selectedPayeeId = expense.paidBy._id || (expense.paidBy as any);
     this.expenseDate = new Date(expense.expenseDate || expense.createdAt || new Date().toISOString()).toISOString().split('T')[0];
+    
+    // Load custom splits if they exist
+    this.splitType = expense.splitType || 'equal';
+    this.initializeSplits();
+    
+    if (expense.splits && expense.splits.length > 0) {
+      // First uncheck everyone, then populate from loaded splits
+      this.selectedGroupMembers.forEach((member) => {
+        this.splitChecked[this.getMemberId(member)] = false;
+      });
+      expense.splits.forEach((split) => {
+        const mId = split.memberId;
+        this.splitChecked[mId] = true;
+        this.splitValues[mId] = split.value;
+      });
+    }
   }
 
   cancelEdit() {
@@ -503,6 +679,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.expenseDate = new Date().toISOString().split('T')[0];
 
     this.defaultPayeeToCurrentUser();
+
+    this.splitType = 'equal';
+    this.initializeSplits();
 
 }
   closeModal() {

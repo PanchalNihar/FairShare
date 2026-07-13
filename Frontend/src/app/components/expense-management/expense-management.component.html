@@ -107,6 +107,7 @@
                 class="form-input"
                 [(ngModel)]="expenseAmount"
                 name="amount"
+                (input)="onAmountChange()"
                 required
               />
             </div>
@@ -133,10 +134,67 @@
                 required
               >
                 <option value="">Select Member</option>
-                <option *ngFor="let member of selectedGroupMembers" [value]="member.user._id || member.user.id || member.user">
-                  {{ member.user.username }}
+                <option *ngFor="let member of selectedGroupMembers" [value]="getMemberId(member)">
+                  {{ getMemberName(member) }}
                 </option>
               </select>
+            </div>
+
+            <!-- Split Method Selector -->
+            <div class="form-group">
+              <label>Split Method</label>
+              <select
+                class="form-select"
+                [(ngModel)]="splitType"
+                name="splitType"
+                (change)="onSplitTypeChange()"
+              >
+                <option value="equal">Equally</option>
+                <option value="exact">Exact Amounts</option>
+                <option value="percentage">Percentages</option>
+                <option value="shares">Shares</option>
+              </select>
+            </div>
+
+            <!-- Splits Config Details -->
+            <div class="form-group splits-config-container">
+              <label class="splits-header-label">Split Configuration</label>
+              
+              <div class="split-members-list">
+                <div *ngFor="let member of selectedGroupMembers; let idx = index" class="split-member-row">
+                  <div class="split-member-info">
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="splitChecked[getMemberId(member)]" 
+                      name="checked_{{idx}}"
+                      class="split-checkbox"
+                    />
+                    <span class="split-member-name" [class.inactive]="!splitChecked[getMemberId(member)]">
+                      {{ getMemberName(member) }}
+                    </span>
+                  </div>
+                  
+                  <div class="split-input-wrapper" *ngIf="splitType !== 'equal'">
+                    <span class="split-unit-prefix" *ngIf="splitType === 'exact'">₹</span>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="splitValues[getMemberId(member)]" 
+                      name="val_{{idx}}"
+                      class="form-input split-number-input"
+                      [disabled]="!splitChecked[getMemberId(member)]"
+                      placeholder="0"
+                      min="0"
+                    />
+                    <span class="split-unit-suffix" *ngIf="splitType === 'percentage'">%</span>
+                    <span class="split-unit-suffix" *ngIf="splitType === 'shares'">shares</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="split-validation-alert" [class.alert-valid]="isSplitValid()" [class.alert-invalid]="!isSplitValid()">
+                <span class="validation-icon">{{ isSplitValid() ? '✅' : '⚠️' }}</span>
+                <span class="validation-msg">{{ getSplitValidationMessage() }}</span>
+              </div>
             </div>
 
             <div class="form-group">
@@ -171,7 +229,7 @@
             </div>
 
             <div style="display: flex; gap: 12px;">
-              <button class="btn btn-primary" type="submit">{{ isEditing ? 'Update Expense' : 'Add Expense' }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="!isSplitValid()">{{ isEditing ? 'Update Expense' : 'Add Expense' }}</button>
               <button *ngIf="isEditing" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
             </div>
           </form>

@@ -18,7 +18,9 @@ export const createExpense = async (req, res) => {
             expenseDate,
             paidBy,
             paidTo,
-            isSettlement
+            isSettlement,
+            splitType,
+            splits
         } = req.body;
 
         if (!groupId || !amount || !description) {
@@ -81,6 +83,36 @@ export const createExpense = async (req, res) => {
             }
         }
 
+        // Validate splits if provided
+        if (splits && Array.isArray(splits) && splits.length > 0) {
+            const finalSplitType = splitType || "equal";
+            if (finalSplitType === "exact") {
+                const total = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(total - amount) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of exact split amounts must equal the total expense amount."
+                    });
+                }
+            } else if (finalSplitType === "percentage") {
+                const totalPct = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(totalPct - 100) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split percentages must equal 100%."
+                    });
+                }
+            } else if (finalSplitType === "shares") {
+                const totalShares = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (totalShares <= 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split shares must be greater than zero."
+                    });
+                }
+            }
+        }
+
         // Create expense
         const expense = await Expense.create({
 
@@ -98,7 +130,11 @@ export const createExpense = async (req, res) => {
 
             paidTo: isSettlement ? paidTo : undefined,
 
-            isSettlement: isSettlement || false
+            isSettlement: isSettlement || false,
+
+            splitType: splitType || "equal",
+
+            splits: splits || []
 
         });
 
@@ -216,7 +252,7 @@ export const getGroupExpenses = async (req, res) => {
 export const updateExpense = async (req, res) => {
     try {
         const { expenseId } = req.params;
-        const { amount, description, category, paidBy, expenseDate } = req.body;
+        const { amount, description, category, paidBy, expenseDate, splitType, splits } = req.body;
 
         const expense = await Expense.findById(expenseId);
         if (!expense) {
@@ -260,10 +296,44 @@ export const updateExpense = async (req, res) => {
             expense.paidBy = paidBy;
         }
 
+        const finalAmount = amount !== undefined ? amount : expense.amount;
+        const finalSplitType = splitType !== undefined ? splitType : expense.splitType;
+        const finalSplits = splits !== undefined ? splits : expense.splits;
+
+        if (finalSplits && finalSplits.length > 0) {
+            if (finalSplitType === "exact") {
+                const total = finalSplits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(total - finalAmount) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of exact split amounts must equal the total expense amount."
+                    });
+                }
+            } else if (finalSplitType === "percentage") {
+                const totalPct = finalSplits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(totalPct - 100) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split percentages must equal 100%."
+                    });
+                }
+            } else if (finalSplitType === "shares") {
+                const totalShares = finalSplits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (totalShares <= 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split shares must be greater than zero."
+                    });
+                }
+            }
+        }
+
         if (amount !== undefined) expense.amount = amount;
         if (description !== undefined) expense.description = description;
         if (category !== undefined) expense.category = category;
         if (expenseDate !== undefined) expense.expenseDate = expenseDate;
+        if (splitType !== undefined) expense.splitType = splitType;
+        if (splits !== undefined) expense.splits = splits;
 
         await expense.save();
 

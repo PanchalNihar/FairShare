@@ -44,7 +44,26 @@ const expenseSchema = new mongoose.Schema(
         isSettlement: {
             type: Boolean,
             default: false
-        }
+        },
+
+        splitType: {
+            type: String,
+            enum: ["equal", "exact", "percentage", "shares"],
+            default: "equal"
+        },
+
+        splits: [
+            {
+                memberId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true
+                },
+                value: {
+                    type: Number,
+                    required: true
+                }
+            }
+        ]
     },
     {
         timestamps: true

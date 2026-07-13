@@ -45,14 +45,15 @@ export class SignupComponent implements OnInit {
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      mobileNumber: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
     });
   }
 
   async onRegister() {
     if (this.signupForm.valid) {
-      const { email, password, username } = this.signupForm.value;
+      const { email, password, username, mobileNumber } = this.signupForm.value;
 
-      let result = await this.auth.signUp(email, password, username);
+      let result = await this.auth.signUp(email, password, username, mobileNumber);
       if (result) {
         localStorage.setItem('signupResult', JSON.stringify(result));
         this.openModal('Success', 'Successfully registered!', 'success');
