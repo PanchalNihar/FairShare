@@ -53,12 +53,9 @@ export class JoingroupComponent implements OnInit {
       await this.groupService.joinGroup(this.sharingCode);
       this.success = true;
       this.isLoading = false;
-    } catch (error) {
+    } catch (error: any) {
       this.isLoading = false;
-      this.error =
-        error instanceof Error
-          ? error.message
-          : 'Failed to join group. Please try again.';
+      this.error = error.error?.message || error.message || 'Failed to join group. Please try again.';
       console.error('Join group error:', error);
     }
   }
