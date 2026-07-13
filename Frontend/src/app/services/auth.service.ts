@@ -21,6 +21,25 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
   authLoaded$ = this.authLoadedSubject.asObservable();
 
+  private getLocalStorageItem(key: string): string | null {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+    return null;
+  }
+
+  private setLocalStorageItem(key: string, value: string): void {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  private removeLocalStorageItem(key: string): void {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+  }
+
   constructor(private http: HttpClient) {
     this.loadCurrentUser();
   }
@@ -61,10 +80,10 @@ export class AuthService {
     );
 
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      this.setLocalStorageItem('token', response.data.token);
     }
     if (response.data.user) {
-      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+      this.setLocalStorageItem('currentUser', JSON.stringify(response.data.user));
     }
 
     this.currentUserSubject.next(response.data.user);
@@ -87,10 +106,10 @@ export class AuthService {
     );
 
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      this.setLocalStorageItem('token', response.data.token);
     }
     if (response.data.user) {
-      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+      this.setLocalStorageItem('currentUser', JSON.stringify(response.data.user));
     }
 
     this.currentUserSubject.next(response.data.user);
@@ -113,8 +132,8 @@ export class AuthService {
       console.error('Logout request failed', e);
     }
 
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+    this.removeLocalStorageItem('token');
+    this.removeLocalStorageItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
@@ -128,12 +147,12 @@ export class AuthService {
 
       if (response.data) {
         this.currentUserSubject.next(response.data);
-        localStorage.setItem('currentUser', JSON.stringify(response.data));
+        this.setLocalStorageItem('currentUser', JSON.stringify(response.data));
       }
     } catch {
       // Fallback to localstorage user if token exists
       const localUser = this.getCurrentUser();
-      const token = localStorage.getItem('token');
+      const token = this.getLocalStorageItem('token');
       if (localUser && token) {
         this.currentUserSubject.next(localUser);
       } else {
@@ -145,7 +164,7 @@ export class AuthService {
   }
 
   getCurrentUser(): UserProfile | null {
-    const currentUser = localStorage.getItem('currentUser');
+    const currentUser = this.getLocalStorageItem('currentUser');
     return currentUser ? JSON.parse(currentUser) : null;
   }
 

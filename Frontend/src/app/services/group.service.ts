@@ -135,7 +135,7 @@ export class GroupService {
     }
 
     return QRCode.toDataURL(
-      `${window.location.origin}/join?code=${group.inviteCode}`,
+      `${window.location.origin}/joingroup?code=${group.inviteCode}`,
     );
   }
 
