@@ -60,6 +60,13 @@ export class AuthService {
       ),
     );
 
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
+    if (response.data.user) {
+      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+    }
+
     this.currentUserSubject.next(response.data.user);
 
     return response.data.user;
@@ -79,24 +86,38 @@ export class AuthService {
       ),
     );
 
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
+    if (response.data.user) {
+      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+    }
+
     this.currentUserSubject.next(response.data.user);
 
     return response.data.user;
   }
 
   async signOut() {
-    await firstValueFrom(
-      this.http.post(
-        `${this.apiUrl}/logout`,
-        {},
-        {
-          withCredentials: true,
-        },
-      ),
-    );
+    try {
+      await firstValueFrom(
+        this.http.post(
+          `${this.apiUrl}/logout`,
+          {},
+          {
+            withCredentials: true,
+          },
+        ),
+      );
+    } catch (e) {
+      console.error('Logout request failed', e);
+    }
 
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
+
   async loadCurrentUser() {
     try {
       const response: any = await firstValueFrom(
@@ -105,9 +126,19 @@ export class AuthService {
         }),
       );
 
-      this.currentUserSubject.next(response.data);
+      if (response.data) {
+        this.currentUserSubject.next(response.data);
+        localStorage.setItem('currentUser', JSON.stringify(response.data));
+      }
     } catch {
-      this.currentUserSubject.next(null);
+      // Fallback to localstorage user if token exists
+      const localUser = this.getCurrentUser();
+      const token = localStorage.getItem('token');
+      if (localUser && token) {
+        this.currentUserSubject.next(localUser);
+      } else {
+        this.currentUserSubject.next(null);
+      }
     } finally {
       this.authLoadedSubject.next(true);
     }

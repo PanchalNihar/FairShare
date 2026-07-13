@@ -53,6 +53,7 @@ export const signup = async (req, res) => {
     success: true,
     message: "Account created successfully.",
     data: {
+        token,
         user: {
             id: user._id,
             username: user.username,
@@ -108,6 +109,7 @@ export const login = async (req, res) => {
       success: true,
       message: "Login successful.",
       data: {
+        token,
         user: {
           id: user._id,
           username: user.username,

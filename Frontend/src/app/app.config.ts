@@ -6,9 +6,15 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
 
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const headers: any = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   const cloned = req.clone({
-    withCredentials: true
+    withCredentials: true,
+    setHeaders: headers
   });
 
   return next(cloned);
