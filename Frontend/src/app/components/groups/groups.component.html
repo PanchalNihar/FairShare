@@ -2,298 +2,147 @@
 
 <div class="groups-wrapper">
   <div class="groups-container">
+
     <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">Manage Groups</h1>
-        <p class="page-subtitle">
-          Create, edit, and organize your expense groups
-        </p>
+    <div class="groups-page-header">
+      <div>
+        <h1 class="page-title">Groups</h1>
+        <p class="page-subtitle">Create and manage your expense-sharing groups.</p>
       </div>
-      <button class="btn btn-secondary" (click)="backtoDashboard()">
-        <svg
-          class="btn-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      <button class="btn btn-back" (click)="backtoDashboard()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+          <path d="M19 12H5"></path>
+          <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
         Dashboard
       </button>
     </div>
 
-    <div class="groups-layout">
-      <!-- Left Column: Create/Edit Form -->
-      <div class="form-card">
-        <div class="card-header">
-          <svg
-            class="header-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path
-              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-            />
-          </svg>
-          <h2 class="card-title">Create New Group</h2>
-        </div>
+    <!-- Create Group Section -->
+    <div class="settings-card">
+      <div class="settings-section">
+        <h2 class="section-heading">Create New Group</h2>
+        <p class="section-desc">Set up a new group to start splitting expenses with friends.</p>
 
-        <div class="card-body">
-          <!-- Group Name -->
-          <div class="form-group">
-            <label class="form-label">Group Name</label>
-            <input
-              type="text"
-              class="form-input"
-              [(ngModel)]="groupName"
-              placeholder="Enter group name"
-            />
+        <div class="create-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Group Name</label>
+              <input type="text" class="form-input" [(ngModel)]="groupName" placeholder="e.g. Trip to Goa" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Base Currency</label>
+              <select class="form-input form-select" [(ngModel)]="selectedCurrency">
+                <option value="INR">INR (₹)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="AUD">AUD ($)</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Description -->
           <div class="form-group">
             <label class="form-label">Description</label>
-            <textarea
-              class="form-input"
-              rows="3"
-              [(ngModel)]="groupDescription"
-              placeholder="Enter description"
-            ></textarea>
+            <textarea class="form-input" rows="2" [(ngModel)]="groupDescription" placeholder="Optional description"></textarea>
           </div>
 
-          <!-- Currency -->
-          <div class="form-group">
-            <label class="form-label">Base Currency</label>
-            <select class="form-select" [(ngModel)]="selectedCurrency" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background-color: var(--input-background); color: var(--text-color);">
-              <option value="INR">INR (₹)</option>
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-              <option value="CAD">CAD ($)</option>
-              <option value="AUD">AUD ($)</option>
-            </select>
-          </div>
-
-          <!-- Add Members -->
           <div class="form-group">
             <label class="form-label">Add Members</label>
-
-            <input
-              class="form-input"
-              placeholder="Search by username or email"
-              [(ngModel)]="newMember"
-              (input)="searchUser()"
-            />
-
-            <div
-              *ngIf="searchResults.length"
-              style="
-                margin-top: 10px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                max-height: 180px;
-                overflow: auto;
-                background-color: #ffffff;
-              "
-            >
-              <div
-                *ngFor="let user of searchResults"
-                (click)="selectUser(user)"
-                style="
-                  padding: 12px;
-                  cursor: pointer;
-                  border-bottom: 1px solid #eee;
-                "
-              >
-                <strong *ngIf="user.isNew">➕ Add "{{ user.username }}" as a new member</strong>
-                <strong *ngIf="!user.isNew">{{ user.username }}</strong>
+            <input class="form-input" placeholder="Search by username" [(ngModel)]="newMember" (input)="searchUser()" />
+            <div *ngIf="searchResults.length" class="search-dropdown">
+              <div *ngFor="let user of searchResults" class="search-item" (click)="selectUser(user)">
+                <span *ngIf="user.isNew">Add "{{ user.username }}" as new member</span>
+                <span *ngIf="!user.isNew">{{ user.username }}</span>
               </div>
             </div>
           </div>
 
           <!-- Selected Members -->
-
-          <div class="members-section" *ngIf="selectedMembers.length">
-            <label class="form-label"> Selected Members </label>
-
-            <div class="member-item" *ngFor="let member of selectedMembers">
-              <span class="member-name">
-                {{ member.username }}
-
-                ({{ member.email }})
-              </span>
-
-              <button
-                class="btn-remove-member"
-                (click)="removeSelectedUser(member)"
-              >
-                ✖
+          <div *ngIf="selectedMembers.length" class="selected-members">
+            <div class="member-chip" *ngFor="let member of selectedMembers">
+              <span>{{ member.username }}</span>
+              <button class="chip-remove" (click)="removeSelectedUser(member)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
           </div>
 
-          <div class="form-actions">
-            <button class="btn btn-primary" (click)="addGroup()">
-              Create Group
-            </button>
+          <div class="form-footer">
+            <button class="btn btn-primary" (click)="addGroup()">Create Group</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Right Column: Groups List -->
-      <div class="groups-list-card">
-        <div class="card-header">
-          <svg
-            class="header-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2l-5.5 9h11z" />
-            <circle cx="17.5" cy="17.5" r="4.5" />
-            <path d="M3 13.5h8v8H3z" />
-          </svg>
-          <h2 class="card-title">Your Groups ({{ groups.length }})</h2>
+    <!-- Your Groups Section -->
+    <div class="settings-card">
+      <div class="settings-section">
+        <div class="section-header-row">
+          <h2 class="section-heading">Your Groups</h2>
+          <span class="group-count">{{ groups.length }}</span>
         </div>
 
-        <div class="card-body">
-          <!-- Empty State -->
-          <div *ngIf="groups.length === 0" class="empty-state">
-            <svg
-              class="empty-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-              />
-            </svg>
-            <p class="empty-text">No groups yet</p>
-            <p class="empty-subtext">Create your first group to get started</p>
-          </div>
+        <!-- Empty State -->
+        <div *ngIf="groups.length === 0" class="empty-state">
+          <p class="empty-text">No groups yet</p>
+          <p class="empty-subtext">Create your first group above to get started.</p>
+        </div>
 
-          <!-- Groups Grid -->
-          <div *ngIf="groups.length > 0" class="groups-grid">
-            <div *ngFor="let group of groups" class="group-card">
-              <div class="group-header">
-                <div class="group-info">
-                  <h3 class="group-name">{{ group.name }}</h3>
-                  <p class="invite-code">
-                    Invite Code:
-                    <strong>{{ group.inviteCode }}</strong>
-                  </p>
-                  <p class="group-members">
-                    {{ group.members?.length || 0 }} members
-                  </p>
-                </div>
-                <div class="group-actions">
-                  <button
-                    class="action-btn"
-                    (click)="showQrCode(group)"
-                    title="Share QR Code"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    class="action-btn"
-                    (click)="copyInviteCode(group.inviteCode)"
-                    title="Copy Invite Code"
-                  >
-                    📋
-                  </button>
-                  <!-- <button
-                    class="action-btn"
-                    (click)="selectGroup(group)"
-                    title="Edit Group"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                      />
-                    </svg>
-                  </button> -->
-                  <button
-                    *ngIf="isOwner(group)"
-                    class="action-btn delete-btn"
-                    (click)="removeGroup(group)"
-                    title="Delete Group"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                      />
-                    </svg>
-                  </button>
+        <!-- Group List -->
+        <div *ngIf="groups.length > 0" class="group-list">
+          <div *ngFor="let group of groups" class="group-row">
+            <div class="group-main">
+              <div class="group-identity">
+                <h3 class="group-name">{{ group.name }}</h3>
+                <div class="group-meta">
+                  <span class="meta-badge">{{ group.members?.length || 0 }} members</span>
+                  <span class="meta-code" (click)="copyInviteCode(group.inviteCode)" title="Click to copy">{{ group.inviteCode }}</span>
                 </div>
               </div>
 
-              <div
-                class="group-members-list"
-                *ngIf="group.members && group.members.length > 0"
-              >
-                <span
-                  *ngFor="let member of group.members.slice(0, 3)"
-                  class="member-badge"
-                >
+              <div class="group-members-inline" *ngIf="group.members && group.members.length > 0">
+                <span *ngFor="let member of group.members.slice(0, 3)" class="member-pill">
                   {{ member.user.username }}
                 </span>
-                <span
-                  *ngIf="group.members.length > 3"
-                  class="member-badge more-badge"
-                >
+                <span *ngIf="group.members.length > 3" class="member-pill more">
                   +{{ group.members.length - 3 }}
                 </span>
-                <div style="margin-top: 15px">
-                  <button
-                    class="btn btn-secondary"
-                    (click)="manageGroup(group)"
-                  >
-                    Manage Members
-                  </button>
-                </div>
               </div>
+            </div>
+
+            <div class="group-actions">
+              <button class="btn btn-sm" (click)="manageGroup(group)">Manage</button>
+              <button class="btn btn-sm btn-outline" (click)="showQrCode(group)" title="Share QR">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;">
+                  <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/>
+                </svg>
+              </button>
+              <button *ngIf="isOwner(group)" class="btn btn-sm btn-danger-outline" (click)="removeGroup(group)" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
 <!-- QR Code Modal -->
-<div *ngIf="qrCodeurl" class="qr-modal" (click)="closeQrCode()">
-  <div class="qr-modal-content" (click)="$event.stopPropagation()">
+<div *ngIf="qrCodeurl" class="modal-overlay" (click)="closeQrCode()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3 class="modal-title">Share Group</h3>
-      <button class="modal-close" (click)="closeQrCode()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path
-            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-          />
-        </svg>
+      <button class="modal-close-btn" (click)="closeQrCode()">
+        <span style="font-size:16px;font-weight:600;line-height:1;color:var(--g-text-secondary);">&#x2715;</span>
       </button>
     </div>
     <div class="modal-body">
@@ -302,101 +151,45 @@
     </div>
   </div>
 </div>
-<div
-  class="qr-modal"
-  *ngIf="selectedGroupForManage"
->
 
-  <div
-    class="qr-modal-content"
-  >
-
+<!-- Manage Members Modal -->
+<div class="modal-overlay" *ngIf="selectedGroupForManage" (click)="selectedGroupForManage=null">
+  <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
-
-      <h3>
-
-        {{selectedGroupForManage.name}}
-
-      </h3>
-
-      <button
-        class="modal-close"
-        (click)="selectedGroupForManage=null"
-      >
-        ✖
+      <h3 class="modal-title">{{ selectedGroupForManage.name }}</h3>
+      <button class="modal-close-btn" (click)="selectedGroupForManage=null">
+        <span style="font-size:16px;font-weight:600;line-height:1;color:var(--g-text-secondary);">&#x2715;</span>
       </button>
-
     </div>
+    <div class="modal-body" style="text-align:left;">
+      <input class="form-input" placeholder="Search member..." [(ngModel)]="newMember" (input)="searchUser()">
 
-    <div class="modal-body">
-
-      <input
-        class="form-input"
-        placeholder="Search member..."
-        [(ngModel)]="newMember"
-        (input)="searchUser()"
-      >
-
-      <div
-        *ngFor="let user of searchResults"
-        class="member-item"
-      >
-
-        <span class="member-name">
-
-          <span *ngIf="user.isNew">➕ Add "{{user.username}}"</span>
-          <span *ngIf="!user.isNew">{{user.username}}</span>
-
+      <div *ngFor="let user of searchResults" class="manage-member-row">
+        <span class="manage-member-name">
+          <span *ngIf="user.isNew">Add "{{ user.username }}"</span>
+          <span *ngIf="!user.isNew">{{ user.username }}</span>
         </span>
-
-        <button
-          class="btn btn-primary"
-          (click)="addMemberToGroup(user)"
-        >
-          Add
-        </button>
-
+        <button class="btn btn-sm btn-primary" (click)="addMemberToGroup(user)">Add</button>
       </div>
 
-      <hr>
+      <hr class="modal-divider">
 
-      <div
-        *ngFor="let member of selectedGroupForManage.members"
-        class="member-item"
-      >
-
-        <span class="member-name">
-
-          {{member.user.username}}
-
-          <span *ngIf="member.role=='owner'">
-            👑
-          </span>
-
+      <div *ngFor="let member of selectedGroupForManage.members" class="manage-member-row">
+        <span class="manage-member-name">
+          {{ member.user.username }}
+          <span *ngIf="member.role=='owner'" class="owner-badge">Owner</span>
         </span>
-
-        <button
-          *ngIf="member.role!='owner'"
-          class="btn-remove-member"
-          (click)="removeMember(selectedGroupForManage,member)"
-        >
-          ✖
+        <button *ngIf="member.role!='owner'" class="chip-remove" (click)="removeMember(selectedGroupForManage,member)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--g-danger);">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
-
       </div>
-
     </div>
-
   </div>
-
 </div>
-<app-custom-modal
-  [isOpen]="isModalOpen"
-  [title]="modalTitle"
-  [message]="modalMessage"
-  [type]="modalType"
-  [showCancel]="isConfirmMode"
-  (confirm)="onModalConfirm()"
-  (cancel)="closeModal()"
->
+
+<app-custom-modal [isOpen]="isModalOpen" [title]="modalTitle" [message]="modalMessage" [type]="modalType"
+  [showCancel]="isConfirmMode" (confirm)="onModalConfirm()" (cancel)="closeModal()">
 </app-custom-modal>

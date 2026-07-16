@@ -1,67 +1,81 @@
 <app-navbar></app-navbar>
 
-<div class="tracking-wrapper">
-  <div class="tracking-container">
-    <!-- Header -->
+<div class="et-wrapper">
+  <div class="et-container">
 
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">Expense Tracking</h1>
-
-        <p class="page-subtitle">
-          View balances and settlements for your groups
-        </p>
+    <!-- Page Header -->
+    <div class="et-page-header">
+      <div>
+        <h1 class="page-title">Tracking</h1>
+        <p class="page-subtitle">View balances, suggested settlements, and spend analytics.</p>
       </div>
-
-      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <button *ngIf="selectedGroupId && !loading" class="btn btn-pdf" (click)="exportToPDF()" style="background: linear-gradient(135deg, #ff4e50, #f9d423); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+      <div class="header-actions">
+        <button *ngIf="selectedGroupId && !loading" class="btn btn-outline" (click)="exportToPDF()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
           PDF Report
         </button>
-        <button *ngIf="selectedGroupId && !loading" class="btn btn-csv" (click)="exportToCSV()" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+        <button *ngIf="selectedGroupId && !loading" class="btn btn-outline" (click)="exportToCSV()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
           CSV Export
         </button>
-        <button class="btn btn-secondary" (click)="backtoDashboard()">
+        <button class="btn btn-back" (click)="backtoDashboard()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+            <path d="M19 12H5"></path>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
           Dashboard
         </button>
       </div>
     </div>
 
-    <!-- Group Selection -->
-
-    <div class="selection-card">
-      <div class="card-header">
-        <h2 class="card-title">Select Group</h2>
-      </div>
-
-      <div class="card-body">
-        <select
-          class="form-select"
-          [(ngModel)]="selectedGroupId"
-          (change)="onGroupSelect()"
-        >
+    <!-- Group Selector Card -->
+    <div class="settings-card">
+      <div class="settings-section">
+        <h2 class="section-heading">Select Group</h2>
+        <p class="section-desc">Choose a group to calculate balances and suggest splits.</p>
+        <select class="form-input form-select" [(ngModel)]="selectedGroupId" (change)="onGroupSelect()">
           <option value="">Select Group</option>
-
-          <option *ngFor="let group of availableGroups" [value]="group._id">
-            {{ group.name }}
-          </option>
+          <option *ngFor="let group of availableGroups" [value]="group._id">{{ group.name }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Loading -->
+    <!-- Loading Indicator -->
+    <div *ngIf="loading" class="settings-card">
+      <div class="settings-section empty-state">
+        <div class="dot-pulse"></div>
+        <p class="empty-subtext" style="margin-top: 12px;">Calculating balance details...</p>
+      </div>
+    </div>
 
-    <div *ngIf="loading" class="no-selection-card">Loading...</div>
+    <!-- No Group Selected -->
+    <div *ngIf="!selectedGroupId && !loading" class="settings-card">
+      <div class="settings-section empty-state">
+        <p class="empty-text">No group selected</p>
+        <p class="empty-subtext">Please select a group above to view balances and analytics.</p>
+      </div>
+    </div>
 
-    <!-- Content -->
+    <!-- Main Content Grid -->
+    <ng-container *ngIf="selectedGroupId && !loading">
 
-    <div *ngIf="selectedGroupId && !loading" class="tracking-content">
-      <!-- Stats -->
-
+      <!-- Group Stats Summary Grid -->
       <div class="stats-grid">
-        <!-- Total Expense -->
-        <div class="stat-card total-card">
+        <div class="stat-card">
           <div class="stat-icon-wrapper">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="1" x2="12" y2="23"></line>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
@@ -72,10 +86,9 @@
           </div>
         </div>
 
-        <!-- Per Person -->
-        <div class="stat-card transactions-card">
+        <div class="stat-card">
           <div class="stat-icon-wrapper">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M12 8v4l3 3"></path>
             </svg>
@@ -86,10 +99,9 @@
           </div>
         </div>
 
-        <!-- Members -->
-        <div class="stat-card members-card">
+        <div class="stat-card">
           <div class="stat-icon-wrapper">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -103,159 +115,113 @@
         </div>
       </div>
 
-      <!-- Tab Toggles -->
-      <div class="tracking-tabs">
-        <button 
-          class="tab-btn" 
-          [class.active]="activeTab === 'balances'" 
-          (click)="activeTab = 'balances'"
-        >
-          Balances & Settlements
-        </button>
-        <button 
-          class="tab-btn" 
-          [class.active]="activeTab === 'analytics'" 
-          (click)="activeTab = 'analytics'"
-        >
-          Spend Analytics
-        </button>
-      </div>
-
-      <!-- Balances & Settlements Tab -->
-      <div class="tracking-layout" *ngIf="activeTab === 'balances'">
-        <!-- Member Balances -->
-        <div class="spending-card">
-          <div class="card-header">
-            <h2 class="card-title">Member Balances</h2>
+      <!-- Tab Switcher -->
+      <div class="settings-card">
+        <div class="settings-section" style="padding-bottom: 0;">
+          <div class="tab-bar">
+            <button class="tab-btn" [class.active]="activeTab === 'balances'" (click)="activeTab = 'balances'">Balances & Settlements</button>
+            <button class="tab-btn" [class.active]="activeTab === 'analytics'" (click)="activeTab = 'analytics'">Spend Analytics</button>
           </div>
+        </div>
 
-          <div class="card-body">
-            <div *ngIf="balances.length == 0" class="empty-state">
-              No balance information found.
-            </div>
+        <!-- Balances Tab Content -->
+        <div *ngIf="activeTab === 'balances'" class="settings-section" style="padding-top: 0;">
+          <div class="balances-layout">
+            
+            <!-- Member Balances -->
+            <div class="balance-column">
+              <h3 class="column-title">Member Balances</h3>
+              <p class="column-desc">Net breakdown of what each member has spent.</p>
 
-            <div class="spending-list" *ngIf="balances.length > 0">
-              <div *ngFor="let member of balances" class="spending-item">
-                <div class="member-info">
-                  <div class="member-avatar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <div class="member-details">
+              <div *ngIf="balances.length == 0" class="empty-state">
+                <p class="empty-subtext">No balances computed.</p>
+              </div>
+
+              <div *ngIf="balances.length > 0" class="flat-list">
+                <div *ngFor="let member of balances" class="flat-row">
+                  <div class="member-identity">
                     <span class="member-name">{{ member.username }}</span>
-                    <span class="member-share">Paid {{ getGroupCurrency() }} {{ member.paid | number: "1.2-2" }}</span>
+                    <span class="member-details">Paid {{ getGroupCurrency() }} {{ member.paid | number: "1.2-2" }}</span>
                   </div>
-                </div>
-
-                <div>
-                  <span class="spending-amount" [style.color]="member.balance >= 0 ? 'var(--tracking-accent)' : 'var(--tracking-danger)'">
+                  <div class="member-balance" [class.positive]="member.balance >= 0" [class.negative]="member.balance < 0">
                     {{ member.balance >= 0 ? "+" : "" }}{{ getGroupCurrency() }} {{ member.balance | number: "1.2-2" }}
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Settlement -->
-        <div class="balances-card">
-          <div class="card-header">
-            <h2 class="card-title">Suggested Settlements</h2>
-          </div>
+            <!-- Suggest settlements -->
+            <div class="balance-column">
+              <h3 class="column-title">Suggested Settlements</h3>
+              <p class="column-desc">Minimum transactions required to fully settle everyone.</p>
 
-          <div class="card-body">
-            <div *ngIf="settlements.length == 0" class="empty-state">
-              Everyone is settled 🎉
-            </div>
+              <div *ngIf="settlements.length == 0" class="empty-state">
+                <p class="empty-text">Everyone is settled</p>
+                <p class="empty-subtext">No transactions are currently required.</p>
+              </div>
 
-            <div *ngIf="settlements.length > 0" class="balances-list">
-              <div *ngFor="let settlement of settlements" class="balance-item">
-                <div class="balance-header">
-                  <div class="balance-from">
-                    <svg class="balance-icon owes-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="8" x2="12" y2="12"></line>
-                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              <div *ngIf="settlements.length > 0" class="flat-list">
+                <div *ngFor="let settlement of settlements" class="flat-row flex-column">
+                  <div class="settle-direction">
+                    <span class="settle-party">{{ settlement.from }}</span>
+                    <svg class="direction-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                    <span class="balance-name">{{ settlement.from }}</span>
+                    <span class="settle-party">{{ settlement.to }}</span>
                   </div>
-
-                  <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-
-                  <div class="balance-to">
-                    <svg class="balance-icon receives-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    <span class="balance-name">{{ settlement.to }}</span>
+                  <div class="settle-footer">
+                    <span class="settle-amount">{{ getGroupCurrency() }} {{ settlement.amount | number: "1.2-2" }}</span>
+                    <button class="btn btn-sm btn-primary" (click)="confirmSettleUp(settlement)">Settle Up</button>
                   </div>
-                </div>
-
-                <div class="balance-amount-wrapper" style="align-items: center; justify-content: space-between;">
-                  <div class="amount-details" style="display: flex; align-items: baseline; gap: 8px;">
-                    <span class="balance-amount" style="color: var(--tracking-accent);">
-                      {{ getGroupCurrency() }} {{ settlement.amount | number: "1.2-2" }}
-                    </span>
-                    <span class="balance-label">Suggested Settlement</span>
-                  </div>
-
-                  <button class="btn-settle" (click)="confirmSettleUp(settlement)">
-                    Settle Up
-                  </button>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
-      </div>
 
-      <!-- Spend Analytics Tab -->
-      <div class="analytics-layout" *ngIf="activeTab === 'analytics'">
-        <div class="analytics-grid">
-          
-          <!-- Category Breakdown Card -->
-          <div class="spending-card category-breakdown-card">
-            <div class="card-header">
-              <h2 class="card-title">Category Breakdown</h2>
-            </div>
-            <div class="card-body doughnut-chart-body">
+        <!-- Spend Analytics Tab Content -->
+        <div *ngIf="activeTab === 'analytics'" class="settings-section" style="padding-top: 0;">
+          <div class="analytics-layout">
+            
+            <!-- Category Breakdown -->
+            <div class="chart-card">
+              <h3 class="column-title">Category Breakdown</h3>
               <div *ngIf="categoryData.length === 0" class="empty-state">
-                No expense data to analyze yet.
+                <p class="empty-subtext">No category data to display.</p>
               </div>
-              <div class="doughnut-chart-wrapper" *ngIf="categoryData.length > 0">
-                <div class="chart-visual">
-                  <svg viewBox="0 0 100 100" class="doughnut-svg" width="160" height="160">
-                    <circle cx="50" cy="50" r="30" fill="transparent" stroke="var(--tracking-border)" stroke-width="8" />
-                    <circle 
-                      *ngFor="let seg of categoryData"
-                      cx="50" 
-                      cy="50" 
-                      r="30" 
-                      fill="transparent" 
-                      [attr.stroke]="seg.color" 
-                      stroke-width="8" 
-                      stroke-dasharray="188.5" 
-                      [attr.stroke-dashoffset]="seg.dashOffset"
-                      [style.transform]="'rotate(' + seg.rotateAngle + 'deg)'"
-                      style="transform-origin: center; transition: stroke-dashoffset 0.5s ease;"
-                    />
-                    <text x="50" y="47" class="chart-center-label" text-anchor="middle" font-size="6" font-weight="600" fill="var(--tracking-text-secondary)">TOTAL</text>
-                    <text x="50" y="57" class="chart-center-val" text-anchor="middle" font-size="8" font-weight="700" fill="var(--tracking-text)">{{ getGroupCurrency() }}{{ categoryTotal | number:'1.0-0' }}</text>
+              <div *ngIf="categoryData.length > 0" class="doughnut-container">
+                <div class="doughnut-visual">
+                  <svg viewBox="0 0 100 100" class="doughnut-svg" width="140" height="140">
+                    <g class="doughnut-segments">
+                      <circle cx="50" cy="50" r="30" fill="transparent" stroke="var(--et-border-light)" stroke-width="8" />
+                      <circle 
+                        *ngFor="let seg of categoryData"
+                        cx="50" 
+                        cy="50" 
+                        r="30" 
+                        fill="transparent" 
+                        [attr.stroke]="seg.color" 
+                        stroke-width="8" 
+                        stroke-dasharray="188.5" 
+                        [attr.stroke-dashoffset]="seg.dashOffset"
+                        [style.transform]="'rotate(' + seg.rotateAngle + 'deg)'"
+                        style="transform-origin: center; transition: stroke-dashoffset 0.5s ease;"
+                      />
+                    </g>
+                    <text x="50" y="47" text-anchor="middle" font-size="5" font-weight="600" fill="var(--et-text-secondary)" style="letter-spacing:0.5px;">TOTAL</text>
+                    <text x="50" y="57" text-anchor="middle" font-size="7" font-weight="700" fill="var(--et-text-primary)">{{ getGroupCurrency() }}{{ categoryTotal | number:'1.0-0' }}</text>
                   </svg>
                 </div>
                 
-                <div class="chart-legend">
-                  <div *ngFor="let seg of categoryData" class="legend-item">
-                    <div class="legend-label">
-                      <span class="legend-color-dot" [style.background-color]="seg.color"></span>
+                <div class="doughnut-legend">
+                  <div *ngFor="let seg of categoryData" class="legend-row">
+                    <div class="legend-info">
+                      <span class="legend-dot" [style.background-color]="seg.color"></span>
                       <span class="legend-name">{{ seg.name }}</span>
                     </div>
-                    <div class="legend-values">
+                    <div class="legend-meta">
                       <span class="legend-amount">{{ getGroupCurrency() }} {{ seg.amount | number:'1.0-0' }}</span>
                       <span class="legend-percentage">{{ seg.percentage | number:'1.0-0' }}%</span>
                     </div>
@@ -263,120 +229,77 @@
                 </div>
               </div>
             </div>
-          </div>
-          
-          <!-- Monthly Trend Card -->
-          <div class="balances-card monthly-trend-card">
-            <div class="card-header">
-              <h2 class="card-title">Monthly Spending Trend</h2>
-            </div>
-            <div class="card-body">
+
+            <!-- Monthly Trend -->
+            <div class="chart-card">
+              <h3 class="column-title">Monthly Spending</h3>
               <div *ngIf="monthlyData.length === 0" class="empty-state">
-                No monthly trends data available.
+                <p class="empty-subtext">No trend data available.</p>
               </div>
-              <div class="trend-chart-wrapper" *ngIf="monthlyData.length > 0">
-                <svg viewBox="0 0 300 120" width="100%" height="180" class="trend-svg">
-                  <!-- Grid Lines -->
-                  <line x1="20" y1="20" x2="280" y2="20" stroke="var(--tracking-border)" stroke-width="0.5" stroke-dasharray="2" />
-                  <line x1="20" y1="50" x2="280" y2="50" stroke="var(--tracking-border)" stroke-width="0.5" stroke-dasharray="2" />
-                  <line x1="20" y1="80" x2="280" y2="80" stroke="var(--tracking-border)" stroke-width="0.5" stroke-dasharray="2" />
-                  <line x1="20" y1="100" x2="280" y2="100" stroke="var(--tracking-border)" stroke-width="0.8" />
+              <div *ngIf="monthlyData.length > 0" class="bar-chart-container">
+                <svg viewBox="0 0 300 120" width="100%" height="150" class="trend-svg">
+                  <line x1="20" y1="20" x2="280" y2="20" stroke="var(--et-border-light)" stroke-width="0.5" stroke-dasharray="2" />
+                  <line x1="20" y1="50" x2="280" y2="50" stroke="var(--et-border-light)" stroke-width="0.5" stroke-dasharray="2" />
+                  <line x1="20" y1="80" x2="280" y2="80" stroke="var(--et-border-light)" stroke-width="0.5" stroke-dasharray="2" />
+                  <line x1="20" y1="100" x2="280" y2="100" stroke="var(--et-border)" stroke-width="0.8" />
                   
-                  <!-- Bar Elements -->
                   <g *ngFor="let bar of monthlyData">
-                    <!-- Spending Bar -->
                     <rect 
                       [attr.x]="bar.x" 
                       [attr.y]="100 - bar.height" 
                       width="12" 
                       [attr.height]="bar.height" 
-                      fill="url(#barGradient)" 
+                      fill="url(#etBarGradient)" 
                       rx="3"
-                      class="trend-bar"
                     />
-                    
-                    <!-- Month Label -->
-                    <text 
-                      [attr.x]="bar.x + 6" 
-                      y="112" 
-                      text-anchor="middle" 
-                      font-size="6.5" 
-                      font-weight="600"
-                      fill="var(--tracking-text-secondary)"
-                    >
-                      {{ bar.label }}
-                    </text>
-                    
-                    <!-- Amount Label -->
-                    <text 
-                      [attr.x]="bar.x + 6" 
-                      [attr.y]="95 - bar.height" 
-                      text-anchor="middle" 
-                      font-size="6" 
-                      font-weight="700"
-                      fill="var(--tracking-text)"
-                    >
+                    <text [attr.x]="bar.x + 6" y="112" text-anchor="middle" font-size="6.5" font-weight="600" fill="var(--et-text-secondary)">{{ bar.label }}</text>
+                    <text [attr.x]="bar.x + 6" [attr.y]="95 - bar.height" text-anchor="middle" font-size="6" font-weight="700" fill="var(--et-text-primary)">
                       {{ getGroupCurrency() }}{{ bar.amount | number:'1.0-0' }}
                     </text>
                   </g>
                   
                   <defs>
-                    <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="var(--tracking-accent)" />
-                      <stop offset="100%" stop-color="var(--tracking-accent-light)" />
+                    <linearGradient id="etBarGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="var(--et-accent)" />
+                      <stop offset="100%" stop-color="var(--et-accent-light)" />
                     </linearGradient>
                   </defs>
                 </svg>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Top Expenses List Card -->
-        <div class="spending-card top-expenses-card" style="width: 100%; margin-top: 20px;">
-          <div class="card-header">
-            <h2 class="card-title">Top Group Expenses</h2>
-          </div>
-          <div class="card-body">
-            <div *ngIf="recentTopExpenses.length === 0" class="empty-state">
-              No expenses recorded yet.
-            </div>
-            <div class="top-expenses-list" *ngIf="recentTopExpenses.length > 0">
-              <div *ngFor="let exp of recentTopExpenses; let i = index" class="top-expense-row">
-                <div class="top-exp-rank">#{{ i + 1 }}</div>
-                <div class="top-exp-main">
-                  <div class="top-exp-desc">{{ exp.description }}</div>
-                  <div class="top-exp-meta">
-                    Paid by {{ exp.paidBy?.username || 'Member' }} on {{ exp.expenseDate || exp.createdAt | date:'mediumDate' }}
+            <!-- Top Expenses -->
+            <div class="chart-card wide-card">
+              <h3 class="column-title">Top Group Expenses</h3>
+              <div *ngIf="recentTopExpenses.length === 0" class="empty-state">
+                <p class="empty-subtext">No expenses logged.</p>
+              </div>
+              <div *ngIf="recentTopExpenses.length > 0" class="flat-list">
+                <div *ngFor="let exp of recentTopExpenses; let i = index" class="flat-row">
+                  <div class="top-expense-left">
+                    <div class="top-expense-rank">#{{ i + 1 }}</div>
+                    <div class="top-expense-details">
+                      <span class="top-expense-title">{{ exp.description }}</span>
+                      <span class="top-expense-meta">Paid by {{ exp.paidBy?.username || 'Member' }} on {{ exp.expenseDate || exp.createdAt | date:'mediumDate' }}</span>
+                    </div>
                   </div>
-                </div>
-                <div class="top-exp-right">
-                  <span class="top-exp-category">{{ exp.category }}</span>
-                  <span class="top-exp-amount">{{ exp.currency || getGroupCurrency() }} {{ (exp.originalAmount || exp.amount) | number:'1.2-2' }}</span>
+                  <div class="top-expense-right">
+                    <span class="category-tag">{{ exp.category }}</span>
+                    <span class="top-expense-amount">{{ exp.currency || getGroupCurrency() }} {{ (exp.originalAmount || exp.amount) | number:'1.2-2' }}</span>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
+
       </div>
-    </div>
+    </ng-container>
 
-    <!-- No Group Selected -->
-
-    <div *ngIf="!selectedGroupId && !loading" class="no-selection-card">
-      <h2>Select a Group</h2>
-
-      <p>Choose a group above to view balances and settlements.</p>
-    </div>
   </div>
 </div>
 
-<app-custom-modal
-  [isOpen]="isModalOpen"
-  [title]="modalTitle"
-  [message]="modalMessage"
-  [type]="modalType"
-  [showCancel]="isConfirmMode"
-  (confirm)="isConfirmMode ? executeSettlement() : closeModal()"
-  (cancel)="closeModal()"
-></app-custom-modal>
+<app-custom-modal [isOpen]="isModalOpen" [title]="modalTitle" [message]="modalMessage" [type]="modalType"
+  [showCancel]="isConfirmMode" (confirm)="isConfirmMode ? executeSettlement() : closeModal()" (cancel)="closeModal()">
+</app-custom-modal>

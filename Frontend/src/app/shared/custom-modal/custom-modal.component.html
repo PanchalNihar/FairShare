@@ -3,7 +3,9 @@
 
     <div class="modal-header" [ngClass]="type">
       <h3>{{ title }}</h3>
-      <button class="close-btn" (click)="onCancel()">✕</button>
+      <button class="close-btn" (click)="onCancel()" aria-label="Close dialog" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; cursor: pointer;">
+        <span style="font-size: 16px; font-weight: 600; line-height: 1; font-family: sans-serif; color: var(--groups-text-secondary, #6c757d); display: block;">✕</span>
+      </button>
     </div>
 
     <div class="modal-body">

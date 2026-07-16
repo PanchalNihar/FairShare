@@ -1,90 +1,92 @@
 <app-navbar></app-navbar>
 
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1 class="dashboard-title">Welcome to FairShare</h1>
-    <p class="dashboard-subtitle">Manage your expenses and groups effortlessly</p>
-  </div>
+<div class="db-wrapper">
+  <div class="db-container">
 
-  <div class="dashboard-grid">
-    <!-- Profile Card -->
-    <div class="dashboard-card profile-card" (click)="openProfile()">
-      <div class="card-icon-wrapper profile-accent">
-        <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-        </svg>
+    <!-- Page Header -->
+    <div class="db-page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Track, split, and settle group expenses effortlessly.</p>
       </div>
-      <div class="card-content">
-        <h3 class="card-title">Profile</h3>
-        <p class="card-description">View and update your personal details and profile image</p>
-        <button class="card-button profile-button">
-          View Profile
-          <svg class="button-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="card-shine"></div>
     </div>
 
-    <!-- Create Group Card -->
-    <div class="dashboard-card group-card" (click)="openGroup()">
-      <div class="card-icon-wrapper group-accent">
-        <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-        </svg>
+    <!-- Features Grid -->
+    <div class="db-grid">
+      
+      <!-- Profile Card -->
+      <div class="settings-card db-card" (click)="openProfile()">
+        <div class="settings-section db-card-section">
+          <div class="db-card-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h3 class="db-card-title">Profile Settings</h3>
+          <p class="db-card-desc">Manage your account information and preferences.</p>
+          <div class="db-card-footer">
+            <button class="btn btn-outline btn-sm">Manage Profile</button>
+          </div>
+        </div>
       </div>
-      <div class="card-content">
-        <h3 class="card-title">Create Group</h3>
-        <p class="card-description">Organize tasks and collaborate seamlessly with group members</p>
-        <button class="card-button group-button">
-          Create Group
-          <svg class="button-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-        </button>
+
+      <!-- Groups Card -->
+      <div class="settings-card db-card" (click)="openGroup()">
+        <div class="settings-section db-card-section">
+          <div class="db-card-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="db-card-title">Manage Groups</h3>
+          <p class="db-card-desc">Create expense sharing groups and invite your friends.</p>
+          <div class="db-card-footer">
+            <button class="btn btn-outline btn-sm">Manage Groups</button>
+          </div>
+        </div>
       </div>
-      <div class="card-shine"></div>
+
+      <!-- Expense Management Card -->
+      <div class="settings-card db-card" (click)="openExpenseManagement()">
+        <div class="settings-section db-card-section">
+          <div class="db-card-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+              <line x1="12" y1="4" x2="12" y2="20"></line>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+            </svg>
+          </div>
+          <h3 class="db-card-title">Log Expenses</h3>
+          <p class="db-card-desc">Add bills, scan receipts with AI, or configure recurring charges.</p>
+          <div class="db-card-footer">
+            <button class="btn btn-outline btn-sm">Record Expenses</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense Tracking Card -->
+      <div class="settings-card db-card" (click)="openExpenseTracking()">
+        <div class="settings-section db-card-section">
+          <div class="db-card-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+          <h3 class="db-card-title">Track Settlements</h3>
+          <p class="db-card-desc">Check balance status, settle up debts, and review analytics.</p>
+          <div class="db-card-footer">
+            <button class="btn btn-outline btn-sm">Track & Settle</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Expense Management Card -->
-    <div class="dashboard-card expense-mgmt-card" (click)="openExpenseManagement()">
-      <div class="card-icon-wrapper expense-mgmt-accent">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-currency-rupee" viewBox="0 0 16 16">
-  <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4z"/>
-</svg>
-      </div>
-      <div class="card-content">
-        <h3 class="card-title">Expense Management</h3>
-        <p class="card-description">Add, update, and manage all your group expenses in one place</p>
-        <button class="card-button expense-mgmt-button">
-          Add Expenses
-          <svg class="button-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="card-shine"></div>
-    </div>
-
-    <!-- Expense Tracking Card -->
-    <div class="dashboard-card expense-track-card" (click)="openExpenseTracking()">
-      <div class="card-icon-wrapper expense-track-accent">
-        <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-        </svg>
-      </div>
-      <div class="card-content">
-        <h3 class="card-title">Expense Tracking</h3>
-        <p class="card-description">Track expenses, view trends, and split payments efficiently</p>
-        <button class="card-button expense-track-button">
-          Track Now
-          <svg class="button-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="card-shine"></div>
-    </div>
   </div>
 </div>

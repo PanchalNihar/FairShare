@@ -1,497 +1,206 @@
 /* ============================================
-   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   CSS CUSTOM PROPERTIES — matches design system
    ============================================ */
 :root {
-  /* Colors - Light Theme */
-  --bg-primary: #F8F9FA;
-  --bg-secondary: #FFFFFF;
-  --text-primary: #1A1A2E;
-  --text-secondary: #6C757D;
-  --text-tertiary: #ADB5BD;
-  
-  /* Card Accent Colors */
-  --profile-color: #4A90E2;
-  --profile-light: #E3F2FD;
-  --group-color: #9B59B6;
-  --group-light: #F3E5F5;
-  --expense-mgmt-color: #FF6B6B;
-  --expense-mgmt-light: #FFEBEE;
-  --expense-track-color: #16A085;
-  --expense-track-light: #E0F2F1;
-  
-  /* Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.16);
-  
-  /* Spacing */
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
-  
-  /* Border Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-full: 50%;
-  
-  /* Transitions */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 350ms ease-in-out;
+  --db-bg: #f5f7fa;
+  --db-card-bg: #ffffff;
+  --db-text-primary: #1a1a2e;
+  --db-text-secondary: #6c757d;
+  --db-border: #e1e4e8;
+  --db-border-light: #f1f3f5;
+  --db-accent: #4a90e2;
+  --db-accent-hover: #357abd;
+  --db-accent-light: #ebf4fb;
+  --db-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --db-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --db-transition: 200ms ease;
 }
 
-/* Dark Theme */
-.dark-theme {
-  --bg-primary: #0F0F1E;
-  --bg-secondary: #1A1A2E;
-  --text-primary: #F8F9FA;
-  --text-secondary: #ADB5BD;
-  --text-tertiary: #6C757D;
-  
-  --profile-color: #5BA3F5;
-  --profile-light: #1E3A5F;
-  --group-color: #B084CC;
-  --group-light: #3D2954;
-  --expense-mgmt-color: #FF8787;
-  --expense-mgmt-light: #5F2C2C;
-  --expense-track-color: #1FBF9F;
-  --expense-track-light: #1A4D40;
-  
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.6);
+:host-context(.dark-theme) {
+  --db-bg: #0f1419;
+  --db-card-bg: #1a1f2e;
+  --db-text-primary: #f8f9fa;
+  --db-text-secondary: #adb5bd;
+  --db-border: #2c3e50;
+  --db-border-light: #343a40;
+  --db-accent: #5ba3f5;
+  --db-accent-hover: #4a90e2;
+  --db-accent-light: #1e3a5f;
+  --db-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --db-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================
-   GLOBAL STYLES
+   LAYOUT
    ============================================ */
-* {
+.db-wrapper {
+  min-height: calc(100vh - 70px);
+  background-color: var(--db-bg);
+  padding: 64px 24px;
+  transition: background-color var(--db-transition);
+}
+
+.db-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.db-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--db-text-primary);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.8px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: var(--db-text-secondary);
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  transition: background-color var(--transition-base), color var(--transition-base);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 /* ============================================
-   DASHBOARD CONTAINER
+   SETTINGS CARD (Gives uniform frame)
    ============================================ */
-.dashboard-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--spacing-xxl) var(--spacing-lg);
-  min-height: calc(100vh - 80px);
+.settings-card {
+  background: var(--db-card-bg);
+  border: 1px solid var(--db-border);
+  border-radius: 16px;
+  box-shadow: var(--db-shadow-sm);
+  transition: border-color var(--db-transition), transform var(--db-transition);
+}
+
+.settings-section {
+  padding: 28px;
 }
 
 /* ============================================
-   DASHBOARD HEADER
+   DASHBOARD GRID & CARDS
    ============================================ */
-.dashboard-header {
-  text-align: center;
-  margin-bottom: var(--spacing-xxl);
-  animation: fadeInDown 0.6s ease-out;
-}
-
-.dashboard-title {
-  font-size: clamp(28px, 5vw, 36px);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
-  letter-spacing: -0.5px;
-}
-
-.dashboard-subtitle {
-  font-size: clamp(14px, 2.5vw, 16px);
-  color: var(--text-secondary);
-  font-weight: 400;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* ============================================
-   DASHBOARD GRID
-   ============================================ */
-.dashboard-grid {
+.db-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
 
-/* ============================================
-   DASHBOARD CARDS
-   ============================================ */
-.dashboard-card {
-  position: relative;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
+.db-card {
   cursor: pointer;
-  overflow: hidden;
-  transition: all var(--transition-base);
-  border: 1px solid transparent;
-  min-height: 280px;
+  height: 100%;
+}
+
+.db-card:hover {
+  border-color: var(--db-accent);
+  transform: translateY(-2px);
+}
+
+.db-card-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.dashboard-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-hover);
-}
-
-.dashboard-card:active {
-  transform: translateY(-4px) scale(0.98);
-}
-
-/* Card Shine Effect */
-.card-shine {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
-  transition: left var(--transition-slow);
-  pointer-events: none;
 }
 
-.dashboard-card:hover .card-shine {
-  left: 100%;
-}
-
-/* ============================================
-   CARD ICON WRAPPER
-   ============================================ */
-.card-icon-wrapper {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-lg);
+.db-card-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--db-accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-base);
+  color: var(--db-accent);
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
-.card-icon {
-  width: 32px;
-  height: 32px;
-  color: #FFFFFF;
-  transition: transform var(--transition-base);
-}
-
-.dashboard-card:hover .card-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-/* Card Specific Accent Colors */
-.profile-accent {
-  background: linear-gradient(135deg, var(--profile-color), #3A7BC8);
-}
-
-.group-accent {
-  background: linear-gradient(135deg, var(--group-color), #7D3C98);
-}
-
-.expense-mgmt-accent {
-  background: linear-gradient(135deg, var(--expense-mgmt-color), #E74C3C);
-}
-
-.expense-track-accent {
-  background: linear-gradient(135deg, var(--expense-track-color), #138D75);
-}
-
-/* ============================================
-   CARD CONTENT
-   ============================================ */
-.card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.card-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-  letter-spacing: -0.3px;
-}
-
-.card-description {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  flex: 1;
-}
-
-/* ============================================
-   CARD BUTTONS
-   ============================================ */
-.card-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: 12px 24px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  width: fit-content;
-  margin-top: auto;
-  color: #FFFFFF;
-  position: relative;
-  overflow: hidden;
-}
-
-.card-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width var(--transition-base), height var(--transition-base);
-}
-
-.card-button:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.button-arrow {
+.db-card-icon-wrapper svg {
   width: 20px;
   height: 20px;
-  transition: transform var(--transition-base);
-  position: relative;
-  z-index: 1;
+  stroke: currentColor;
 }
 
-.card-button:hover .button-arrow {
-  transform: translateX(4px);
+.db-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--db-text-primary);
+  margin: 0 0 6px 0;
 }
 
-/* Button Specific Colors */
-.profile-button {
-  background: linear-gradient(135deg, var(--profile-color), #3A7BC8);
+.db-card-desc {
+  font-size: 13.5px;
+  color: var(--db-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  flex: 1;
 }
 
-.profile-button:hover {
-  box-shadow: 0 4px 16px rgba(74, 144, 226, 0.4);
-}
-
-.group-button {
-  background: linear-gradient(135deg, var(--group-color), #7D3C98);
-}
-
-.group-button:hover {
-  box-shadow: 0 4px 16px rgba(155, 89, 182, 0.4);
-}
-
-.expense-mgmt-button {
-  background: linear-gradient(135deg, var(--expense-mgmt-color), #E74C3C);
-}
-
-.expense-mgmt-button:hover {
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
-}
-
-.expense-track-button {
-  background: linear-gradient(135deg, var(--expense-track-color), #138D75);
-}
-
-.expense-track-button:hover {
-  box-shadow: 0 4px 16px rgba(22, 160, 133, 0.4);
+.db-card-footer {
+  margin-top: auto;
 }
 
 /* ============================================
-   CARD HOVER EFFECTS
+   BUTTON SYSTEM
    ============================================ */
-.profile-card:hover {
-  border-color: var(--profile-color);
-  background: linear-gradient(to bottom, var(--bg-secondary), var(--profile-light));
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  transition: all var(--db-transition);
 }
 
-.group-card:hover {
-  border-color: var(--group-color);
-  background: linear-gradient(to bottom, var(--bg-secondary), var(--group-light));
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 12.5px;
+  border-radius: 6px;
 }
 
-.expense-mgmt-card:hover {
-  border-color: var(--expense-mgmt-color);
-  background: linear-gradient(to bottom, var(--bg-secondary), var(--expense-mgmt-light));
+.btn-outline {
+  background: transparent;
+  border-color: var(--db-border);
+  color: var(--db-text-secondary);
+  width: 100%;
 }
 
-.expense-track-card:hover {
-  border-color: var(--expense-track-color);
-  background: linear-gradient(to bottom, var(--bg-secondary), var(--expense-track-light));
+.db-card:hover .btn-outline {
+  background: var(--db-accent-light);
+  color: var(--db-accent);
+  border-color: var(--db-accent);
 }
 
 /* ============================================
-   ANIMATIONS
+   RESPONSIVE
    ============================================ */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
-
-/* Large Desktop */
-@media (min-width: 1200px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Tablet */
-@media (max-width: 992px) {
-  .dashboard-container {
-    padding: var(--spacing-xl) var(--spacing-md);
-  }
-  
-  .dashboard-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-md);
-  }
-  
-  .dashboard-card {
-    padding: var(--spacing-lg);
-    min-height: 260px;
-  }
-}
-
-/* Mobile */
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: var(--spacing-lg) var(--spacing-md);
+  .db-wrapper {
+    padding: 32px 16px;
   }
-  
-  .dashboard-header {
-    margin-bottom: var(--spacing-xl);
-  }
-  
-  .dashboard-grid {
+
+  .db-grid {
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    gap: 16px;
   }
-  
-  .dashboard-card {
-    padding: var(--spacing-lg);
-    min-height: 240px;
-  }
-  
-  .card-icon-wrapper {
-    width: 56px;
-    height: 56px;
-  }
-  
-  .card-icon {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .card-title {
-    font-size: 18px;
-  }
-  
-  .card-description {
-    font-size: 13px;
-  }
-  
-  .card-button {
-    padding: 10px 20px;
-    font-size: 13px;
-    width: 100%;
-    justify-content: center;
-  }
-}
 
-/* Small Mobile */
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: var(--spacing-md);
-  }
-  
-  .dashboard-header {
-    margin-bottom: var(--spacing-lg);
-  }
-  
-  .dashboard-card {
-    padding: var(--spacing-md);
-    gap: var(--spacing-md);
-  }
-}
-
-/* Touch Device Optimizations */
-@media (hover: none) and (pointer: coarse) {
-  .dashboard-card:active {
-    transform: scale(0.97);
-  }
-  
-  .card-button {
-    min-height: 44px; /* iOS touch target guideline */
-  }
-  
-  .card-button:active {
-    transform: scale(0.95);
-  }
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .settings-section {
+    padding: 24px;
   }
 }
