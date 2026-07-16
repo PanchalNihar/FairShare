@@ -8,7 +8,7 @@ import { GroupService } from '../../services/group.service';
 import { ExpenseTrackingService } from '../../services/expense-tracking.service';
 import { ExpenseService } from '../../services/expense.service';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
-import { jsPDF } from 'jspdf';
+// import { jsPDF } from 'jspdf';
 
 @Component({
   selector: 'app-expense-tracking',
@@ -61,7 +61,7 @@ export class ExpenseTrackingComponent implements OnInit {
     private expenseTracking: ExpenseTrackingService,
     private expenseService: ExpenseService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
 
@@ -147,7 +147,7 @@ export class ExpenseTrackingComponent implements OnInit {
 
   calculateAnalytics() {
     const nonSettlements = this.expensesList.filter(e => !e.isSettlement);
-    
+
     // 1. Category breakdown
     const catGroups: { [key: string]: number } = {};
     let catSum = 0;
@@ -283,7 +283,7 @@ export class ExpenseTrackingComponent implements OnInit {
     const groupName = this.availableGroups.find(g => g._id === this.selectedGroupId)?.name || 'Group';
     const groupCurrency = this.getGroupCurrency();
     let csvContent = 'Date,Description,Category,Total Amount,Paid By,Split Type\n';
-    
+
     this.expensesList.forEach(e => {
       const date = new Date(e.expenseDate || e.createdAt).toLocaleDateString();
       const desc = `"${e.description.replace(/"/g, '""')}"`;
@@ -292,10 +292,10 @@ export class ExpenseTrackingComponent implements OnInit {
       const cur = e.currency || groupCurrency;
       const paidUser = e.paidBy?.username || 'Unknown';
       const split = e.splitType || 'equal';
-      
+
       csvContent += `${date},${desc},${cat},${amt} ${cur},${paidUser},${split}\n`;
     });
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -306,17 +306,18 @@ export class ExpenseTrackingComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  exportToPDF(): void {
+  async exportToPDF(): Promise<void> {
+    const jspdfModule = await import('jspdf');
     const groupName = this.availableGroups.find(g => g._id === this.selectedGroupId)?.name || 'Group';
     const groupCurrency = this.getGroupCurrency();
-    const doc = new jsPDF();
-    
+    const doc = new jspdfModule.jsPDF();
+
     // Title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(74, 144, 226); // Primary theme color
     doc.text('FairShare Balance Report', 14, 20);
-    
+
     // Group metadata
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
@@ -325,26 +326,26 @@ export class ExpenseTrackingComponent implements OnInit {
     doc.text(`Generated Date: ${new Date().toLocaleDateString()}`, 14, 34);
     doc.text(`Total Group Expense: ${groupCurrency} ${this.totalExpense.toFixed(2)}`, 14, 40);
     doc.text(`Per Person Share: ${groupCurrency} ${this.perPerson.toFixed(2)}`, 14, 46);
-    
+
     // Balances section header
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(30);
     doc.text('Member Balances', 14, 58);
-    
+
     // Line separator
     doc.setDrawColor(200);
     doc.line(14, 61, 196, 61);
-    
+
     let y = 68;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
-    
+
     this.balances.forEach(b => {
       const balanceText = b.balance >= 0 ? `+${groupCurrency} ${b.balance.toFixed(2)}` : `-${groupCurrency} ${Math.abs(b.balance).toFixed(2)}`;
       doc.text(b.username, 14, y);
       doc.text(`Paid: ${groupCurrency} ${b.paid.toFixed(2)}`, 80, y);
-      
+
       if (b.balance >= 0) {
         doc.setTextColor(46, 204, 113); // green
       } else {
@@ -354,18 +355,18 @@ export class ExpenseTrackingComponent implements OnInit {
       doc.setTextColor(100); // reset color
       y += 8;
     });
-    
+
     // Suggested settlements section
     y += 4;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(30);
     doc.text('Suggested Settlements', 14, y);
-    
+
     y += 3;
     doc.line(14, y, 196, y);
     y += 7;
-    
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     if (this.settlements.length === 0) {
@@ -377,23 +378,23 @@ export class ExpenseTrackingComponent implements OnInit {
         y += 8;
       });
     }
-    
+
     // Historical expenses list
     y += 6;
     if (y > 200) {
       doc.addPage();
       y = 20;
     }
-    
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(30);
     doc.text('Expense History', 14, y);
-    
+
     y += 3;
     doc.line(14, y, 196, y);
     y += 7;
-    
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     this.expensesList.forEach(e => {
@@ -406,15 +407,15 @@ export class ExpenseTrackingComponent implements OnInit {
       const paidUser = e.paidBy?.username || 'Unknown';
       const cur = e.currency || groupCurrency;
       const amtStr = `${e.originalAmount || e.amount} ${cur}`;
-      
+
       doc.text(dateStr, 14, y);
       doc.text(desc, 45, y);
       doc.text(`Paid by ${paidUser}`, 110, y);
       doc.text(amtStr, 160, y);
-      
+
       y += 7;
     });
-    
+
     doc.save(`${groupName.replace(/\s+/g, '_')}_Settlement_Report.pdf`);
   }
 }
