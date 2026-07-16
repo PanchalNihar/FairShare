@@ -19,6 +19,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
   groups: any[] = [];
   groupName = '';
   groupDescription = '';
+  selectedCurrency = 'INR';
   qrCodeurl: string | null = null;
   isModalOpen = false;
   modalTitle = '';
@@ -119,6 +120,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
         this.groupName,
         this.groupDescription,
         membersPayload,
+        this.selectedCurrency
       );
 
       this.groupName = '';

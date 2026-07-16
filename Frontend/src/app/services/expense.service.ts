@@ -15,6 +15,12 @@ export interface Expense {
   };
 
   amount: number;
+  
+  currency?: string;
+
+  originalAmount?: number;
+
+  exchangeRate?: number;
 
   description: string;
 
@@ -39,6 +45,7 @@ export interface Expense {
   splits?: Array<{
     memberId: string;
     value: number;
+    originalValue?: number;
   }>;
 }
 
@@ -78,7 +85,8 @@ export class ExpenseService {
     paidBy?: string,
     expenseDate?: string,
     splitType?: string,
-    splits?: Array<{ memberId: string; value: number }>
+    splits?: Array<{ memberId: string; value: number }>,
+    currency?: string
   ): Promise<void> {
 
     await firstValueFrom(
@@ -91,6 +99,7 @@ export class ExpenseService {
         expenseDate,
         splitType,
         splits,
+        currency,
       })
     );
 
@@ -137,7 +146,8 @@ export class ExpenseService {
     paidBy: string,
     expenseDate?: string,
     splitType?: string,
-    splits?: Array<{ memberId: string; value: number }>
+    splits?: Array<{ memberId: string; value: number }>,
+    currency?: string
   ): Promise<void> {
     await firstValueFrom(
       this.http.put(`${this.apiUrl}/${expenseId}`, {
@@ -148,6 +158,7 @@ export class ExpenseService {
         expenseDate,
         splitType,
         splits,
+        currency,
       })
     );
 

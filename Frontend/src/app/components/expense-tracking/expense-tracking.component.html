@@ -13,9 +13,17 @@
         </p>
       </div>
 
-      <button class="btn btn-secondary" (click)="backtoDashboard()">
-        Dashboard
-      </button>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button *ngIf="selectedGroupId && !loading" class="btn btn-pdf" (click)="exportToPDF()" style="background: linear-gradient(135deg, #ff4e50, #f9d423); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+          PDF Report
+        </button>
+        <button *ngIf="selectedGroupId && !loading" class="btn btn-csv" (click)="exportToCSV()" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+          CSV Export
+        </button>
+        <button class="btn btn-secondary" (click)="backtoDashboard()">
+          Dashboard
+        </button>
+      </div>
     </div>
 
     <!-- Group Selection -->
@@ -60,7 +68,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-label">Total Expense</span>
-            <span class="stat-value">₹{{ totalExpense | number: "1.2-2" }}</span>
+            <span class="stat-value">{{ getGroupCurrency() }} {{ totalExpense | number: "1.2-2" }}</span>
           </div>
         </div>
 
@@ -74,7 +82,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-label">Per Person</span>
-            <span class="stat-value">₹{{ perPerson | number: "1.2-2" }}</span>
+            <span class="stat-value">{{ getGroupCurrency() }} {{ perPerson | number: "1.2-2" }}</span>
           </div>
         </div>
 
@@ -137,13 +145,13 @@
                   </div>
                   <div class="member-details">
                     <span class="member-name">{{ member.username }}</span>
-                    <span class="member-share">Paid ₹{{ member.paid | number: "1.2-2" }}</span>
+                    <span class="member-share">Paid {{ getGroupCurrency() }} {{ member.paid | number: "1.2-2" }}</span>
                   </div>
                 </div>
 
                 <div>
                   <span class="spending-amount" [style.color]="member.balance >= 0 ? 'var(--tracking-accent)' : 'var(--tracking-danger)'">
-                    {{ member.balance >= 0 ? "+" : "" }}₹{{ member.balance | number: "1.2-2" }}
+                    {{ member.balance >= 0 ? "+" : "" }}{{ getGroupCurrency() }} {{ member.balance | number: "1.2-2" }}
                   </span>
                 </div>
               </div>
@@ -191,7 +199,7 @@
                 <div class="balance-amount-wrapper" style="align-items: center; justify-content: space-between;">
                   <div class="amount-details" style="display: flex; align-items: baseline; gap: 8px;">
                     <span class="balance-amount" style="color: var(--tracking-accent);">
-                      ₹{{ settlement.amount | number: "1.0-0" }}
+                      {{ getGroupCurrency() }} {{ settlement.amount | number: "1.2-2" }}
                     </span>
                     <span class="balance-label">Suggested Settlement</span>
                   </div>
@@ -237,7 +245,7 @@
                       style="transform-origin: center; transition: stroke-dashoffset 0.5s ease;"
                     />
                     <text x="50" y="47" class="chart-center-label" text-anchor="middle" font-size="6" font-weight="600" fill="var(--tracking-text-secondary)">TOTAL</text>
-                    <text x="50" y="57" class="chart-center-val" text-anchor="middle" font-size="8" font-weight="700" fill="var(--tracking-text)">₹{{ categoryTotal | number:'1.0-0' }}</text>
+                    <text x="50" y="57" class="chart-center-val" text-anchor="middle" font-size="8" font-weight="700" fill="var(--tracking-text)">{{ getGroupCurrency() }}{{ categoryTotal | number:'1.0-0' }}</text>
                   </svg>
                 </div>
                 
@@ -248,7 +256,7 @@
                       <span class="legend-name">{{ seg.name }}</span>
                     </div>
                     <div class="legend-values">
-                      <span class="legend-amount">₹{{ seg.amount | number:'1.0-0' }}</span>
+                      <span class="legend-amount">{{ getGroupCurrency() }} {{ seg.amount | number:'1.0-0' }}</span>
                       <span class="legend-percentage">{{ seg.percentage | number:'1.0-0' }}%</span>
                     </div>
                   </div>
@@ -308,7 +316,7 @@
                       font-weight="700"
                       fill="var(--tracking-text)"
                     >
-                      ₹{{ bar.amount | number:'1.0-0' }}
+                      {{ getGroupCurrency() }}{{ bar.amount | number:'1.0-0' }}
                     </text>
                   </g>
                   
@@ -344,7 +352,7 @@
                 </div>
                 <div class="top-exp-right">
                   <span class="top-exp-category">{{ exp.category }}</span>
-                  <span class="top-exp-amount">₹{{ exp.amount | number:'1.2-2' }}</span>
+                  <span class="top-exp-amount">{{ exp.currency || getGroupCurrency() }} {{ (exp.originalAmount || exp.amount) | number:'1.2-2' }}</span>
                 </div>
               </div>
             </div>

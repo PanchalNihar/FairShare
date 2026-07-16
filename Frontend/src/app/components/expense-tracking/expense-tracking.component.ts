@@ -8,6 +8,7 @@ import { GroupService } from '../../services/group.service';
 import { ExpenseTrackingService } from '../../services/expense-tracking.service';
 import { ExpenseService } from '../../services/expense.service';
 import { CustomModalComponent } from '../../shared/custom-modal/custom-modal.component';
+import { jsPDF } from 'jspdf';
 
 @Component({
   selector: 'app-expense-tracking',
@@ -238,7 +239,7 @@ export class ExpenseTrackingComponent implements OnInit {
     this.selectedSettlement = settlement;
     this.openModal(
       'Confirm Settlement',
-      `Are you sure you want to clarify and record a payment of ₹${settlement.amount.toFixed(2)} from "${settlement.from}" to "${settlement.to}" as settled?`,
+      `Are you sure you want to clarify and record a payment of ${this.getGroupCurrency()} ${settlement.amount.toFixed(2)} from "${settlement.from}" to "${settlement.to}" as settled?`,
       'info',
       true
     );
@@ -273,4 +274,147 @@ export class ExpenseTrackingComponent implements OnInit {
     }
   }
 
+  getGroupCurrency(): string {
+    const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
+    return group ? (group.currency || 'INR') : 'INR';
+  }
+
+  exportToCSV(): void {
+    const groupName = this.availableGroups.find(g => g._id === this.selectedGroupId)?.name || 'Group';
+    const groupCurrency = this.getGroupCurrency();
+    let csvContent = 'Date,Description,Category,Total Amount,Paid By,Split Type\n';
+    
+    this.expensesList.forEach(e => {
+      const date = new Date(e.expenseDate || e.createdAt).toLocaleDateString();
+      const desc = `"${e.description.replace(/"/g, '""')}"`;
+      const cat = e.category || 'Other';
+      const amt = e.originalAmount || e.amount;
+      const cur = e.currency || groupCurrency;
+      const paidUser = e.paidBy?.username || 'Unknown';
+      const split = e.splitType || 'equal';
+      
+      csvContent += `${date},${desc},${cat},${amt} ${cur},${paidUser},${split}\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${groupName.replace(/\s+/g, '_')}_expenses.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  exportToPDF(): void {
+    const groupName = this.availableGroups.find(g => g._id === this.selectedGroupId)?.name || 'Group';
+    const groupCurrency = this.getGroupCurrency();
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(74, 144, 226); // Primary theme color
+    doc.text('FairShare Balance Report', 14, 20);
+    
+    // Group metadata
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text(`Group Name: ${groupName}`, 14, 28);
+    doc.text(`Generated Date: ${new Date().toLocaleDateString()}`, 14, 34);
+    doc.text(`Total Group Expense: ${groupCurrency} ${this.totalExpense.toFixed(2)}`, 14, 40);
+    doc.text(`Per Person Share: ${groupCurrency} ${this.perPerson.toFixed(2)}`, 14, 46);
+    
+    // Balances section header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(30);
+    doc.text('Member Balances', 14, 58);
+    
+    // Line separator
+    doc.setDrawColor(200);
+    doc.line(14, 61, 196, 61);
+    
+    let y = 68;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    
+    this.balances.forEach(b => {
+      const balanceText = b.balance >= 0 ? `+${groupCurrency} ${b.balance.toFixed(2)}` : `-${groupCurrency} ${Math.abs(b.balance).toFixed(2)}`;
+      doc.text(b.username, 14, y);
+      doc.text(`Paid: ${groupCurrency} ${b.paid.toFixed(2)}`, 80, y);
+      
+      if (b.balance >= 0) {
+        doc.setTextColor(46, 204, 113); // green
+      } else {
+        doc.setTextColor(231, 76, 60); // red
+      }
+      doc.text(balanceText, 160, y);
+      doc.setTextColor(100); // reset color
+      y += 8;
+    });
+    
+    // Suggested settlements section
+    y += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(30);
+    doc.text('Suggested Settlements', 14, y);
+    
+    y += 3;
+    doc.line(14, y, 196, y);
+    y += 7;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    if (this.settlements.length === 0) {
+      doc.text('Everyone is settled! No transactions required.', 14, y);
+      y += 8;
+    } else {
+      this.settlements.forEach(s => {
+        doc.text(`${s.from} owes ${s.to} ${groupCurrency} ${s.amount.toFixed(2)}`, 14, y);
+        y += 8;
+      });
+    }
+    
+    // Historical expenses list
+    y += 6;
+    if (y > 200) {
+      doc.addPage();
+      y = 20;
+    }
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(30);
+    doc.text('Expense History', 14, y);
+    
+    y += 3;
+    doc.line(14, y, 196, y);
+    y += 7;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    this.expensesList.forEach(e => {
+      if (y > 275) {
+        doc.addPage();
+        y = 20;
+      }
+      const dateStr = new Date(e.expenseDate || e.createdAt).toLocaleDateString();
+      const desc = e.description.substring(0, 30);
+      const paidUser = e.paidBy?.username || 'Unknown';
+      const cur = e.currency || groupCurrency;
+      const amtStr = `${e.originalAmount || e.amount} ${cur}`;
+      
+      doc.text(dateStr, 14, y);
+      doc.text(desc, 45, y);
+      doc.text(`Paid by ${paidUser}`, 110, y);
+      doc.text(amtStr, 160, y);
+      
+      y += 7;
+    });
+    
+    doc.save(`${groupName.replace(/\s+/g, '_')}_Settlement_Report.pdf`);
+  }
 }

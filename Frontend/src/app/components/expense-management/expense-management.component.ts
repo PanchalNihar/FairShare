@@ -53,6 +53,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   splitType: string = 'equal';
   splitValues: { [memberId: string]: number } = {};
   splitChecked: { [memberId: string]: boolean } = {};
+  expenseCurrency: string = 'INR';
 
 
 
@@ -177,6 +178,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
       this.selectedGroupMembers = group.members || [];
       this.defaultPayeeToCurrentUser();
       this.initializeSplits();
+      this.expenseCurrency = group.currency || 'INR';
     }
 
     await this.expenseService.loadExpenses(
@@ -563,7 +565,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 this.selectedPayeeId,
                 this.expenseDate,
                 this.splitType,
-                splitsPayload
+                splitsPayload,
+                this.expenseCurrency
             );
 
             this.openModal(
@@ -580,7 +583,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 this.selectedPayeeId || undefined,
                 this.expenseDate,
                 this.splitType,
-                splitsPayload
+                splitsPayload,
+                this.expenseCurrency
             );
 
             this.openModal(
@@ -610,7 +614,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   editExpense(expense: Expense) {
     this.isEditing = true;
     this.editingExpenseId = expense._id;
-    this.expenseAmount = expense.amount;
+    this.expenseCurrency = expense.currency || 'INR';
+    this.expenseAmount = expense.originalAmount || expense.amount;
     this.expenseDescription = expense.description;
     this.expenseCategory = expense.category;
     this.selectedPayeeId = expense.paidBy._id || (expense.paidBy as any);
@@ -628,7 +633,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
       expense.splits.forEach((split) => {
         const mId = split.memberId;
         this.splitChecked[mId] = true;
-        this.splitValues[mId] = split.value;
+        this.splitValues[mId] = split.originalValue || split.value;
       });
     }
   }
@@ -683,6 +688,9 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     this.splitType = 'equal';
     this.initializeSplits();
 
+    const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
+    this.expenseCurrency = group ? (group.currency || 'INR') : 'INR';
+
 }
   closeModal() {
     this.isModalOpen = false;
@@ -695,6 +703,11 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
       this.executeDeleteExpense(this.expenseToDelete);
     }
   }
+  getGroupCurrency(): string {
+    const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
+    return group ? (group.currency || 'INR') : 'INR';
+  }
+
   // Navigate back to dashboard
   backtoDashboard(): void {
     this.router.navigate(['/dashboard']);

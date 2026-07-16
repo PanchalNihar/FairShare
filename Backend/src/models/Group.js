@@ -45,6 +45,11 @@ const groupSchema = new mongoose.Schema({
         unique: true
     },
 
+    currency: {
+        type: String,
+        default: "INR"
+    },
+
     members: [memberSchema]
 
 }, {

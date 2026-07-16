@@ -26,7 +26,7 @@ const formatGroupMembers = (group) => {
 
 export const createGroup = async (req, res) => {
   try {
-    const { name, description, members = [] } = req.body;
+    const { name, description, members = [], currency = "INR" } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -103,6 +103,7 @@ export const createGroup = async (req, res) => {
       description,
       inviteCode,
       members: groupMembers,
+      currency
     });
 
     const populatedGroup = await Group.findById(group._id).populate(

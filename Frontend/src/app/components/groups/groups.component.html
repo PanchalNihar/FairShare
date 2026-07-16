@@ -63,6 +63,19 @@
             ></textarea>
           </div>
 
+          <!-- Currency -->
+          <div class="form-group">
+            <label class="form-label">Base Currency</label>
+            <select class="form-select" [(ngModel)]="selectedCurrency" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background-color: var(--input-background); color: var(--text-color);">
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="CAD">CAD ($)</option>
+              <option value="AUD">AUD ($)</option>
+            </select>
+          </div>
+
           <!-- Add Members -->
           <div class="form-group">
             <label class="form-label">Add Members</label>

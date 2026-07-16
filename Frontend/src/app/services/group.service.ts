@@ -28,6 +28,7 @@ export interface Group {
   name: string;
   description: string;
   inviteCode: string;
+  currency?: string;
   members: GroupMember[];
 }
 
@@ -77,6 +78,7 @@ export class GroupService {
     name: string,
     description: string,
     members: (string | { username: string; email: string; isNew?: boolean })[],
+    currency?: string,
   ): Promise<void> {
     await firstValueFrom(
       this.http.post(
@@ -85,6 +87,7 @@ export class GroupService {
           name,
           description,
           members,
+          currency,
         },
         {
           withCredentials: true,

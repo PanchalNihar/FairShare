@@ -3,6 +3,7 @@ import Group from "../models/Group.js";
 import jwt from "jsonwebtoken";
 import { scanReceipt, quickAddExpense } from "../services/gemini.service.js";
 import User from "../models/User.js";
+import { getExchangeRate } from "../services/currency.service.js";
 
 /**
  * Create Expense
@@ -13,6 +14,7 @@ export const createExpense = async (req, res) => {
         const {
             groupId,
             amount,
+            currency = "INR",
             description,
             category,
             expenseDate,
@@ -38,6 +40,16 @@ export const createExpense = async (req, res) => {
                 success: false,
                 message: "Group not found."
             });
+        }
+
+        // Currency Conversion Calculation
+        const expenseCurrency = currency || group.currency || "INR";
+        let exchangeRate = 1;
+        let convertedAmount = amount;
+        
+        if (expenseCurrency !== (group.currency || "INR")) {
+            exchangeRate = await getExchangeRate(group.currency || "INR", expenseCurrency);
+            convertedAmount = amount / exchangeRate;
         }
 
         // Check if logged-in user is a member
@@ -113,6 +125,20 @@ export const createExpense = async (req, res) => {
             }
         }
 
+        // Process splits to store both base values and original values
+        let processedSplits = [];
+        if (splits && Array.isArray(splits)) {
+            processedSplits = splits.map(s => {
+                const originalVal = Number(s.value);
+                const convertedVal = splitType === "exact" ? (originalVal / exchangeRate) : originalVal;
+                return {
+                    memberId: s.memberId,
+                    value: convertedVal,
+                    originalValue: originalVal
+                };
+            });
+        }
+
         // Create expense
         const expense = await Expense.create({
 
@@ -120,7 +146,13 @@ export const createExpense = async (req, res) => {
 
             paidBy: payeeId,
 
-            amount,
+            amount: convertedAmount,
+
+            originalAmount: amount,
+
+            currency: expenseCurrency,
+
+            exchangeRate,
 
             description,
 
@@ -134,7 +166,7 @@ export const createExpense = async (req, res) => {
 
             splitType: splitType || "equal",
 
-            splits: splits || []
+            splits: processedSplits || []
 
         });
 
@@ -252,7 +284,7 @@ export const getGroupExpenses = async (req, res) => {
 export const updateExpense = async (req, res) => {
     try {
         const { expenseId } = req.params;
-        const { amount, description, category, paidBy, expenseDate, splitType, splits } = req.body;
+        const { amount, currency, description, category, paidBy, expenseDate, splitType, splits } = req.body;
 
         const expense = await Expense.findById(expenseId);
         if (!expense) {
@@ -296,14 +328,31 @@ export const updateExpense = async (req, res) => {
             expense.paidBy = paidBy;
         }
 
-        const finalAmount = amount !== undefined ? amount : expense.amount;
+        const expenseCurrency = currency !== undefined ? currency : (expense.currency || "INR");
+        const originalAmountVal = amount !== undefined ? amount : (expense.originalAmount || expense.amount);
+        
+        let exchangeRate = expense.exchangeRate || 1;
+        let convertedAmount = expense.amount;
+        
+        if (amount !== undefined || currency !== undefined) {
+            if (expenseCurrency !== (group.currency || "INR")) {
+                exchangeRate = await getExchangeRate(group.currency || "INR", expenseCurrency);
+                convertedAmount = originalAmountVal / exchangeRate;
+            } else {
+                exchangeRate = 1;
+                convertedAmount = originalAmountVal;
+            }
+        }
+
         const finalSplitType = splitType !== undefined ? splitType : expense.splitType;
-        const finalSplits = splits !== undefined ? splits : expense.splits;
+        const finalSplits = splits !== undefined 
+            ? splits 
+            : expense.splits.map(s => ({ memberId: s.memberId, value: s.originalValue || s.value }));
 
         if (finalSplits && finalSplits.length > 0) {
             if (finalSplitType === "exact") {
                 const total = finalSplits.reduce((sum, s) => sum + Number(s.value), 0);
-                if (Math.abs(total - finalAmount) > 0.05) {
+                if (Math.abs(total - originalAmountVal) > 0.05) {
                     return res.status(400).json({
                         success: false,
                         message: "The sum of exact split amounts must equal the total expense amount."
@@ -328,12 +377,38 @@ export const updateExpense = async (req, res) => {
             }
         }
 
-        if (amount !== undefined) expense.amount = amount;
+        let processedSplits = undefined;
+        if (splits !== undefined) {
+            processedSplits = splits.map(s => {
+                const originalVal = Number(s.value);
+                const convertedVal = finalSplitType === "exact" ? (originalVal / exchangeRate) : originalVal;
+                return {
+                    memberId: s.memberId,
+                    value: convertedVal,
+                    originalValue: originalVal
+                };
+            });
+        } else if (finalSplitType === "exact" && (amount !== undefined || currency !== undefined)) {
+            processedSplits = expense.splits.map(s => {
+                const originalVal = s.originalValue || s.value;
+                return {
+                    memberId: s.memberId,
+                    value: originalVal / exchangeRate,
+                    originalValue: originalVal
+                };
+            });
+        }
+
+        expense.amount = convertedAmount;
+        expense.originalAmount = originalAmountVal;
+        expense.currency = expenseCurrency;
+        expense.exchangeRate = exchangeRate;
+
         if (description !== undefined) expense.description = description;
         if (category !== undefined) expense.category = category;
         if (expenseDate !== undefined) expense.expenseDate = expenseDate;
         if (splitType !== undefined) expense.splitType = splitType;
-        if (splits !== undefined) expense.splits = splits;
+        if (processedSplits !== undefined) expense.splits = processedSplits;
 
         await expense.save();
 

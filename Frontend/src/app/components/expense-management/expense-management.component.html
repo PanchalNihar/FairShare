@@ -102,14 +102,30 @@
             <div class="form-group">
               <label>Amount</label>
 
-              <input
-                type="number"
-                class="form-input"
-                [(ngModel)]="expenseAmount"
-                name="amount"
-                (input)="onAmountChange()"
-                required
-              />
+              <div class="amount-input-group" style="display: flex; gap: 8px;">
+                <select 
+                  class="form-select" 
+                  [(ngModel)]="expenseCurrency" 
+                  name="currency" 
+                  style="width: 100px; padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background-color: var(--input-background); color: var(--text-color); cursor: pointer;"
+                >
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="CAD">CAD ($)</option>
+                  <option value="AUD">AUD ($)</option>
+                </select>
+                <input
+                  type="number"
+                  class="form-input"
+                  [(ngModel)]="expenseAmount"
+                  name="amount"
+                  (input)="onAmountChange()"
+                  style="flex: 1;"
+                  required
+                />
+              </div>
             </div>
 
             <div class="form-group">
@@ -319,17 +335,27 @@
                 <!-- Dynamic Split Information -->
                 <div class="expense-split-info">
                   <span *ngIf="isUserPayer(expense)" class="lent-status lent">
-                    You lent <strong>₹{{ getUserLentAmount(expense) }}</strong> (₹{{ getSplitShare(expense.amount, expense.expenseDate) }}/person)
+                    You lent <strong>{{ getGroupCurrency() }} {{ getUserLentAmount(expense) | number:'1.2-2' }}</strong> ({{ getGroupCurrency() }} {{ getSplitShare(expense.amount, expense.expenseDate) | number:'1.2-2' }}/person)
                   </span>
                   <span *ngIf="!isUserPayer(expense)" class="lent-status owed">
-                    You owe <strong>₹{{ getSplitShare(expense.amount, expense.expenseDate) }}</strong> to {{ expense.paidBy.username }}
+                    You owe <strong>{{ getGroupCurrency() }} {{ getSplitShare(expense.amount, expense.expenseDate) | number:'1.2-2' }}</strong> to {{ expense.paidBy.username }}
                   </span>
                 </div>
               </div>
 
               <!-- Amount -->
-              <div class="expense-amount-wrapper">
-                <strong class="expense-amount"> ₹{{ expense.amount }} </strong>
+              <div class="expense-amount-wrapper" style="text-align: right;">
+                <strong class="expense-amount">
+                  <span *ngIf="expense.originalAmount && expense.currency && expense.currency !== getGroupCurrency()">
+                    {{ expense.originalAmount | number:'1.2-2' }} {{ expense.currency }}
+                    <div style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary); margin-top: 4px;">
+                      ≈ {{ expense.amount | number:'1.2-2' }} {{ getGroupCurrency() }}
+                    </div>
+                  </span>
+                  <span *ngIf="!expense.originalAmount || !expense.currency || expense.currency === getGroupCurrency()">
+                    {{ expense.amount | number:'1.2-2' }} {{ expense.currency || getGroupCurrency() }}
+                  </span>
+                </strong>
               </div>
             </div>
 
