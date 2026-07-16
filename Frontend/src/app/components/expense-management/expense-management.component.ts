@@ -33,6 +33,10 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   totalExpense: number = 0;
   selectedGroupId = '';
   expenseCategory = 'Other';
+  isRecurring: boolean = false;
+  recurringFrequency: string = 'monthly';
+  recurringList: any[] = [];
+  activeListTab: 'expenses' | 'recurring' = 'expenses';
   isModalOpen = false;
   modalTitle = '';
   modalMessage = '';
@@ -168,6 +172,7 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
         this.expenseList = [];
         this.selectedGroupMembers = [];
         this.selectedPayeeId = '';
+        this.recurringList = [];
 
         return;
 
@@ -184,6 +189,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
     await this.expenseService.loadExpenses(
         this.selectedGroupId
     );
+
+    await this.loadRecurringRules();
 
 }
 
@@ -575,23 +582,45 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
                 'success'
             );
         } else {
-            await this.expenseService.addExpense(
-                this.selectedGroupId,
-                this.expenseAmount,
-                this.expenseDescription,
-                this.expenseCategory,
-                this.selectedPayeeId || undefined,
-                this.expenseDate,
-                this.splitType,
-                splitsPayload,
-                this.expenseCurrency
-            );
+            if (this.isRecurring) {
+                await this.expenseService.addRecurringExpense(
+                    this.selectedGroupId,
+                    this.expenseAmount,
+                    this.expenseDescription,
+                    this.expenseCategory,
+                    this.selectedPayeeId,
+                    this.expenseDate,
+                    this.recurringFrequency,
+                    this.splitType,
+                    splitsPayload,
+                    this.expenseCurrency
+                );
 
-            this.openModal(
-                'Success',
-                'Expense Added.',
-                'success'
-            );
+                this.openModal(
+                    'Success',
+                    'Recurring expense rule created successfully.',
+                    'success'
+                );
+                await this.loadRecurringRules();
+            } else {
+                await this.expenseService.addExpense(
+                    this.selectedGroupId,
+                    this.expenseAmount,
+                    this.expenseDescription,
+                    this.expenseCategory,
+                    this.selectedPayeeId || undefined,
+                    this.expenseDate,
+                    this.splitType,
+                    splitsPayload,
+                    this.expenseCurrency
+                );
+
+                this.openModal(
+                    'Success',
+                    'Expense Added.',
+                    'success'
+                );
+            }
         }
 
         await this.expenseService.loadExpenses(
@@ -690,6 +719,8 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
 
     const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
     this.expenseCurrency = group ? (group.currency || 'INR') : 'INR';
+    this.isRecurring = false;
+    this.recurringFrequency = 'monthly';
 
 }
   closeModal() {
@@ -706,6 +737,45 @@ export class ExpenseManagementComponent implements OnInit, OnDestroy {
   getGroupCurrency(): string {
     const group = this.availableGroups.find((g) => g._id === this.selectedGroupId);
     return group ? (group.currency || 'INR') : 'INR';
+  }
+
+  // Recurring scheduler client actions
+  async loadRecurringRules() {
+    if (!this.selectedGroupId) return;
+    try {
+      this.recurringList = await this.expenseService.loadRecurringExpenses(this.selectedGroupId);
+    } catch (error) {
+      console.error('Failed to load recurring rules:', error);
+    }
+  }
+
+  async toggleRecurringStatus(rule: any) {
+    try {
+      const nextActive = !rule.isActive;
+      await this.expenseService.toggleRecurringExpenseStatus(rule._id, nextActive);
+      this.openModal(
+        'Success',
+        `Recurring rule ${nextActive ? 'activated' : 'paused'} successfully.`,
+        'success'
+      );
+      await this.loadRecurringRules();
+    } catch (error) {
+      console.error(error);
+      this.openModal('Error', 'Unable to toggle recurring rule status.', 'error');
+    }
+  }
+
+  async deleteRecurringRule(rule: any) {
+    if (confirm(`Are you sure you want to delete the recurring rule "${rule.description}"?`)) {
+      try {
+        await this.expenseService.deleteRecurringExpense(rule._id);
+        this.openModal('Success', 'Recurring rule deleted successfully.', 'success');
+        await this.loadRecurringRules();
+      } catch (error) {
+        console.error(error);
+        this.openModal('Error', 'Unable to delete recurring rule.', 'error');
+      }
+    }
   }
 
   // Navigate back to dashboard

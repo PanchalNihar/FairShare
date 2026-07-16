@@ -192,4 +192,61 @@ export class ExpenseService {
     );
     return response.data;
   }
+
+  async loadRecurringExpenses(groupId: string): Promise<any> {
+    const response: any = await firstValueFrom(
+      this.http.get(`${this.apiUrl}/recurring/${groupId}`, {
+        withCredentials: true
+      })
+    );
+    return response.data;
+  }
+
+  async addRecurringExpense(
+    groupId: string,
+    amount: number,
+    description: string,
+    category: string,
+    paidBy: string,
+    startDate: string,
+    frequency: string,
+    splitType: string,
+    splits: Array<{ memberId: string; value: number }>,
+    currency: string
+  ): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${this.apiUrl}/recurring`, {
+        groupId,
+        amount,
+        description,
+        category,
+        paidBy,
+        startDate,
+        frequency,
+        splitType,
+        splits,
+        currency
+      }, {
+        withCredentials: true
+      })
+    );
+  }
+
+  async toggleRecurringExpenseStatus(recurringId: string, isActive: boolean): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/recurring/${recurringId}`, {
+        isActive
+      }, {
+        withCredentials: true
+      })
+    );
+  }
+
+  async deleteRecurringExpense(recurringId: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/recurring/${recurringId}`, {
+        withCredentials: true
+      })
+    );
+  }
 }

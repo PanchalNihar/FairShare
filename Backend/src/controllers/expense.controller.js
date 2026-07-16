@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { scanReceipt, quickAddExpense } from "../services/gemini.service.js";
 import User from "../models/User.js";
 import { getExchangeRate } from "../services/currency.service.js";
+import RecurringExpense from "../models/RecurringExpense.js";
 
 /**
  * Create Expense
@@ -534,6 +535,270 @@ export const quickAddController = async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message || "Failed to parse sentence with AI."
+        });
+    }
+};
+
+/**
+ * Create Recurring Expense Rule
+ */
+export const createRecurringExpense = async (req, res) => {
+    try {
+        const {
+            groupId,
+            amount,
+            currency = "INR",
+            description,
+            category,
+            startDate,
+            frequency = "monthly",
+            paidBy,
+            splitType,
+            splits
+        } = req.body;
+
+        if (!groupId || !amount || !description) {
+            return res.status(400).json({
+                success: false,
+                message: "Group, amount and description are required."
+            });
+        }
+
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found."
+            });
+        }
+
+        const isMember = group.members.some(
+            member => member.user.toString() === req.user.id.toString()
+        );
+        if (!isMember) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not a member of this group."
+            });
+        }
+
+        const payeeId = paidBy || req.user.id;
+
+        // Validate splits if provided
+        if (splits && Array.isArray(splits) && splits.length > 0) {
+            const finalSplitType = splitType || "equal";
+            if (finalSplitType === "exact") {
+                const total = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(total - amount) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of exact split amounts must equal the total recurring amount."
+                    });
+                }
+            } else if (finalSplitType === "percentage") {
+                const totalPct = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (Math.abs(totalPct - 100) > 0.05) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split percentages must equal 100%."
+                    });
+                }
+            } else if (finalSplitType === "shares") {
+                const totalShares = splits.reduce((sum, s) => sum + Number(s.value), 0);
+                if (totalShares <= 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "The sum of split shares must be greater than zero."
+                    });
+                }
+            }
+        }
+
+        // Process splits to save both original values
+        let processedSplits = [];
+        if (splits && Array.isArray(splits)) {
+            processedSplits = splits.map(s => {
+                const originalVal = Number(s.value);
+                return {
+                    memberId: s.memberId,
+                    value: originalVal,
+                    originalValue: originalVal
+                };
+            });
+        }
+
+        const start = startDate ? new Date(startDate) : new Date();
+
+        const recurringExpense = await RecurringExpense.create({
+            group: groupId,
+            paidBy: payeeId,
+            amount,
+            currency,
+            description,
+            category: category || "Other",
+            splitType: splitType || "equal",
+            splits: processedSplits || [],
+            frequency,
+            startDate: start,
+            nextDueDate: start
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Recurring expense rule created successfully.",
+            data: recurringExpense
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+/**
+ * Get Group Recurring Expense Rules
+ */
+export const getGroupRecurringExpenses = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found."
+            });
+        }
+
+        const isMember = group.members.some(
+            member => member.user.toString() === req.user.id.toString()
+        );
+        if (!isMember) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied."
+            });
+        }
+
+        const recurringExpenses = await RecurringExpense.find({
+            group: groupId
+        })
+        .populate("paidBy", "username email avatar")
+        .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: recurringExpenses
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+/**
+ * Toggle Recurring Expense Active State
+ */
+export const updateRecurringExpenseStatus = async (req, res) => {
+    try {
+        const { recurringId } = req.params;
+        const { isActive } = req.body;
+
+        const recurringRule = await RecurringExpense.findById(recurringId);
+        if (!recurringRule) {
+            return res.status(404).json({
+                success: false,
+                message: "Recurring rule not found."
+            });
+        }
+
+        const group = await Group.findById(recurringRule.group);
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found."
+            });
+        }
+
+        const isMember = group.members.some(
+            member => member.user.toString() === req.user.id.toString()
+        );
+        if (!isMember) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied."
+            });
+        }
+
+        if (isActive !== undefined) {
+            recurringRule.isActive = isActive;
+        }
+
+        await recurringRule.save();
+
+        res.status(200).json({
+            success: true,
+            message: `Recurring rule ${isActive ? "activated" : "deactivated"} successfully.`,
+            data: recurringRule
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+/**
+ * Delete Recurring Expense Rule
+ */
+export const deleteRecurringExpense = async (req, res) => {
+    try {
+        const { recurringId } = req.params;
+
+        const recurringRule = await RecurringExpense.findById(recurringId);
+        if (!recurringRule) {
+            return res.status(404).json({
+                success: false,
+                message: "Recurring rule not found."
+            });
+        }
+
+        const group = await Group.findById(recurringRule.group);
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found."
+            });
+        }
+
+        const isMember = group.members.some(
+            member => member.user.toString() === req.user.id.toString()
+        );
+        if (!isMember) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied."
+            });
+        }
+
+        await RecurringExpense.findByIdAndDelete(recurringId);
+
+        res.status(200).json({
+            success: true,
+            message: "Recurring rule deleted successfully."
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
         });
     }
 };
