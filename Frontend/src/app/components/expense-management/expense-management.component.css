@@ -694,15 +694,16 @@
   }
 
   .expense-row {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: 12px;
+    padding: 16px 0;
   }
 
   .expense-right {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
   }
 }
 
