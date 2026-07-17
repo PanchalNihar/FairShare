@@ -1,4 +1,40 @@
 /* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+:root {
+  --profile-bg: #f5f7fa;
+  --profile-card-bg: #ffffff;
+  --profile-text-primary: #1a1a2e;
+  --profile-text-secondary: #6c757d;
+  --profile-border: #e1e4e8;
+  --profile-border-light: #f1f3f5;
+  --profile-accent: #4a90e2;
+  --profile-accent-hover: #357abd;
+  --profile-accent-light: #ebf4fb;
+  --profile-success: #28a745;
+  --profile-success-hover: #218838;
+  --profile-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --profile-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --profile-transition: 200ms ease;
+}
+
+:host-context(.dark-theme) {
+  --profile-bg: #0f1419;
+  --profile-card-bg: #1a1f2e;
+  --profile-text-primary: #f8f9fa;
+  --profile-text-secondary: #adb5bd;
+  --profile-border: #2c3e50;
+  --profile-border-light: #343a40;
+  --profile-accent: #5ba3f5;
+  --profile-accent-hover: #4a90e2;
+  --profile-accent-light: #1e3a5f;
+  --profile-success: #1fbf9f;
+  --profile-success-hover: #16a085;
+  --profile-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --profile-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
    CONTAINER & LAYOUT
    ============================================ */
 .profile-wrapper {
@@ -350,4 +386,118 @@
 
 .btn-pref-action.outline:hover {
   background-color: var(--profile-accent-light);
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS
+   ============================================ */
+@media (max-width: 600px) {
+  .profile-wrapper {
+    padding: 20px 12px;
+  }
+
+  .profile-page-header {
+    margin-bottom: 24px;
+    padding: 0 4px;
+  }
+
+  .page-title {
+    font-size: 26px;
+    letter-spacing: -0.5px;
+  }
+
+  .page-subtitle {
+    font-size: 13.5px;
+  }
+
+  .settings-section {
+    padding: 24px 16px;
+  }
+
+  /* Identity / Profile Header Stacking */
+  .identity-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .identity-left {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .identity-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .display-username {
+    font-size: 22px;
+  }
+
+  .display-email {
+    font-size: 14px;
+    word-break: break-all;
+  }
+
+  .identity-badges {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .badge {
+    padding: 3px 10px;
+    font-size: 10.5px;
+  }
+
+  .identity-right {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .identity-right .btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  /* Preferences Rows Stacking */
+  .pref-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .pref-badge {
+    align-self: flex-start;
+  }
+
+  .btn-pref-action {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 13.5px;
+  }
+
+  /* Form Actions buttons full width on mobile */
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
 }
