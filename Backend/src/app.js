@@ -13,7 +13,9 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:4200",
-  "https://fairshare2624.netlify.app"
+  "https://fairshare2624.netlify.app",
+  "http://localhost",
+  "capacitor://localhost"
 ];
 
 if (process.env.FRONTEND_URL) {
@@ -23,7 +25,23 @@ if (process.env.FRONTEND_URL) {
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+
+      // Allow explicitly configured origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow any local network IP for testing (e.g., http://192.168.x.x:4200)
+      const isLocalIp = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin);
+      if (isLocalIp) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
