@@ -2,38 +2,31 @@
 
 <div class="profile-wrapper">
   <div class="profile-container">
-    
+
     <!-- Header Section -->
     <div class="profile-page-header">
       <h1 class="page-title">Account Settings</h1>
-      <p class="page-subtitle">Update your profile info, customize your currency defaults, and manage security settings.</p>
+      <p class="page-subtitle">Update your profile info, customize your currency defaults, and manage security settings.
+      </p>
     </div>
 
     <!-- Main Settings Card -->
     <div class="settings-card">
-      
+
       <!-- Top Row: Avatar & Identity -->
       <div class="settings-section identity-section">
         <div class="identity-left">
           <div class="avatar-upload-wrapper" (click)="triggerImageUpload()" title="Change photo">
-            <img 
-              [src]="profileImage || 'https://via.placeholder.com/150'" 
-              alt="Avatar" 
-              class="settings-avatar" 
-            />
+            <img [src]="profileImage || '/user.png'" alt="Avatar" class="settings-avatar" />
             <div class="avatar-overlay">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                 <circle cx="12" cy="13" r="4"></circle>
               </svg>
             </div>
-            <input 
-              type="file" 
-              id="profileImageInput" 
-              (change)="onImageUpload($event)" 
-              accept="image/*"
-              style="display: none;"
-            />
+            <input type="file" id="profileImageInput" (change)="onImageUpload($event)" accept="image/*"
+              style="display: none;" />
           </div>
           <div class="identity-info">
             <h2 class="display-username">{{ user.username || 'User Name' }}</h2>
@@ -44,7 +37,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="identity-right">
           <button *ngIf="showSaveButton" class="btn btn-save-photo" (click)="saveImage()">
             Save Photo
@@ -62,50 +55,27 @@
       <div class="settings-section form-section">
         <h3 class="section-heading">Personal Information</h3>
         <p class="section-description">These details are private and help customize your experience on FairShare.</p>
-        
+
         <form class="settings-form" (ngSubmit)="onUpdateProfile()">
           <div class="form-grid">
-            
+
             <div class="form-group">
               <label class="form-label" for="username">Username</label>
-              <input 
-                type="text" 
-                id="username" 
-                name="username" 
-                [(ngModel)]="user.username" 
-                [disabled]="!isEditing" 
-                [class.editing]="isEditing"
-                class="settings-input" 
-                required 
-              />
+              <input type="text" id="username" name="username" [(ngModel)]="user.username" [disabled]="!isEditing"
+                [class.editing]="isEditing" class="settings-input" required />
             </div>
 
             <div class="form-group">
               <label class="form-label" for="email">Email Address</label>
-              <input 
-                type="email" 
-                id="email" 
-                name="email" 
-                [(ngModel)]="user.email" 
-                [disabled]="!isEditing" 
-                [class.editing]="isEditing"
-                class="settings-input" 
-                required 
-              />
+              <input type="email" id="email" name="email" [(ngModel)]="user.email" [disabled]="!isEditing"
+                [class.editing]="isEditing" class="settings-input" required />
             </div>
 
             <div class="form-group">
               <label class="form-label" for="mobileNumber">Mobile Number</label>
-              <input 
-                type="text" 
-                id="mobileNumber" 
-                name="mobileNumber" 
-                [(ngModel)]="user.mobileNumber" 
-                [disabled]="!isEditing" 
-                [class.editing]="isEditing"
-                class="settings-input" 
-                placeholder="Enter 10-digit number" 
-              />
+              <input type="text" id="mobileNumber" name="mobileNumber" [(ngModel)]="user.mobileNumber"
+                [disabled]="!isEditing" [class.editing]="isEditing" class="settings-input"
+                placeholder="Enter 10-digit number" />
             </div>
 
           </div>
@@ -128,9 +98,9 @@
       <div class="settings-section preferences-section">
         <h3 class="section-heading">Preferences & Security</h3>
         <p class="section-description">Manage password updates, configuration setups, and navigation tools.</p>
-        
+
         <div class="preferences-grid">
-          
+
           <div class="pref-row">
             <div class="pref-info">
               <h4 class="pref-title">Default Currency</h4>
@@ -169,12 +139,6 @@
   </div>
 </div>
 
-<app-custom-modal
-  [isOpen]="isModalOpen"
-  [title]="modalTitle"
-  [message]="modalMessage"
-  [type]="modalType"
-  (confirm)="closeModal()"
-  (cancel)="closeModal()"
->
+<app-custom-modal [isOpen]="isModalOpen" [title]="modalTitle" [message]="modalMessage" [type]="modalType"
+  (confirm)="closeModal()" (cancel)="closeModal()">
 </app-custom-modal>
